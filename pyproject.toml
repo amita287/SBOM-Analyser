@@ -21,12 +21,22 @@ dependencies = [
     "pytest",
 ]
 
+[project.optional-dependencies]
+# The Anthropic SDK is only needed for LLM_PROVIDER=anthropic. It is imported
+# lazily, so the whole pipeline runs (and all metrics pass) without it installed.
+# The OpenAI-compatible provider needs nothing beyond httpx, already a core dep.
+llm = ["anthropic>=0.69"]
+
 [project.scripts]
 # Wired up in later phases; entrypoints reserved here for convenience.
 # sbom-generate = "scripts.generate_sample_data:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+# The HTML report template is loaded from the package at runtime.
+"sbom_analyzer.reporting" = ["templates/*.j2"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

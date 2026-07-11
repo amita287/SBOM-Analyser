@@ -25,12 +25,39 @@ class LLMProvider(str, Enum):
     anthropic = "anthropic"
 
 
+def _env_bool(name: str, default: bool = False) -> bool:
+    raw = os.getenv(name)
+    if raw is None or not raw.strip():
+        return default
+    return raw.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _env_int(name: str, default: int) -> int:
+    raw = os.getenv(name)
+    try:
+        return int(raw) if raw and raw.strip() else default
+    except ValueError:
+        return default
+
+
 class Settings(BaseModel):
     """Validated view of the environment."""
 
     llm_provider: LLMProvider = LLMProvider.none
     llm_api_key: str = ""
     llm_model: str = ""
+    llm_base_url: str = ""  # OpenAI-compatible endpoints only
+
+    # Do the LLM adjudications (Reasoners A/B) feed the risk score?
+    # Default False: verdicts are recorded on the report, but every number that
+    # feeds a metric stays deterministic. See `.env.example` for the trade-off.
+    llm_affects_score: bool = False
+    # Cap LLM enrichment to the N riskiest findings so a demo run stays cheap.
+    llm_max_findings: int = 10
+    # Per-call output budget. Lower it if your provider rejects the request for
+    # cost reasons (e.g. OpenRouter returns 402 when max_tokens exceeds credit).
+    llm_max_tokens: int = 1024
+
     data_dir: Path = PROJECT_ROOT / "data"
     reports_dir: Path = PROJECT_ROOT / "reports"
 
@@ -47,6 +74,10 @@ def load_settings() -> Settings:
         llm_provider=provider,
         llm_api_key=os.getenv("LLM_API_KEY", ""),
         llm_model=os.getenv("LLM_MODEL", ""),
+        llm_base_url=os.getenv("LLM_BASE_URL", ""),
+        llm_affects_score=_env_bool("LLM_AFFECTS_SCORE", False),
+        llm_max_findings=_env_int("LLM_MAX_FINDINGS", 10),
+        llm_max_tokens=_env_int("LLM_MAX_TOKENS", 1024),
         data_dir=Path(os.getenv("DATA_DIR", str(PROJECT_ROOT / "data"))),
         reports_dir=Path(os.getenv("REPORTS_DIR", str(PROJECT_ROOT / "reports"))),
     )

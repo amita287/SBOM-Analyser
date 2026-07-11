@@ -45,7 +45,8 @@ class Record:
         return bool(self.risk_types - {"clean"})
 
 
-def load_predictions(report_path: Path) -> dict[str, Record]:
+def load_predictions(report_path: Path) -> tuple[dict[str, Record], str]:
+    """Return the per-dependency predictions plus a provenance line."""
     report = AnalysisReport.model_validate_json(report_path.read_text(encoding="utf-8"))
     preds: dict[str, Record] = {}
     for app in report.apps:
@@ -54,7 +55,21 @@ def load_predictions(report_path: Path) -> dict[str, Record]:
                 risk_types={rt.value for rt in f.risk_types},
                 risk_score=f.risk_score,
             )
-    return preds
+
+    # Read provenance off the report, not the environment — the scorecard must
+    # never claim a run was deterministic when an LLM actually touched it.
+    if report.llm_provider == "none":
+        provenance = "LLM disabled — fully deterministic pipeline"
+    elif report.llm_affects_score:
+        provenance = (
+            f"LLM enabled ({report.llm_provider}) and FEEDING SCORES — "
+            "these numbers are LLM-influenced"
+        )
+    else:
+        provenance = (
+            f"LLM enabled ({report.llm_provider}), advisory only — scores deterministic"
+        )
+    return preds, provenance
 
 
 def load_labels(labels_path: Path) -> dict[str, Record]:
@@ -125,7 +140,7 @@ def compute_metrics(preds: dict[str, Record], labels: dict[str, Record]) -> list
 # --------------------------------------------------------------------------- #
 # Scorecard rendering
 # --------------------------------------------------------------------------- #
-def print_scorecard(metrics: list[Metric]) -> bool:
+def print_scorecard(metrics: list[Metric], provenance: str) -> bool:
     name_w = max(len(m.name) for m in metrics)
     header = f"  {'METRIC':<{name_w}}   {'RESULT':>8}   {'TARGET':>7}   {'DETAIL':>9}   STATUS"
     line = "  " + "─" * (len(header) + 4)
@@ -147,10 +162,11 @@ def print_scorecard(metrics: list[Metric]) -> bool:
 
     all_pass = all(m.passed for m in metrics)
     if all_pass:
-        print(f"{BOLD}{GREEN}  ✓ ALL METRICS PASS{RESET}  (LLM disabled — deterministic pipeline)")
+        print(f"{BOLD}{GREEN}  ✓ ALL METRICS PASS{RESET}")
     else:
         failed = ", ".join(m.name for m in metrics if not m.passed)
         print(f"{BOLD}{RED}  ✗ FAILED: {failed}{RESET}")
+    print(f"{DIM}  run: {provenance}{RESET}")
     print()
     return all_pass
 
@@ -167,10 +183,10 @@ def main() -> int:
         print(f"{RED}No labels at {labels_path}. Run: python scripts/generate_sample_data.py{RESET}")
         return 2
 
-    preds = load_predictions(report_path)
+    preds, provenance = load_predictions(report_path)
     labels = load_labels(labels_path)
     metrics = compute_metrics(preds, labels)
-    all_pass = print_scorecard(metrics)
+    all_pass = print_scorecard(metrics, provenance)
     return 0 if all_pass else 1
 
 
