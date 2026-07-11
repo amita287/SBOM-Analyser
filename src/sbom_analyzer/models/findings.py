@@ -124,6 +124,19 @@ class DependencyFinding(BaseModel):
     attack_paths: list[AttackPath] = Field(default_factory=list)
     narrative: str | None = None
     remediation: RemediationPlaybook | None = None
+    # True only when an LLM reasoner *successfully* contributed to this finding.
+    # A finding in the LLM scope whose calls all failed stays False, so the report
+    # never credits the model for text a deterministic fallback actually wrote.
+    llm_enriched: bool = False
+
+    @property
+    def is_risk(self) -> bool:
+        """True when any risk type other than `clean` was detected.
+
+        Mirrors `DependencyLabel.is_risk` on the ground-truth side, so the
+        report, the HTML view, and the API all agree on what "at risk" means.
+        """
+        return any(rt is not RiskType.clean for rt in self.risk_types)
 
 
 class AppRiskReport(BaseModel):
@@ -158,5 +171,15 @@ class AnalysisReport(BaseModel):
 
     run_id: str
     generated_at: datetime
+    # Provenance: how this run was produced. The eval harness reads these rather
+    # than re-guessing from the environment, so the scorecard can never claim the
+    # run was deterministic when an LLM actually touched it.
+    llm_provider: str = "none"
+    llm_affects_score: bool = False
+    # How much the LLM actually contributed. `llm_provider != "none"` only says it
+    # was *configured*; if every call 402s, `llm_calls == llm_fallbacks` and the
+    # output is entirely deterministic. Both facts have to survive into the report.
+    llm_calls: int = 0
+    llm_fallbacks: int = 0
     apps: list[AppRiskReport] = Field(default_factory=list)
     summary: GlobalSummary = Field(default_factory=GlobalSummary)
