@@ -1,0 +1,30 @@
+# Generated sample data and analysis output (reproducible from scripts)
+/data/*
+!/data/.gitkeep
+/reports/*
+!/reports/.gitkeep
+
+# Secrets
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+
+# Tooling
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# SQLite run history (optional feature)
+*.sqlite
+*.db

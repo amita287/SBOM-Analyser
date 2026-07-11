@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sbom-analyzer"
+version = "0.1.0"
+description = "Software Supply Chain Risk Scorer (SBOM Analyzer) — hybrid deterministic core + LLM reasoning"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "pydantic>=2.0",
+    "networkx",
+    "packaging",
+    "jinja2",
+    "httpx",
+    "python-dotenv",
+    "pytest",
+]
+
+[project.scripts]
+# Wired up in later phases; entrypoints reserved here for convenience.
+# sbom-generate = "scripts.generate_sample_data:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
