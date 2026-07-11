@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(LLM_PROVIDER=none python scripts/evaluate.py)",
+      "Bash(python -m pytest -q)",
+      "Bash(LLM_PROVIDER=none python scripts/run_analysis.py)",
+      "Bash(cp reports/analysis.json /tmp/a1.json)"
+    ]
+  }
+}
