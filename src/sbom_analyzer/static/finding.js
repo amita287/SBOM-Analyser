@@ -7,14 +7,19 @@
 
 import { esc, score, sevBadge, riskTags, plural, ICON, API } from "./console.js";
 
+/* Exploitability is now a property of the ADVISORY, not of our code. The old
+   dataset told us whether our code called the vulnerable function; this one
+   publishes an exploitability rating on the CVE itself. Different question, so
+   the wording has to change with it — "imports only" would be a lie here. */
 export const EXPLOIT_TEXT = {
-  calls_vulnerable_function: "calls the vulnerable function",
-  imports_only: "imports only",
-  not_referenced: "not referenced",
+  high: "high exploitability",
+  medium: "medium exploitability",
+  low: "low exploitability",
+  none: "not exploitable",
 };
 
 /* ---------------------------------------------------------------- CVE card */
-function cveCard(c) {
+function cveCard(c, version) {
   const tone = `var(--sev-${
     c.cvss_severity === "critical" ? "critical"
     : c.cvss_severity === "high" ? "high"
@@ -23,20 +28,26 @@ function cveCard(c) {
   })`;
 
   const cls =
-    c.exploitability === "calls_vulnerable_function" ? "calls"
-    : c.exploitability === "imports_only" ? "imports"
+    c.exploitability === "high" ? "calls"
+    : c.exploitability === "medium" ? "imports"
     : "";
 
+  /* A `potential` match means the library matched but this version is NOT in the
+     advisory's affected list. It is still shown — a reviewer needs to see it —
+     but struck through and captioned, so the report never *asserts* a
+     vulnerability the advisory itself does not support. */
+  const unconfirmed = c.confidence !== "confirmed";
+
   return `
-    <div class="cve ${c.is_false_positive ? "fp" : ""}" style="--tone:${tone}">
+    <div class="cve ${c.dismissed ? "fp dismissed" : unconfirmed ? "fp" : ""}" style="--tone:${tone}">
       <div class="top">
         <span class="cid">${esc(c.cve_id)}</span>
         <span class="cvss">${c.cvss_score.toFixed(1)} ${esc(c.cvss_severity)}</span>
       </div>
       <div class="lines">
-        <div><span class="k">Affects</span> <code>${esc(c.affected_versions)}</code></div>
-        ${c.vulnerable_function
-          ? `<div><span class="k">Function</span> <code>${esc(c.vulnerable_function)}</code></div>`
+        <div><span class="k">Affects</span> <code>${esc((c.affected_versions ?? []).join(", ") || "—")}</code></div>
+        ${c.description
+          ? `<div><span class="k">Detail</span> ${esc(c.description)}</div>`
           : ""}
         <div><span class="k">Fix</span> ${
           c.patch_available && c.fixed_version
@@ -49,11 +60,18 @@ function cveCard(c) {
             )}</span></div>`
           : ""}
       </div>
-      ${c.is_false_positive
-        ? `<div class="fp-note"><b>Dismissed.</b>
-             <span>The version falls inside the advisory's range but is a
-             backported-safe build. Excluded from the score.</span></div>`
-        : ""}
+      ${c.dismissed
+        ? `<div class="fp-note"><b>Dismissed by adjudication.</b>
+             <span>${esc(c.adjudication ?? "")}</span></div>`
+        : unconfirmed
+          ? `<div class="fp-note"><b>Potential — unconfirmed.</b>
+               <span>The library matches this advisory, but version
+               <b>${esc(version)}</b> is not in its affected list. An advisory's list
+               is not proof of safety (backports and vendor patch levels fall outside
+               it), so this is kept for review at reduced weight.${
+                 c.adjudication ? ` <i>${esc(c.adjudication)}</i>` : ""
+               }</span></div>`
+          : ""}
     </div>`;
 }
 
@@ -77,26 +95,30 @@ function pathCard(p, label) {
     </div>`;
 }
 
-/* The report records, per finding, whether a model actually wrote the prose or
-   a deterministic template did. Never let the UI imply the former when it was
-   the latter — that is the whole ethos of this project, in one line. */
-const proseSource = (f) => `
-  <div class="prose-src">
-    <i></i>${f.llm_enriched
-      ? "Written by the configured LLM."
-      : "Template-generated — no model wrote this."}
-  </div>`;
+/* Who wrote the prose — a model, or a deterministic template.
+   Shown ONLY when a model actually did. The template case is silent here: it was
+   repeating on every expanded row and saying nothing new.
+
+   That silence is not a cover-up. The run-level provenance card in the sidebar
+   states it once, permanently ("Prose: templated"), which is the honest place for
+   a fact that is true of the entire run. What must never happen is the reverse —
+   template prose *presented* as a model's reasoning — and that is still
+   impossible: this line only ever appears when `llm_enriched` is true. */
+const proseSource = (f) =>
+  f.llm_enriched
+    ? `<div class="prose-src"><i></i>Written by the configured LLM.</div>`
+    : "";
 
 /* --------------------------------------------------------------- the detail */
 export function findingDetail(f, { label }) {
-  const live = f.matched_cves.filter((c) => !c.is_false_positive);
-  const fps = f.matched_cves.filter((c) => c.is_false_positive);
+  const live = f.matched_cves.filter((c) => c.confidence === "confirmed");
+  const fps = f.matched_cves.filter((c) => c.confidence !== "confirmed");
   const paths = f.attack_paths ?? [];
   const m = f.maintenance;
 
   const licClass =
     f.license_outcome === "conflict" ? "bad"
-    : f.license_outcome === "review" ? "warn"
+    : f.license_outcome === "unknown" ? "warn"
     : "ok";
 
   return `
@@ -106,7 +128,7 @@ export function findingDetail(f, { label }) {
           <h4>Dependency</h4>
           <dl class="kv">
             <dt>Id</dt><dd class="mono">${esc(f.dependency_id)}</dd>
-            <dt>Ecosystem</dt><dd>${esc(f.ecosystem)}</dd>
+            <dt>Type</dt><dd>${esc(f.dependency_type)}</dd>
             <dt>Licence</dt><dd>${f.license ? esc(f.license) : "<i>unknown</i>"}</dd>
             <dt>Outcome</dt><dd class="${licClass}">${esc(f.license_outcome)}</dd>
             ${m ? `
@@ -126,8 +148,8 @@ export function findingDetail(f, { label }) {
 
         <section>
           ${live.length || fps.length ? `
-            <h4>${plural(live.length, "CVE")}${fps.length ? ` · ${fps.length} dismissed` : ""}</h4>
-            ${[...live, ...fps].map(cveCard).join("")}` : `
+            <h4>${plural(live.length, "confirmed CVE")}${fps.length ? ` · ${fps.length} unconfirmed` : ""}</h4>
+            ${[...live, ...fps].map((c) => cveCard(c, f.version)).join("")}` : `
             <h4>CVEs</h4>
             <p class="none">No advisory matches this version.</p>`}
         </section>
@@ -154,10 +176,9 @@ export function findingDetail(f, { label }) {
 
 /* ------------------------------------------------------------------ the row */
 export function findingRow(f, { showApp = false, appName = () => "" } = {}) {
-  const live = f.matched_cves.filter((c) => !c.is_false_positive).length;
-  const worst = f.matched_cves
-    .filter((c) => !c.is_false_positive)
-    .reduce((mx, c) => Math.max(mx, c.cvss_score), 0);
+  const live = f.matched_cves.length;
+  const worst = f.matched_cves.reduce((mx, c) => Math.max(mx, c.cvss_score), 0);
+  const anyConfirmed = f.matched_cves.some((c) => c.confidence === "confirmed");
 
   return `
     <tr class="click row" data-dep="${esc(f.dependency_id)}">
@@ -166,12 +187,20 @@ export function findingRow(f, { showApp = false, appName = () => "" } = {}) {
       </td>
       <td>
         <span class="lib">${esc(f.library_name)}</span><span class="ver">${esc(f.version)}</span>
-        <div class="id">${esc(f.dependency_id)}${live ? ` · ${plural(live, "CVE")}` : ""}${
-          worst ? ` · CVSS ${worst.toFixed(1)}` : ""
-        }</div>
+        <div class="id">${esc(f.dependency_id)}${
+          live ? ` · ${plural(live, "CVE")}${anyConfirmed ? "" : " (unconfirmed)"}` : ""
+        }${worst ? ` · CVSS ${worst.toFixed(1)}` : ""}</div>
       </td>
       ${showApp ? `<td style="color:var(--ink-2)">${esc(appName(f.app_id))}</td>` : ""}
-      <td><div class="tags">${riskTags(f.risk_types)}</div></td>
+      <td><div class="tags">${riskTags(f.risk_types)}${
+        f.vuln_status === "confirmed_vulnerable"
+          ? '<span class="tag vs-confirmed">confirmed</span>'
+          : f.vuln_status === "potential_vulnerable"
+            ? '<span class="tag vs-potential">potential</span>'
+            : f.vuln_status === "dismissed"
+              ? '<span class="tag">dismissed</span>'
+              : ""
+      }</div></td>
       <td>${f.license ? esc(f.license) : '<i style="color:var(--ink-3)">unknown</i>'}</td>
       <td>${sevBadge(f.severity)}</td>
       <td class="num">
@@ -275,7 +304,18 @@ export const FINDING_CSS = `
   /* A false positive is a finding *about* the finding: the version matches the
      advisory range but is a backported-safe build. Strike it through and say
      why — hiding it silently would be worse, and counting it worse still. */
-  .cve.fp { opacity: .6; border-left-color: var(--sev-none); }
+  .cve.fp { opacity: .72; border-left-color: var(--sev-none); }
+  .cve.dismissed { opacity: .5; }
+  .tag.vs-confirmed {
+    color: var(--sev-critical);
+    border-color: rgba(229,72,77,.4);
+    background: rgba(229,72,77,.1);
+  }
+  .tag.vs-potential {
+    color: var(--sev-medium);
+    border-color: rgba(212,160,23,.4);
+    background: rgba(212,160,23,.1);
+  }
   .cve.fp .cid { text-decoration: line-through; text-decoration-thickness: 1px; }
   .cve .fp-note { margin-top: 7px; font-size: 11.5px; color: var(--ink-3); }
   .cve .fp-note b { color: var(--ink-2); }

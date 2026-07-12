@@ -1,24 +1,24 @@
-"""Pydantic data contracts (Section 4 + Section 9.1)."""
+"""Pydantic data contracts."""
 
 from .entities import (
     Application,
-    BaseRisk,
     BusinessCriticality,
-    CompatibilityRule,
     CvssSeverity,
     Dependency,
     DependencyType,
-    Ecosystem,
-    Environment,
-    LicenseCategory,
-    LicenseInfo,
+    Deployment,
+    Exploitability,
+    LibraryRef,
+    LicenseModel,
     LicenseOutcome,
+    LicenseRisk,
     LicenseRule,
     LicenseRules,
-    UsageSignal,
+    TransitiveEdge,
     Vulnerability,
 )
 from .findings import (
+    RISK_PRECEDENCE,
     AnalysisReport,
     AppRiskReport,
     AttackPath,
@@ -31,27 +31,29 @@ from .findings import (
     RiskType,
     RiskyDependencyRef,
     Severity,
+    TransitiveChild,
+    VulnConfidence,
 )
 
 __all__ = [
     # entities
     "Application",
-    "BaseRisk",
     "BusinessCriticality",
-    "CompatibilityRule",
     "CvssSeverity",
     "Dependency",
     "DependencyType",
-    "Ecosystem",
-    "Environment",
-    "LicenseCategory",
-    "LicenseInfo",
+    "Deployment",
+    "Exploitability",
+    "LibraryRef",
+    "LicenseModel",
     "LicenseOutcome",
+    "LicenseRisk",
     "LicenseRule",
     "LicenseRules",
-    "UsageSignal",
+    "TransitiveEdge",
     "Vulnerability",
     # findings
+    "RISK_PRECEDENCE",
     "AnalysisReport",
     "AppRiskReport",
     "AttackPath",
@@ -64,4 +66,6 @@ __all__ = [
     "RiskType",
     "RiskyDependencyRef",
     "Severity",
+    "TransitiveChild",
+    "VulnConfidence",
 ]

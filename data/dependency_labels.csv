@@ -1,0 +1,501 @@
+dep_id,application_id,library,version,is_risky,risk_type,severity,explanation
+DEP-0001,APP-001,micrometer-core,3.0.10,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library micrometer-core:3.0.10 has CVE-2026-1050 (CVSS 6.1, MEDIUM). No patch available yet."
+DEP-0002,APP-001,sqlalchemy,5.13.5,True,VULNERABLE_DEPENDENCY,LOW,"Library sqlalchemy:5.13.5 has CVE-2024-1183 (CVSS 3.1, LOW). No patch available yet."
+DEP-0003,APP-001,netty-all,2.7.4,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library netty-all:2.7.4 has CVE-2024-1163 (CVSS 6.8, MEDIUM). Patch available: upgrade to 6.0.0"
+DEP-0004,APP-001,json-iterator,2.3.2,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library json-iterator:2.3.2 has CVE-2022-1083 (CVSS 6.5, MEDIUM). No patch available yet."
+DEP-0005,APP-001,log4j-api,5.1.3,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library log4j-api:5.1.3 has CVE-2022-1041 (CVSS 6.3, MEDIUM). No patch available yet."
+DEP-0006,APP-001,commons-collections4,4.7.1,True,UNMAINTAINED,HIGH,Library commons-collections4:4.7.1 last updated 2021-03-31 (1847 days ago). No security patches or maintenance activity.
+DEP-0007,APP-001,commons-codec,4.11.10,False,NONE,NONE,No issues detected
+DEP-0008,APP-001,gson,1.6.10,False,NONE,NONE,No issues detected
+DEP-0009,APP-001,lombok,4.1.2,True,VULNERABLE_DEPENDENCY,CRITICAL,"Library lombok:4.1.2 has CVE-2023-1002 (CVSS 9.9, CRITICAL). Patch available: upgrade to 4.10.0"
+DEP-0010,APP-001,werkzeug,1.7.10,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library werkzeug:1.7.10 has CVE-2024-1004 (CVSS 5.6, MEDIUM). No patch available yet."
+DEP-0011,APP-001,jackson-annotations,5.0.6,True,VULNERABLE_DEPENDENCY,LOW,"Library jackson-annotations:5.0.6 has CVE-2021-1018 (CVSS 0.9, LOW). Patch available: upgrade to 3.6.0"
+DEP-0012,APP-001,resilience4j,1.8.0,False,NONE,NONE,No issues detected
+DEP-0013,APP-001,slf4j-api,2.8.8,False,NONE,NONE,No issues detected
+DEP-0014,APP-001,go-jwt,5.10.5,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library go-jwt:5.10.5 has CVE-2025-1145 (CVSS 6.7, MEDIUM). Patch available: upgrade to 3.0.0"
+DEP-0015,APP-001,spring-security-core,1.2.0,True,VULNERABLE_DEPENDENCY,LOW,"Library spring-security-core:1.2.0 has CVE-2024-1104 (CVSS 3.3, LOW). Patch available: upgrade to 3.4.0"
+DEP-0016,APP-001,snakeyaml,3.1.0,False,NONE,NONE,No issues detected
+DEP-0017,APP-001,opentelemetry-api,4.10.2,False,NONE,NONE,No issues detected
+DEP-0018,APP-001,logback-core,3.4.2,False,NONE,NONE,No issues detected
+DEP-0019,APP-001,pyyaml,5.7.10,True,UNMAINTAINED,HIGH,Library pyyaml:5.7.10 last updated 2021-12-11 (1592 days ago). No security patches or maintenance activity.
+DEP-0020,APP-001,jackson-databind,1.1.6,False,NONE,NONE,No issues detected
+DEP-0021,APP-001,caffeine,2.5.7,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library caffeine:2.5.7 has CVE-2022-1085 (CVSS 5.5, MEDIUM). Patch available: upgrade to 4.7.0"
+DEP-0022,APP-001,log4j-core,2.2.8,False,NONE,NONE,No issues detected
+DEP-0023,APP-001,grpc-core,2.1.1,False,NONE,NONE,No issues detected
+DEP-0024,APP-001,jedis,3.9.3,True,VULNERABLE_DEPENDENCY,LOW,"Library jedis:3.9.3 has CVE-2025-1195 (CVSS 1.1, LOW). Patch available: upgrade to 6.0.0"
+DEP-0025,APP-001,jetty-server,2.3.0,False,NONE,NONE,No issues detected
+DEP-0026,APP-001,commons-lang3,4.11.2,False,NONE,NONE,No issues detected
+DEP-0027,APP-001,mockito-core,1.2.10,True,VULNERABLE_DEPENDENCY,HIGH,"Library mockito-core:1.2.10 has CVE-2025-1076 (CVSS 8.7, HIGH). No patch available yet."
+DEP-0028,APP-001,junit-jupiter,4.1.8,True,UNMAINTAINED,MEDIUM,Library junit-jupiter:4.1.8 last updated 2024-03-30 (752 days ago). No security patches or maintenance activity.
+DEP-0029,APP-001,hibernate-validator,1.13.1,True,UNMAINTAINED,MEDIUM,Library hibernate-validator:1.13.1 last updated 2023-05-03 (1084 days ago). No security patches or maintenance activity.
+DEP-0030,APP-001,guava,1.2.6,False,NONE,NONE,No issues detected
+DEP-0031,APP-001,h2-database,5.3.1,False,NONE,NONE,No issues detected
+DEP-0032,APP-001,mapstruct,4.15.0,False,NONE,NONE,No issues detected
+DEP-0033,APP-001,kafka-clients,4.8.5,True,LICENSE_CONFLICT,CRITICAL,Library kafka-clients uses GPL-3.0 license in proprietary application CustomerPortal. Viral copyleft requires open-sourcing derivative works or removing the dependency.
+DEP-0034,APP-001,mysql-connector-java,4.2.3,False,NONE,NONE,No issues detected
+DEP-0035,APP-001,sarama,5.0.2,True,VULNERABLE_DEPENDENCY,LOW,"Library sarama:5.0.2 has CVE-2025-1192 (CVSS 2.3, LOW). Patch available: upgrade to 4.0.0"
+DEP-0036,APP-001,tomcat-embed-core,2.7.8,False,NONE,NONE,No issues detected
+DEP-0037,APP-001,fabric,3.0.6,False,NONE,NONE,No issues detected
+DEP-0038,APP-001,commons-io,2.4.6,False,NONE,NONE,No issues detected
+DEP-0039,APP-001,spring-core,2.9.0,False,NONE,NONE,No issues detected
+DEP-0040,APP-001,assertj-core,3.6.6,False,NONE,NONE,No issues detected
+DEP-0041,APP-001,jackson-core,4.9.1,True,TRANSITIVE_LICENSE_CONFLICT,HIGH,Transitive dependency jackson-core uses AGPL-3.0 in proprietary app CustomerPortal. GPL contamination through dependency chain.
+DEP-0042,APP-001,hibernate-core,3.4.1,True,TRANSITIVE_VULNERABILITY,LOW,Transitive dependency hibernate-core:3.4.1 has CVE-2022-1023 (CVSS 1.0). Inherited via dependency chain — not directly declared by CustomerPortal.
+DEP-0043,APP-001,disruptor,2.2.8,True,TRANSITIVE_VULNERABILITY,HIGH,Transitive dependency disruptor:2.2.8 has CVE-2024-1174 (CVSS 7.4). Inherited via dependency chain — not directly declared by CustomerPortal.
+DEP-0044,APP-001,spring-web,2.11.0,False,NONE,NONE,No issues detected
+DEP-0045,APP-001,logback-classic,4.11.0,True,UNMAINTAINED,MEDIUM,Transitive dependency logback-classic:4.11.0 last updated 2024-01-27 (815 days ago). Unmaintained transitive risk.
+DEP-0046,APP-001,eslint,2.10.8,False,NONE,NONE,No issues detected
+DEP-0047,APP-001,aws-sdk-s3,2.4.1,False,NONE,NONE,No issues detected
+DEP-0048,APP-001,crypto-go,3.10.1,False,NONE,NONE,No issues detected
+DEP-0049,APP-001,httpcore,3.4.4,False,NONE,NONE,No issues detected
+DEP-0050,APP-001,netty-handler,1.7.3,True,TRANSITIVE_VULNERABILITY,MEDIUM,Transitive dependency netty-handler:1.7.3 has CVE-2023-1080 (CVSS 5.5). Inherited via dependency chain — not directly declared by CustomerPortal.
+DEP-0051,APP-002,caffeine,4.4.5,True,VULNERABLE_DEPENDENCY,LOW,"Library caffeine:4.4.5 has CVE-2026-1084 (CVSS 1.3, LOW). Patch available: upgrade to 3.6.0"
+DEP-0052,APP-002,aws-sdk-s3,2.0.9,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library aws-sdk-s3:2.0.9 has CVE-2021-1093 (CVSS 4.1, MEDIUM). Patch available: upgrade to 3.2.0"
+DEP-0053,APP-002,resilience4j,5.1.10,False,NONE,NONE,No issues detected
+DEP-0054,APP-002,snakeyaml,3.15.2,True,VULNERABLE_DEPENDENCY,HIGH,"Library snakeyaml:3.15.2 has CVE-2024-1013 (CVSS 8.4, HIGH). Patch available: upgrade to 4.4.0"
+DEP-0055,APP-002,vue,3.3.1,False,NONE,NONE,No issues detected
+DEP-0056,APP-002,httpcore,5.15.3,False,NONE,NONE,No issues detected
+DEP-0057,APP-002,logback-core,4.9.4,False,NONE,NONE,No issues detected
+DEP-0058,APP-002,grpc-core,3.11.7,False,NONE,NONE,No issues detected
+DEP-0059,APP-002,httpclient,4.14.4,False,NONE,NONE,No issues detected
+DEP-0060,APP-002,guava,1.5.1,False,NONE,NONE,No issues detected
+DEP-0061,APP-002,aws-sdk-sqs,2.15.7,False,NONE,NONE,No issues detected
+DEP-0062,APP-002,redis-py,4.11.10,False,NONE,NONE,No issues detected
+DEP-0063,APP-002,jedis,2.15.7,True,VULNERABLE_DEPENDENCY,LOW,"Library jedis:2.15.7 has CVE-2025-1195 (CVSS 1.1, LOW). Patch available: upgrade to 6.0.0"
+DEP-0064,APP-002,spring-boot-starter,4.7.1,False,NONE,NONE,No issues detected
+DEP-0065,APP-002,spring-web,4.0.1,True,LICENSE_UNKNOWN,MEDIUM,Library spring-web has no declared license. Legal status unclear; cannot confirm proprietary compatibility.
+DEP-0066,APP-002,hibernate-validator,4.10.5,True,VULNERABLE_DEPENDENCY,LOW,"Library hibernate-validator:4.10.5 has CVE-2021-1062 (CVSS 1.3, LOW). Patch available: upgrade to 4.9.0"
+DEP-0067,APP-002,assertj-core,2.0.5,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library assertj-core:2.0.5 has CVE-2024-1118 (CVSS 5.0, MEDIUM). No patch available yet."
+DEP-0068,APP-002,jackson-core,4.3.4,False,NONE,NONE,No issues detected
+DEP-0069,APP-002,netty-all,5.4.7,True,LICENSE_CONFLICT,CRITICAL,Library netty-all uses AGPL-3.0 license in proprietary application PaymentService. Viral copyleft requires open-sourcing derivative works or removing the dependency.
+DEP-0070,APP-002,tomcat-embed-core,5.10.8,False,NONE,NONE,No issues detected
+DEP-0071,APP-002,postgresql-jdbc,2.13.9,False,NONE,NONE,No issues detected
+DEP-0072,APP-002,slf4j-api,2.5.8,False,NONE,NONE,No issues detected
+DEP-0073,APP-002,micrometer-core,5.9.6,True,UNMAINTAINED,HIGH,Library micrometer-core:5.9.6 last updated 2020-04-25 (2187 days ago). No security patches or maintenance activity.
+DEP-0074,APP-002,mapstruct,2.9.10,False,NONE,NONE,No issues detected
+DEP-0075,APP-002,golangci-lint,4.3.9,False,NONE,NONE,No issues detected
+DEP-0076,APP-002,hibernate-core,3.1.6,True,VULNERABLE_DEPENDENCY,LOW,"Library hibernate-core:3.1.6 has CVE-2022-1023 (CVSS 1.0, LOW). Patch available: upgrade to 1.7.0"
+DEP-0077,APP-002,jackson-databind,2.11.9,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library jackson-databind:2.11.9 has CVE-2024-1117 (CVSS 5.6, MEDIUM). Patch available: upgrade to 5.0.0"
+DEP-0078,APP-002,kafka-clients,1.10.7,False,NONE,NONE,No issues detected
+DEP-0079,APP-002,log4j-api,5.11.1,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library log4j-api:5.11.1 has CVE-2022-1041 (CVSS 6.3, MEDIUM). No patch available yet."
+DEP-0080,APP-002,psycopg2,1.11.3,False,NONE,NONE,No issues detected
+DEP-0081,APP-002,commons-collections4,3.14.3,False,NONE,NONE,No issues detected
+DEP-0082,APP-002,junit-jupiter,5.9.0,False,NONE,NONE,No issues detected
+DEP-0083,APP-002,jetty-server,2.10.8,False,NONE,NONE,No issues detected
+DEP-0084,APP-002,mysql-connector-java,1.6.8,False,NONE,NONE,No issues detected
+DEP-0085,APP-002,bouncycastle-bcprov,2.8.8,True,VULNERABLE_DEPENDENCY,CRITICAL,"Library bouncycastle-bcprov:2.8.8 has CVE-2021-1009 (CVSS 9.6, CRITICAL). Patch available: upgrade to 1.10.0"
+DEP-0086,APP-002,h2-database,1.12.0,True,UNMAINTAINED,MEDIUM,Transitive dependency h2-database:1.12.0 last updated 2023-11-05 (898 days ago). Unmaintained transitive risk.
+DEP-0087,APP-002,jackson-annotations,3.9.1,True,TRANSITIVE_VULNERABILITY,LOW,Transitive dependency jackson-annotations:3.9.1 has CVE-2021-1018 (CVSS 0.9). Inherited via dependency chain — not directly declared by PaymentService.
+DEP-0088,APP-002,testify,2.2.6,True,TRANSITIVE_VULNERABILITY,HIGH,Transitive dependency testify:2.2.6 has CVE-2026-1045 (CVSS 8.0). Inherited via dependency chain — not directly declared by PaymentService.
+DEP-0089,APP-002,morgan,3.0.8,True,TRANSITIVE_VULNERABILITY,MEDIUM,Transitive dependency morgan:3.0.8 has CVE-2025-1105 (CVSS 4.6). Inherited via dependency chain — not directly declared by PaymentService.
+DEP-0090,APP-002,protobuf-java,3.3.5,False,NONE,NONE,No issues detected
+DEP-0091,APP-002,disruptor,2.3.4,False,NONE,NONE,No issues detected
+DEP-0092,APP-002,commons-lang3,4.10.8,True,UNMAINTAINED,MEDIUM,Transitive dependency commons-lang3:4.10.8 last updated 2024-01-26 (816 days ago). Unmaintained transitive risk.
+DEP-0093,APP-002,commons-codec,3.5.2,False,NONE,NONE,No issues detected
+DEP-0094,APP-002,logback-classic,3.7.7,False,NONE,NONE,No issues detected
+DEP-0095,APP-002,lombok,3.12.5,False,NONE,NONE,No issues detected
+DEP-0096,APP-002,log4j-core,4.4.5,False,NONE,NONE,No issues detected
+DEP-0097,APP-002,spring-core,3.7.8,False,NONE,NONE,No issues detected
+DEP-0098,APP-002,aiohttp,2.4.1,False,NONE,NONE,No issues detected
+DEP-0099,APP-002,netty-handler,4.12.3,True,TRANSITIVE_VULNERABILITY,MEDIUM,Transitive dependency netty-handler:4.12.3 has CVE-2023-1080 (CVSS 5.5). Inherited via dependency chain — not directly declared by PaymentService.
+DEP-0100,APP-002,bandit,3.6.3,True,TRANSITIVE_VULNERABILITY,MEDIUM,Transitive dependency bandit:3.6.3 has CVE-2023-1065 (CVSS 5.3). Inherited via dependency chain — not directly declared by PaymentService.
+DEP-0101,APP-003,requests,4.15.9,True,LICENSE_CONFLICT,HIGH,Library requests uses GPL-2.0 license in proprietary application InternalAPI. Viral copyleft requires open-sourcing derivative works or removing the dependency.
+DEP-0102,APP-003,pip,2.4.2,True,VULNERABLE_DEPENDENCY,HIGH,"Library pip:2.4.2 has CVE-2024-1184 (CVSS 8.6, HIGH). Patch available: upgrade to 3.0.0"
+DEP-0103,APP-003,twisted,2.5.2,True,LICENSE_UNKNOWN,MEDIUM,Library twisted has no declared license. Legal status unclear; cannot confirm proprietary compatibility.
+DEP-0104,APP-003,setuptools,2.12.9,False,NONE,NONE,No issues detected
+DEP-0105,APP-003,numpy,5.8.2,True,UNMAINTAINED,HIGH,Library numpy:5.8.2 last updated 2022-02-13 (1528 days ago). No security patches or maintenance activity.
+DEP-0106,APP-003,aws-sdk-s3,5.13.2,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library aws-sdk-s3:5.13.2 has CVE-2021-1093 (CVSS 4.1, MEDIUM). Patch available: upgrade to 3.2.0"
+DEP-0107,APP-003,junit-jupiter,4.13.5,False,NONE,NONE,No issues detected
+DEP-0108,APP-003,black,3.15.3,False,NONE,NONE,No issues detected
+DEP-0109,APP-003,psycopg2,1.3.8,True,LICENSE_CONFLICT,CRITICAL,Library psycopg2 uses AGPL-3.0 license in proprietary application InternalAPI. Viral copyleft requires open-sourcing derivative works or removing the dependency.
+DEP-0110,APP-003,pydantic,5.8.4,True,VULNERABLE_DEPENDENCY,HIGH,"Library pydantic:5.8.4 has CVE-2022-1181 (CVSS 7.3, HIGH). No patch available yet."
+DEP-0111,APP-003,log4j-api,2.3.3,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library log4j-api:2.3.3 has CVE-2022-1041 (CVSS 6.3, MEDIUM). No patch available yet."
+DEP-0112,APP-003,paramiko,1.2.4,False,NONE,NONE,No issues detected
+DEP-0113,APP-003,markupsafe,2.15.7,True,VULNERABLE_DEPENDENCY,LOW,"Library markupsafe:2.15.7 has CVE-2022-1161 (CVSS 2.6, LOW). Patch available: upgrade to 3.0.0"
+DEP-0114,APP-003,pandas,5.5.10,True,UNMAINTAINED,HIGH,Library pandas:5.5.10 last updated 2021-07-19 (1737 days ago). No security patches or maintenance activity.
+DEP-0115,APP-003,bandit,1.2.8,False,NONE,NONE,No issues detected
+DEP-0116,APP-003,cryptography,4.12.9,True,LICENSE_CONFLICT,HIGH,Library cryptography uses GPL-2.0 license in proprietary application InternalAPI. Viral copyleft requires open-sourcing derivative works or removing the dependency.
+DEP-0117,APP-003,sqlalchemy,5.8.8,True,VULNERABLE_DEPENDENCY,LOW,"Library sqlalchemy:5.8.8 has CVE-2024-1183 (CVSS 3.1, LOW). No patch available yet."
+DEP-0118,APP-003,redis-py,2.10.6,False,NONE,NONE,No issues detected
+DEP-0119,APP-003,pyyaml,2.15.5,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library pyyaml:2.15.5 has CVE-2026-1067 (CVSS 6.3, MEDIUM). No patch available yet."
+DEP-0120,APP-003,node-fetch,2.11.2,False,NONE,NONE,No issues detected
+DEP-0121,APP-003,httpx,4.5.8,True,VULNERABLE_DEPENDENCY,LOW,"Library httpx:4.5.8 has CVE-2022-1136 (CVSS 2.8, LOW). No patch available yet."
+DEP-0122,APP-003,coverage,2.14.1,False,NONE,NONE,No issues detected
+DEP-0123,APP-003,zap,2.8.3,True,VULNERABLE_DEPENDENCY,CRITICAL,"Library zap:2.8.3 has CVE-2021-1014 (CVSS 9.5, CRITICAL). Patch available: upgrade to 5.3.0"
+DEP-0124,APP-003,fastapi,5.4.9,False,NONE,NONE,No issues detected
+DEP-0125,APP-003,mocha,2.10.7,True,UNMAINTAINED,HIGH,Library mocha:2.10.7 last updated 2020-11-30 (1968 days ago). No security patches or maintenance activity.
+DEP-0126,APP-003,jinja2,3.15.10,False,NONE,NONE,No issues detected
+DEP-0127,APP-003,python-dateutil,5.6.9,False,NONE,NONE,No issues detected
+DEP-0128,APP-003,flask,5.9.7,False,NONE,NONE,No issues detected
+DEP-0129,APP-003,wheel,2.10.3,False,NONE,NONE,No issues detected
+DEP-0130,APP-003,certifi,2.0.2,True,VULNERABLE_DEPENDENCY,LOW,"Library certifi:2.0.2 has CVE-2022-1168 (CVSS 1.4, LOW). Patch available: upgrade to 3.0.0"
+DEP-0131,APP-003,botocore,4.1.0,False,NONE,NONE,No issues detected
+DEP-0132,APP-003,rich,4.9.3,False,NONE,NONE,No issues detected
+DEP-0133,APP-003,ansible-core,3.10.7,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library ansible-core:3.10.7 has CVE-2022-1157 (CVSS 5.4, MEDIUM). Patch available: upgrade to 4.0.0"
+DEP-0134,APP-003,pyjwt,5.13.8,True,VULNERABLE_DEPENDENCY,HIGH,"Library pyjwt:5.13.8 has CVE-2025-1123 (CVSS 7.3, HIGH). No patch available yet."
+DEP-0135,APP-003,fabric,5.4.5,False,NONE,NONE,No issues detected
+DEP-0136,APP-003,colly,3.9.3,False,NONE,NONE,No issues detected
+DEP-0137,APP-003,click,4.6.3,True,TRANSITIVE_VULNERABILITY,MEDIUM,Transitive dependency click:4.6.3 has CVE-2024-1040 (CVSS 4.0). Inherited via dependency chain — not directly declared by InternalAPI.
+DEP-0138,APP-003,celery,2.8.4,False,NONE,NONE,No issues detected
+DEP-0139,APP-003,uvicorn,2.2.4,False,NONE,NONE,No issues detected
+DEP-0140,APP-003,safety,4.3.5,True,TRANSITIVE_LICENSE_CONFLICT,HIGH,Transitive dependency safety uses GPL-2.0 in proprietary app InternalAPI. GPL contamination through dependency chain.
+DEP-0141,APP-003,idna,2.1.4,True,TRANSITIVE_VULNERABILITY,MEDIUM,Transitive dependency idna:2.1.4 has CVE-2021-1088 (CVSS 5.5). Inherited via dependency chain — not directly declared by InternalAPI.
+DEP-0142,APP-003,boto3,2.5.6,True,TRANSITIVE_VULNERABILITY,LOW,Transitive dependency boto3:2.5.6 has CVE-2026-1005 (CVSS 3.6). Inherited via dependency chain — not directly declared by InternalAPI.
+DEP-0143,APP-003,django,1.4.6,False,NONE,NONE,No issues detected
+DEP-0144,APP-003,werkzeug,1.1.3,True,TRANSITIVE_VULNERABILITY,MEDIUM,Transitive dependency werkzeug:1.1.3 has CVE-2024-1004 (CVSS 5.6). Inherited via dependency chain — not directly declared by InternalAPI.
+DEP-0145,APP-003,urllib3,2.7.6,True,TRANSITIVE_VULNERABILITY,MEDIUM,Transitive dependency urllib3:2.7.6 has CVE-2023-1140 (CVSS 6.0). Inherited via dependency chain — not directly declared by InternalAPI.
+DEP-0146,APP-003,scikit-learn,3.7.4,True,TRANSITIVE_VULNERABILITY,LOW,Transitive dependency scikit-learn:3.7.4 has CVE-2021-1007 (CVSS 3.7). Inherited via dependency chain — not directly declared by InternalAPI.
+DEP-0147,APP-003,gunicorn,3.0.2,False,NONE,NONE,No issues detected
+DEP-0148,APP-003,go-redis,4.11.2,True,TRANSITIVE_VULNERABILITY,HIGH,Transitive dependency go-redis:4.11.2 has CVE-2024-1128 (CVSS 8.4). Inherited via dependency chain — not directly declared by InternalAPI.
+DEP-0149,APP-003,pytest,1.5.2,False,NONE,NONE,No issues detected
+DEP-0150,APP-003,pillow,3.12.7,True,TRANSITIVE_VULNERABILITY,MEDIUM,Transitive dependency pillow:3.12.7 has CVE-2026-1026 (CVSS 6.8). Inherited via dependency chain — not directly declared by InternalAPI.
+DEP-0151,APP-004,coverage,5.12.10,False,NONE,NONE,No issues detected
+DEP-0152,APP-004,morgan,4.11.0,False,NONE,NONE,No issues detected
+DEP-0153,APP-004,sqlalchemy,5.13.1,True,VULNERABLE_DEPENDENCY,LOW,"Library sqlalchemy:5.13.1 has CVE-2024-1183 (CVSS 3.1, LOW). No patch available yet."
+DEP-0154,APP-004,paramiko,5.10.10,False,NONE,NONE,No issues detected
+DEP-0155,APP-004,gunicorn,3.11.7,False,NONE,NONE,No issues detected
+DEP-0156,APP-004,numpy,1.9.3,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library numpy:1.9.3 has CVE-2024-1024 (CVSS 4.1, MEDIUM). No patch available yet."
+DEP-0157,APP-004,pytest,2.8.5,True,UNMAINTAINED,HIGH,Library pytest:2.8.5 last updated 2022-03-29 (1484 days ago). No security patches or maintenance activity.
+DEP-0158,APP-004,python-dateutil,2.15.9,False,NONE,NONE,No issues detected
+DEP-0159,APP-004,cors,4.13.1,False,NONE,NONE,No issues detected
+DEP-0160,APP-004,django,2.10.8,False,NONE,NONE,No issues detected
+DEP-0161,APP-004,mypy,2.4.5,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library mypy:2.4.5 has CVE-2022-1175 (CVSS 4.7, MEDIUM). Patch available: upgrade to 5.0.0"
+DEP-0162,APP-004,boto3,4.6.8,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library boto3:4.6.8 has CVE-2025-1155 (CVSS 6.2, MEDIUM). Patch available: upgrade to 4.0.0"
+DEP-0163,APP-004,httpx,3.6.5,True,VULNERABLE_DEPENDENCY,LOW,"Library httpx:3.6.5 has CVE-2022-1136 (CVSS 2.8, LOW). No patch available yet."
+DEP-0164,APP-004,scipy,1.3.0,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library scipy:1.3.0 has CVE-2021-1037 (CVSS 4.7, MEDIUM). Patch available: upgrade to 1.2.0"
+DEP-0165,APP-004,moment,2.6.3,False,NONE,NONE,No issues detected
+DEP-0166,APP-004,fastapi,5.1.4,False,NONE,NONE,No issues detected
+DEP-0167,APP-004,twisted,3.11.1,True,LICENSE_CONFLICT,CRITICAL,Library twisted uses AGPL-3.0 license in proprietary application HRPortal. Viral copyleft requires open-sourcing derivative works or removing the dependency.
+DEP-0168,APP-004,pyjwt,5.2.2,True,VULNERABLE_DEPENDENCY,LOW,"Library pyjwt:5.2.2 has CVE-2024-1153 (CVSS 1.1, LOW). Patch available: upgrade to 5.0.0"
+DEP-0169,APP-004,uuid,1.8.6,False,NONE,NONE,No issues detected
+DEP-0170,APP-004,formidable,4.4.1,False,NONE,NONE,No issues detected
+DEP-0171,APP-004,pyyaml,5.10.7,True,VULNERABLE_DEPENDENCY,HIGH,"Library pyyaml:5.10.7 has CVE-2026-1066 (CVSS 7.4, HIGH). Patch available: upgrade to 2.11.0"
+DEP-0172,APP-004,idna,2.10.2,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library idna:2.10.2 has CVE-2021-1088 (CVSS 5.5, MEDIUM). Patch available: upgrade to 5.6.0"
+DEP-0173,APP-004,bandit,1.8.9,True,VULNERABLE_DEPENDENCY,HIGH,"Library bandit:1.8.9 has CVE-2024-1198 (CVSS 8.5, HIGH). No patch available yet."
+DEP-0174,APP-004,ansible-core,3.5.6,False,NONE,NONE,No issues detected
+DEP-0175,APP-004,urllib3,4.12.0,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library urllib3:4.12.0 has CVE-2023-1140 (CVSS 6.0, MEDIUM). Patch available: upgrade to 3.0.0"
+DEP-0176,APP-004,aiohttp,2.12.0,True,VULNERABLE_DEPENDENCY,LOW,"Library aiohttp:2.12.0 has CVE-2024-1063 (CVSS 0.7, LOW). Patch available: upgrade to 3.1.0"
+DEP-0177,APP-004,pandas,5.4.7,False,NONE,NONE,No issues detected
+DEP-0178,APP-004,cryptography,2.14.1,False,NONE,NONE,No issues detected
+DEP-0179,APP-004,pydantic,4.11.1,True,VULNERABLE_DEPENDENCY,HIGH,"Library pydantic:4.11.1 has CVE-2022-1181 (CVSS 7.3, HIGH). No patch available yet."
+DEP-0180,APP-004,caffeine,2.4.2,True,VULNERABLE_DEPENDENCY,LOW,"Library caffeine:2.4.2 has CVE-2026-1084 (CVSS 1.3, LOW). Patch available: upgrade to 3.6.0"
+DEP-0181,APP-004,markupsafe,2.0.9,True,VULNERABLE_DEPENDENCY,LOW,"Library markupsafe:2.0.9 has CVE-2022-1161 (CVSS 2.6, LOW). Patch available: upgrade to 3.0.0"
+DEP-0182,APP-004,typescript,4.13.7,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library typescript:4.13.7 has CVE-2026-1092 (CVSS 5.3, MEDIUM). Patch available: upgrade to 5.8.0"
+DEP-0183,APP-004,hibernate-validator,1.4.0,True,UNMAINTAINED,HIGH,Library hibernate-validator:1.4.0 last updated 2022-05-03 (1449 days ago). No security patches or maintenance activity.
+DEP-0184,APP-004,botocore,1.13.8,False,NONE,NONE,No issues detected
+DEP-0185,APP-004,safety,1.2.7,False,NONE,NONE,No issues detected
+DEP-0186,APP-004,flask,4.7.2,False,NONE,NONE,No issues detected
+DEP-0187,APP-004,pillow,1.0.7,False,NONE,NONE,No issues detected
+DEP-0188,APP-004,rich,4.0.5,True,UNMAINTAINED,HIGH,Transitive dependency rich:4.0.5 last updated 2021-02-16 (1890 days ago). Unmaintained transitive risk.
+DEP-0189,APP-004,charset-normalizer,3.4.1,False,NONE,NONE,No issues detected
+DEP-0190,APP-004,requests,3.6.0,True,TRANSITIVE_VULNERABILITY,MEDIUM,Transitive dependency requests:3.6.0 has CVE-2023-1124 (CVSS 4.9). Inherited via dependency chain — not directly declared by HRPortal.
+DEP-0191,APP-004,bcrypt,1.10.2,True,TRANSITIVE_VULNERABILITY,LOW,Transitive dependency bcrypt:1.10.2 has CVE-2022-1075 (CVSS 0.9). Inherited via dependency chain — not directly declared by HRPortal.
+DEP-0192,APP-004,click,1.8.4,False,NONE,NONE,No issues detected
+DEP-0193,APP-004,hibernate-core,3.12.5,True,UNMAINTAINED,HIGH,Transitive dependency hibernate-core:3.12.5 last updated 2022-02-07 (1534 days ago). Unmaintained transitive risk.
+DEP-0194,APP-004,celery,2.9.6,False,NONE,NONE,No issues detected
+DEP-0195,APP-004,psycopg2,3.6.1,False,NONE,NONE,No issues detected
+DEP-0196,APP-004,six,2.8.4,True,TRANSITIVE_VULNERABILITY,MEDIUM,Transitive dependency six:2.8.4 has CVE-2023-1162 (CVSS 6.0). Inherited via dependency chain — not directly declared by HRPortal.
+DEP-0197,APP-004,scikit-learn,4.8.2,False,NONE,NONE,No issues detected
+DEP-0198,APP-004,setuptools,2.12.1,False,NONE,NONE,No issues detected
+DEP-0199,APP-004,uvicorn,4.6.8,False,NONE,NONE,No issues detected
+DEP-0200,APP-004,matplotlib,1.5.7,False,NONE,NONE,No issues detected
+DEP-0201,APP-005,moment,1.14.1,False,NONE,NONE,No issues detected
+DEP-0202,APP-005,formidable,5.8.5,False,NONE,NONE,No issues detected
+DEP-0203,APP-005,cheerio,3.15.7,True,UNMAINTAINED,HIGH,Library cheerio:3.15.7 last updated 2020-07-29 (2092 days ago). No security patches or maintenance activity.
+DEP-0204,APP-005,bcrypt,1.9.8,False,NONE,NONE,No issues detected
+DEP-0205,APP-005,mocha,4.10.8,False,NONE,NONE,No issues detected
+DEP-0206,APP-005,nanoid,3.12.1,False,NONE,NONE,No issues detected
+DEP-0207,APP-005,winston,1.4.10,True,VULNERABLE_DEPENDENCY,LOW,"Library winston:1.4.10 has CVE-2023-1150 (CVSS 3.6, LOW). Patch available: upgrade to 3.0.0"
+DEP-0208,APP-005,sequelize,3.2.9,True,LICENSE_CONFLICT,CRITICAL,Library sequelize uses AGPL-3.0 license in proprietary application AnalyticsDashboard. Viral copyleft requires open-sourcing derivative works or removing the dependency.
+DEP-0209,APP-005,commander,2.13.9,True,VULNERABLE_DEPENDENCY,CRITICAL,"Library commander:2.13.9 has CVE-2024-1126 (CVSS 9.5, CRITICAL). Patch available: upgrade to 4.0.0"
+DEP-0210,APP-005,dotenv,4.4.4,False,NONE,NONE,No issues detected
+DEP-0211,APP-005,setuptools,5.13.9,False,NONE,NONE,No issues detected
+DEP-0212,APP-005,babel-core,5.15.3,True,VULNERABLE_DEPENDENCY,HIGH,"Library babel-core:5.15.3 has CVE-2024-1035 (CVSS 7.8, HIGH). No patch available yet."
+DEP-0213,APP-005,node-fetch,2.8.7,False,NONE,NONE,No issues detected
+DEP-0214,APP-005,morgan,5.10.6,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library morgan:5.10.6 has CVE-2025-1105 (CVSS 4.6, MEDIUM). No patch available yet."
+DEP-0215,APP-005,multer,5.0.4,False,NONE,NONE,No issues detected
+DEP-0216,APP-005,mongoose,1.3.9,False,NONE,NONE,No issues detected
+DEP-0217,APP-005,nodemon,2.15.2,False,NONE,NONE,No issues detected
+DEP-0218,APP-005,eslint,1.8.1,False,NONE,NONE,No issues detected
+DEP-0219,APP-005,next,4.15.4,False,NONE,NONE,No issues detected
+DEP-0220,APP-005,cors,5.12.7,False,NONE,NONE,No issues detected
+DEP-0221,APP-005,knex,1.0.1,True,LICENSE_CONFLICT,HIGH,Library knex uses GPL-2.0 license in proprietary application AnalyticsDashboard. Viral copyleft requires open-sourcing derivative works or removing the dependency.
+DEP-0222,APP-005,chalk,1.0.9,True,VULNERABLE_DEPENDENCY,LOW,"Library chalk:1.0.9 has CVE-2022-1170 (CVSS 1.2, LOW). Patch available: upgrade to 4.0.0"
+DEP-0223,APP-005,vue,1.5.4,False,NONE,NONE,No issues detected
+DEP-0224,APP-005,react,4.12.5,False,NONE,NONE,No issues detected
+DEP-0225,APP-005,typescript,4.8.1,False,NONE,NONE,No issues detected
+DEP-0226,APP-005,puppeteer,1.12.4,False,NONE,NONE,No issues detected
+DEP-0227,APP-005,inquirer,1.12.7,False,NONE,NONE,No issues detected
+DEP-0228,APP-005,passport,1.11.8,False,NONE,NONE,No issues detected
+DEP-0229,APP-005,apollo-server,5.1.6,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library apollo-server:5.1.6 has CVE-2025-1028 (CVSS 4.6, MEDIUM). Patch available: upgrade to 2.4.0"
+DEP-0230,APP-005,react-dom,5.7.7,True,VULNERABLE_DEPENDENCY,HIGH,"Library react-dom:5.7.7 has CVE-2022-1194 (CVSS 7.1, HIGH). Patch available: upgrade to 6.0.0"
+DEP-0231,APP-005,angular-core,5.4.9,False,NONE,NONE,No issues detected
+DEP-0232,APP-005,jest,5.2.1,False,NONE,NONE,No issues detected
+DEP-0233,APP-005,hibernate-validator,5.4.5,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library hibernate-validator:5.4.5 has CVE-2021-1061 (CVSS 5.2, MEDIUM). No patch available yet."
+DEP-0234,APP-005,spring-boot-starter,2.11.8,True,UNMAINTAINED,MEDIUM,Library spring-boot-starter:2.11.8 last updated 2023-07-18 (1008 days ago). No security patches or maintenance activity.
+DEP-0235,APP-005,yargs,1.0.0,False,NONE,NONE,No issues detected
+DEP-0236,APP-005,postgresql-jdbc,4.6.3,False,NONE,NONE,No issues detected
+DEP-0237,APP-005,micrometer-core,1.10.4,False,NONE,NONE,No issues detected
+DEP-0238,APP-005,helmet,1.9.5,False,NONE,NONE,No issues detected
+DEP-0239,APP-005,protobuf-java,2.4.0,False,NONE,NONE,No issues detected
+DEP-0240,APP-005,prettier,4.2.2,True,TRANSITIVE_VULNERABILITY,MEDIUM,Transitive dependency prettier:4.2.2 has CVE-2023-1187 (CVSS 5.6). Inherited via dependency chain — not directly declared by AnalyticsDashboard.
+DEP-0241,APP-005,axios,4.0.1,True,TRANSITIVE_VULNERABILITY,MEDIUM,Transitive dependency axios:4.0.1 has CVE-2022-1196 (CVSS 4.2). Inherited via dependency chain — not directly declared by AnalyticsDashboard.
+DEP-0242,APP-005,graphql,1.3.7,True,TRANSITIVE_VULNERABILITY,LOW,Transitive dependency graphql:1.3.7 has CVE-2025-1158 (CVSS 0.7). Inherited via dependency chain — not directly declared by AnalyticsDashboard.
+DEP-0243,APP-005,bull,3.3.1,True,TRANSITIVE_VULNERABILITY,LOW,Transitive dependency bull:3.3.1 has CVE-2023-1113 (CVSS 0.2). Inherited via dependency chain — not directly declared by AnalyticsDashboard.
+DEP-0244,APP-005,sharp,1.6.2,True,TRANSITIVE_VULNERABILITY,MEDIUM,Transitive dependency sharp:1.6.2 has CVE-2022-1098 (CVSS 6.0). Inherited via dependency chain — not directly declared by AnalyticsDashboard.
+DEP-0245,APP-005,express,3.4.3,True,TRANSITIVE_VULNERABILITY,CRITICAL,Transitive dependency express:3.4.3 has CVE-2026-1078 (CVSS 9.4). Inherited via dependency chain — not directly declared by AnalyticsDashboard.
+DEP-0246,APP-005,echo,4.6.2,False,NONE,NONE,No issues detected
+DEP-0247,APP-005,testify,2.9.8,False,NONE,NONE,No issues detected
+DEP-0248,APP-005,webpack,4.4.0,False,NONE,NONE,No issues detected
+DEP-0249,APP-005,dayjs,2.9.0,False,NONE,NONE,No issues detected
+DEP-0250,APP-005,mysql-connector-java,1.6.8,False,NONE,NONE,No issues detected
+DEP-0251,APP-006,zap,4.6.3,False,NONE,NONE,No issues detected
+DEP-0252,APP-006,protobuf-go,4.9.7,False,NONE,NONE,No issues detected
+DEP-0253,APP-006,sarama,4.2.1,True,VULNERABLE_DEPENDENCY,LOW,"Library sarama:4.2.1 has CVE-2025-1192 (CVSS 2.3, LOW). Patch available: upgrade to 4.0.0"
+DEP-0254,APP-006,pyjwt,2.0.4,True,VULNERABLE_DEPENDENCY,LOW,"Library pyjwt:2.0.4 has CVE-2024-1153 (CVSS 1.1, LOW). Patch available: upgrade to 5.0.0"
+DEP-0255,APP-006,moment,3.15.9,False,NONE,NONE,No issues detected
+DEP-0256,APP-006,testify,2.11.4,True,VULNERABLE_DEPENDENCY,CRITICAL,"Library testify:2.11.4 has CVE-2025-1043 (CVSS 9.9, CRITICAL). Patch available: upgrade to 2.11.0"
+DEP-0257,APP-006,crypto-go,5.1.10,False,NONE,NONE,No issues detected
+DEP-0258,APP-006,python-dateutil,2.14.5,False,NONE,NONE,No issues detected
+DEP-0259,APP-006,mux,4.10.1,True,VULNERABLE_DEPENDENCY,HIGH,"Library mux:4.10.1 has CVE-2025-1047 (CVSS 7.6, HIGH). Patch available: upgrade to 4.2.0"
+DEP-0260,APP-006,logrus,5.6.9,True,UNMAINTAINED,HIGH,Library logrus:5.6.9 last updated 2023-01-07 (1200 days ago). No security patches or maintenance activity.
+DEP-0261,APP-006,gorm,5.1.10,True,VULNERABLE_DEPENDENCY,LOW,"Library gorm:5.1.10 has CVE-2024-1193 (CVSS 1.2, LOW). Patch available: upgrade to 2.0.0"
+DEP-0262,APP-006,go-jwt,5.2.3,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library go-jwt:5.2.3 has CVE-2025-1145 (CVSS 6.7, MEDIUM). Patch available: upgrade to 3.0.0"
+DEP-0263,APP-006,aws-sdk-go,1.12.1,True,VULNERABLE_DEPENDENCY,HIGH,"Library aws-sdk-go:1.12.1 has CVE-2025-1130 (CVSS 7.1, HIGH). Patch available: upgrade to 3.0.0"
+DEP-0264,APP-006,viper,2.6.2,False,NONE,NONE,No issues detected
+DEP-0265,APP-006,resty,1.4.4,False,NONE,NONE,No issues detected
+DEP-0266,APP-006,gson,4.2.9,False,NONE,NONE,No issues detected
+DEP-0267,APP-006,spring-core,2.1.4,False,NONE,NONE,No issues detected
+DEP-0268,APP-006,yaml-go,1.5.8,True,VULNERABLE_DEPENDENCY,HIGH,"Library yaml-go:1.5.8 has CVE-2024-1112 (CVSS 7.8, HIGH). Patch available: upgrade to 2.0.0"
+DEP-0269,APP-006,fiber,1.4.8,True,UNMAINTAINED,HIGH,Library fiber:1.4.8 last updated 2020-11-12 (1986 days ago). No security patches or maintenance activity.
+DEP-0270,APP-006,gin,5.3.6,False,NONE,NONE,No issues detected
+DEP-0271,APP-006,json-iterator,3.5.4,True,LICENSE_CONFLICT,HIGH,Library json-iterator uses GPL-2.0 license in proprietary application MobileBackend. Viral copyleft requires open-sourcing derivative works or removing the dependency.
+DEP-0272,APP-006,numpy,4.3.1,True,VULNERABLE_DEPENDENCY,HIGH,"Library numpy:4.3.1 has CVE-2022-1148 (CVSS 7.4, HIGH). Patch available: upgrade to 6.0.0"
+DEP-0273,APP-006,golangci-lint,5.1.7,True,UNMAINTAINED,HIGH,Library golangci-lint:5.1.7 last updated 2020-07-16 (2105 days ago). No security patches or maintenance activity.
+DEP-0274,APP-006,pgx,1.2.2,False,NONE,NONE,No issues detected
+DEP-0275,APP-006,aiohttp,2.9.2,False,NONE,NONE,No issues detected
+DEP-0276,APP-006,go-redis,4.6.8,False,NONE,NONE,No issues detected
+DEP-0277,APP-006,bcrypt-go,3.1.1,True,VULNERABLE_DEPENDENCY,LOW,"Library bcrypt-go:3.1.1 has CVE-2023-1121 (CVSS 2.5, LOW). Patch available: upgrade to 5.0.0"
+DEP-0278,APP-006,fasthttp,2.2.7,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library fasthttp:2.2.7 has CVE-2021-1031 (CVSS 6.9, MEDIUM). No patch available yet."
+DEP-0279,APP-006,chi,2.2.5,True,UNMAINTAINED,HIGH,Library chi:2.2.5 last updated 2022-05-19 (1433 days ago). No security patches or maintenance activity.
+DEP-0280,APP-006,uuid-go,5.12.7,False,NONE,NONE,No issues detected
+DEP-0281,APP-006,nats,1.3.0,False,NONE,NONE,No issues detected
+DEP-0282,APP-006,yargs,1.2.10,False,NONE,NONE,No issues detected
+DEP-0283,APP-006,tomcat-embed-core,1.1.6,False,NONE,NONE,No issues detected
+DEP-0284,APP-006,colly,2.9.2,False,NONE,NONE,No issues detected
+DEP-0285,APP-006,sqlx,2.1.6,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library sqlx:2.1.6 has CVE-2022-1030 (CVSS 6.2, MEDIUM). No patch available yet."
+DEP-0286,APP-006,react-dom,3.6.1,True,TRANSITIVE_VULNERABILITY,HIGH,Transitive dependency react-dom:3.6.1 has CVE-2022-1166 (CVSS 7.2). Inherited via dependency chain — not directly declared by MobileBackend.
+DEP-0287,APP-006,paramiko,3.9.1,True,TRANSITIVE_VULNERABILITY,HIGH,Transitive dependency paramiko:3.9.1 has CVE-2024-1177 (CVSS 8.3). Inherited via dependency chain — not directly declared by MobileBackend.
+DEP-0288,APP-006,cors,1.7.6,True,UNMAINTAINED,HIGH,Transitive dependency cors:1.7.6 last updated 2022-08-19 (1341 days ago). Unmaintained transitive risk.
+DEP-0289,APP-006,nats,1.5.6,False,NONE,NONE,No issues detected
+DEP-0290,APP-006,commons-lang3,2.5.7,True,TRANSITIVE_VULNERABILITY,MEDIUM,Transitive dependency commons-lang3:2.5.7 has CVE-2025-1182 (CVSS 6.4). Inherited via dependency chain — not directly declared by MobileBackend.
+DEP-0291,APP-006,jedis,2.7.1,False,NONE,NONE,No issues detected
+DEP-0292,APP-006,go-jwt,4.12.3,False,NONE,NONE,No issues detected
+DEP-0293,APP-006,inquirer,3.1.8,True,TRANSITIVE_VULNERABILITY,LOW,Transitive dependency inquirer:3.1.8 has CVE-2022-1032 (CVSS 1.0). Inherited via dependency chain — not directly declared by MobileBackend.
+DEP-0294,APP-006,logback-classic,4.10.8,False,NONE,NONE,No issues detected
+DEP-0295,APP-006,uvicorn,2.0.8,False,NONE,NONE,No issues detected
+DEP-0296,APP-006,bouncycastle-bcprov,3.10.8,True,TRANSITIVE_VULNERABILITY,CRITICAL,Transitive dependency bouncycastle-bcprov:3.10.8 has CVE-2021-1009 (CVSS 9.6). Inherited via dependency chain — not directly declared by MobileBackend.
+DEP-0297,APP-006,coverage,3.7.2,False,NONE,NONE,No issues detected
+DEP-0298,APP-006,pyjwt,4.5.1,True,TRANSITIVE_VULNERABILITY,HIGH,Transitive dependency pyjwt:4.5.1 has CVE-2025-1123 (CVSS 7.3). Inherited via dependency chain — not directly declared by MobileBackend.
+DEP-0299,APP-006,uuid,4.3.1,False,NONE,NONE,No issues detected
+DEP-0300,APP-006,mapstruct,4.7.8,False,NONE,NONE,No issues detected
+DEP-0301,APP-007,pillow,4.7.4,False,NONE,NONE,No issues detected
+DEP-0302,APP-007,viper,5.1.10,False,NONE,NONE,No issues detected
+DEP-0303,APP-007,boto3,5.7.7,False,NONE,NONE,No issues detected
+DEP-0304,APP-007,logback-classic,2.14.10,True,UNMAINTAINED,HIGH,Library logback-classic:2.14.10 last updated 2020-06-13 (2138 days ago). No security patches or maintenance activity.
+DEP-0305,APP-007,mypy,3.2.5,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library mypy:3.2.5 has CVE-2022-1175 (CVSS 4.7, MEDIUM). Patch available: upgrade to 5.0.0"
+DEP-0306,APP-007,certifi,3.2.1,False,NONE,NONE,No issues detected
+DEP-0307,APP-007,twisted,3.9.3,False,NONE,NONE,No issues detected
+DEP-0308,APP-007,markupsafe,1.7.1,True,VULNERABLE_DEPENDENCY,LOW,"Library markupsafe:1.7.1 has CVE-2022-1161 (CVSS 2.6, LOW). Patch available: upgrade to 3.0.0"
+DEP-0309,APP-007,requests,1.13.7,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library requests:1.13.7 has CVE-2023-1124 (CVSS 4.9, MEDIUM). No patch available yet."
+DEP-0310,APP-007,scikit-learn,4.6.9,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library scikit-learn:4.6.9 has CVE-2022-1008 (CVSS 5.1, MEDIUM). Patch available: upgrade to 4.3.0"
+DEP-0311,APP-007,python-dateutil,4.2.0,False,NONE,NONE,No issues detected
+DEP-0312,APP-007,werkzeug,2.15.5,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library werkzeug:2.15.5 has CVE-2024-1004 (CVSS 5.6, MEDIUM). No patch available yet."
+DEP-0313,APP-007,spring-core,3.12.10,False,NONE,NONE,No issues detected
+DEP-0314,APP-007,redis-py,1.10.8,False,NONE,NONE,No issues detected
+DEP-0315,APP-007,wheel,4.5.5,False,NONE,NONE,No issues detected
+DEP-0316,APP-007,safety,1.7.2,True,UNMAINTAINED,HIGH,Library safety:1.7.2 last updated 2022-10-10 (1289 days ago). No security patches or maintenance activity.
+DEP-0317,APP-007,paramiko,3.15.7,True,VULNERABLE_DEPENDENCY,HIGH,"Library paramiko:3.15.7 has CVE-2023-1127 (CVSS 8.0, HIGH). Patch available: upgrade to 6.0.0"
+DEP-0318,APP-007,helmet,4.2.3,False,NONE,NONE,No issues detected
+DEP-0319,APP-007,pandas,1.2.7,False,NONE,NONE,No issues detected
+DEP-0320,APP-007,pyjwt,5.4.3,True,VULNERABLE_DEPENDENCY,HIGH,"Library pyjwt:5.4.3 has CVE-2025-1123 (CVSS 7.3, HIGH). No patch available yet."
+DEP-0321,APP-007,urllib3,4.2.0,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library urllib3:4.2.0 has CVE-2023-1140 (CVSS 6.0, MEDIUM). Patch available: upgrade to 3.0.0"
+DEP-0322,APP-007,cryptography,3.4.5,False,NONE,NONE,No issues detected
+DEP-0323,APP-007,psycopg2,3.5.6,False,NONE,NONE,No issues detected
+DEP-0324,APP-007,bandit,5.2.4,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library bandit:5.2.4 has CVE-2023-1065 (CVSS 5.3, MEDIUM). Patch available: upgrade to 5.3.0"
+DEP-0325,APP-007,matplotlib,5.2.0,False,NONE,NONE,No issues detected
+DEP-0326,APP-007,rich,2.5.6,False,NONE,NONE,No issues detected
+DEP-0327,APP-007,cobra,5.8.10,True,UNMAINTAINED,MEDIUM,Library cobra:5.8.10 last updated 2023-09-05 (959 days ago). No security patches or maintenance activity.
+DEP-0328,APP-007,ansible-core,4.9.9,True,VULNERABLE_DEPENDENCY,LOW,"Library ansible-core:4.9.9 has CVE-2025-1114 (CVSS 2.6, LOW). Patch available: upgrade to 6.0.0"
+DEP-0329,APP-007,pip,1.0.3,True,VULNERABLE_DEPENDENCY,HIGH,"Library pip:1.0.3 has CVE-2024-1184 (CVSS 8.6, HIGH). Patch available: upgrade to 3.0.0"
+DEP-0330,APP-007,snakeyaml,2.14.7,True,VULNERABLE_DEPENDENCY,HIGH,"Library snakeyaml:2.14.7 has CVE-2024-1013 (CVSS 8.4, HIGH). Patch available: upgrade to 4.4.0"
+DEP-0331,APP-007,six,4.15.9,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library six:4.15.9 has CVE-2023-1162 (CVSS 6.0, MEDIUM). Patch available: upgrade to 4.0.0"
+DEP-0332,APP-007,redis,4.10.8,True,UNMAINTAINED,MEDIUM,Library redis:4.10.8 last updated 2023-06-29 (1027 days ago). No security patches or maintenance activity.
+DEP-0333,APP-007,celery,5.7.9,True,VULNERABLE_DEPENDENCY,LOW,"Library celery:5.7.9 has CVE-2022-1110 (CVSS 3.4, LOW). Patch available: upgrade to 5.0.0"
+DEP-0334,APP-007,setuptools,4.11.7,False,NONE,NONE,No issues detected
+DEP-0335,APP-007,coverage,1.13.7,False,NONE,NONE,No issues detected
+DEP-0336,APP-007,charset-normalizer,1.5.6,False,NONE,NONE,No issues detected
+DEP-0337,APP-007,pytest,3.12.0,False,NONE,NONE,No issues detected
+DEP-0338,APP-007,numpy,1.11.0,False,NONE,NONE,No issues detected
+DEP-0339,APP-007,botocore,1.8.0,False,NONE,NONE,No issues detected
+DEP-0340,APP-007,scipy,2.11.4,True,TRANSITIVE_VULNERABILITY,MEDIUM,Transitive dependency scipy:2.11.4 has CVE-2021-1037 (CVSS 4.7). Inherited via dependency chain — not directly declared by DevToolkit.
+DEP-0341,APP-007,httpx,3.2.1,True,TRANSITIVE_VULNERABILITY,CRITICAL,Transitive dependency httpx:3.2.1 has CVE-2023-1097 (CVSS 9.7). Inherited via dependency chain — not directly declared by DevToolkit.
+DEP-0342,APP-007,bouncycastle-bcprov,3.4.8,False,NONE,NONE,No issues detected
+DEP-0343,APP-007,aiohttp,2.2.8,False,NONE,NONE,No issues detected
+DEP-0344,APP-007,gunicorn,3.0.7,True,TRANSITIVE_VULNERABILITY,LOW,Transitive dependency gunicorn:3.0.7 has CVE-2023-1101 (CVSS 3.8). Inherited via dependency chain — not directly declared by DevToolkit.
+DEP-0345,APP-007,click,4.12.2,True,TRANSITIVE_VULNERABILITY,MEDIUM,Transitive dependency click:4.12.2 has CVE-2024-1039 (CVSS 6.0). Inherited via dependency chain — not directly declared by DevToolkit.
+DEP-0346,APP-007,pydantic,3.6.6,False,NONE,NONE,No issues detected
+DEP-0347,APP-007,uvicorn,1.4.8,False,NONE,NONE,No issues detected
+DEP-0348,APP-007,pyyaml,4.11.5,True,TRANSITIVE_VULNERABILITY,MEDIUM,Transitive dependency pyyaml:4.11.5 has CVE-2024-1115 (CVSS 6.0). Inherited via dependency chain — not directly declared by DevToolkit.
+DEP-0349,APP-007,black,3.6.2,True,TRANSITIVE_VULNERABILITY,MEDIUM,Transitive dependency black:3.6.2 has CVE-2023-1053 (CVSS 5.5). Inherited via dependency chain — not directly declared by DevToolkit.
+DEP-0350,APP-007,jinja2,2.0.0,False,NONE,NONE,No issues detected
+DEP-0351,APP-008,aws-sdk-s3,4.14.7,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library aws-sdk-s3:4.14.7 has CVE-2021-1093 (CVSS 4.1, MEDIUM). Patch available: upgrade to 3.2.0"
+DEP-0352,APP-008,mockito-core,5.11.1,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library mockito-core:5.11.1 has CVE-2023-1188 (CVSS 4.6, MEDIUM). Patch available: upgrade to 4.0.0"
+DEP-0353,APP-008,guava,3.9.7,True,LICENSE_CONFLICT,HIGH,Library guava uses GPL-2.0 license in proprietary application ComplianceEngine. Viral copyleft requires open-sourcing derivative works or removing the dependency.
+DEP-0354,APP-008,mysql-connector-java,2.15.0,False,NONE,NONE,No issues detected
+DEP-0355,APP-008,tomcat-embed-core,5.4.2,True,UNMAINTAINED,MEDIUM,Library tomcat-embed-core:5.4.2 last updated 2024-01-30 (812 days ago). No security patches or maintenance activity.
+DEP-0356,APP-008,lettuce-core,4.10.8,False,NONE,NONE,No issues detected
+DEP-0357,APP-008,jedis,1.6.9,True,VULNERABLE_DEPENDENCY,LOW,"Library jedis:1.6.9 has CVE-2024-1178 (CVSS 1.0, LOW). Patch available: upgrade to 5.0.0"
+DEP-0358,APP-008,postgresql-jdbc,3.6.3,True,VULNERABLE_DEPENDENCY,LOW,"Library postgresql-jdbc:3.6.3 has CVE-2023-1011 (CVSS 0.6, LOW). Patch available: upgrade to 2.8.0"
+DEP-0359,APP-008,spring-security-core,4.0.8,True,VULNERABLE_DEPENDENCY,LOW,"Library spring-security-core:4.0.8 has CVE-2024-1104 (CVSS 3.3, LOW). Patch available: upgrade to 3.4.0"
+DEP-0360,APP-008,mocha,2.9.6,True,UNMAINTAINED,HIGH,Library mocha:2.9.6 last updated 2020-04-29 (2183 days ago). No security patches or maintenance activity.
+DEP-0361,APP-008,commons-collections4,1.10.2,False,NONE,NONE,No issues detected
+DEP-0362,APP-008,commander,5.7.7,True,UNMAINTAINED,HIGH,Library commander:5.7.7 last updated 2022-08-09 (1351 days ago). No security patches or maintenance activity.
+DEP-0363,APP-008,boto3,1.8.8,True,VULNERABLE_DEPENDENCY,LOW,"Library boto3:1.8.8 has CVE-2026-1005 (CVSS 3.6, LOW). Patch available: upgrade to 3.13.0"
+DEP-0364,APP-008,logback-classic,3.5.3,True,UNMAINTAINED,HIGH,Library logback-classic:3.5.3 last updated 2022-08-09 (1351 days ago). No security patches or maintenance activity.
+DEP-0365,APP-008,hibernate-core,3.6.9,False,NONE,NONE,No issues detected
+DEP-0366,APP-008,bouncycastle-bcprov,2.8.6,False,NONE,NONE,No issues detected
+DEP-0367,APP-008,log4j-api,4.8.3,False,NONE,NONE,No issues detected
+DEP-0368,APP-008,h2-database,4.15.6,False,NONE,NONE,No issues detected
+DEP-0369,APP-008,spring-boot-starter,3.12.2,False,NONE,NONE,No issues detected
+DEP-0370,APP-008,netty-handler,3.6.1,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library netty-handler:3.6.1 has CVE-2023-1080 (CVSS 5.5, MEDIUM). Patch available: upgrade to 1.10.0"
+DEP-0371,APP-008,commons-codec,1.4.1,False,NONE,NONE,No issues detected
+DEP-0372,APP-008,spring-web,1.8.10,False,NONE,NONE,No issues detected
+DEP-0373,APP-008,junit-jupiter,3.13.6,False,NONE,NONE,No issues detected
+DEP-0374,APP-008,grpc-core,4.6.5,False,NONE,NONE,No issues detected
+DEP-0375,APP-008,commons-io,4.0.9,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library commons-io:4.0.9 has CVE-2023-1070 (CVSS 6.8, MEDIUM). Patch available: upgrade to 2.11.0"
+DEP-0376,APP-008,graphql,1.12.5,False,NONE,NONE,No issues detected
+DEP-0377,APP-008,jackson-databind,4.2.1,False,NONE,NONE,No issues detected
+DEP-0378,APP-008,micrometer-core,3.0.7,False,NONE,NONE,No issues detected
+DEP-0379,APP-008,slf4j-api,3.11.6,False,NONE,NONE,No issues detected
+DEP-0380,APP-008,commons-lang3,5.13.8,False,NONE,NONE,No issues detected
+DEP-0381,APP-008,pgx,5.4.0,False,NONE,NONE,No issues detected
+DEP-0382,APP-008,kafka-clients,3.9.6,False,NONE,NONE,No issues detected
+DEP-0383,APP-008,hibernate-validator,2.7.7,False,NONE,NONE,No issues detected
+DEP-0384,APP-008,jackson-annotations,3.0.1,True,VULNERABLE_DEPENDENCY,LOW,"Library jackson-annotations:3.0.1 has CVE-2021-1018 (CVSS 0.9, LOW). Patch available: upgrade to 3.6.0"
+DEP-0385,APP-008,logback-core,1.5.4,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library logback-core:1.5.4 has CVE-2022-1144 (CVSS 4.2, MEDIUM). No patch available yet."
+DEP-0386,APP-008,axios,3.12.5,False,NONE,NONE,No issues detected
+DEP-0387,APP-008,setuptools,1.1.2,True,UNMAINTAINED,HIGH,Transitive dependency setuptools:1.1.2 last updated 2022-02-13 (1528 days ago). Unmaintained transitive risk.
+DEP-0388,APP-008,httpclient,3.9.6,False,NONE,NONE,No issues detected
+DEP-0389,APP-008,resilience4j,2.8.4,False,NONE,NONE,No issues detected
+DEP-0390,APP-008,jetty-server,2.8.7,False,NONE,NONE,No issues detected
+DEP-0391,APP-008,opentelemetry-api,1.2.8,True,TRANSITIVE_VULNERABILITY,HIGH,Transitive dependency opentelemetry-api:1.2.8 has CVE-2024-1042 (CVSS 8.2). Inherited via dependency chain — not directly declared by ComplianceEngine.
+DEP-0392,APP-008,numpy,3.11.5,True,TRANSITIVE_VULNERABILITY,HIGH,Transitive dependency numpy:3.11.5 has CVE-2022-1148 (CVSS 7.4). Inherited via dependency chain — not directly declared by ComplianceEngine.
+DEP-0393,APP-008,caffeine,1.3.3,True,TRANSITIVE_VULNERABILITY,MEDIUM,Transitive dependency caffeine:1.3.3 has CVE-2022-1085 (CVSS 5.5). Inherited via dependency chain — not directly declared by ComplianceEngine.
+DEP-0394,APP-008,httpcore,2.5.4,True,TRANSITIVE_VULNERABILITY,MEDIUM,Transitive dependency httpcore:2.5.4 has CVE-2023-1149 (CVSS 6.8). Inherited via dependency chain — not directly declared by ComplianceEngine.
+DEP-0395,APP-008,gson,1.7.8,False,NONE,NONE,No issues detected
+DEP-0396,APP-008,mapstruct,4.5.4,False,NONE,NONE,No issues detected
+DEP-0397,APP-008,log4j-core,3.1.4,True,UNMAINTAINED,HIGH,Transitive dependency log4j-core:3.1.4 last updated 2021-07-20 (1736 days ago). Unmaintained transitive risk.
+DEP-0398,APP-008,aws-sdk-sqs,2.1.1,True,TRANSITIVE_VULNERABILITY,LOW,Transitive dependency aws-sdk-sqs:2.1.1 has CVE-2024-1137 (CVSS 3.8). Inherited via dependency chain — not directly declared by ComplianceEngine.
+DEP-0399,APP-008,disruptor,2.11.2,True,TRANSITIVE_VULNERABILITY,HIGH,Transitive dependency disruptor:2.11.2 has CVE-2024-1174 (CVSS 7.4). Inherited via dependency chain — not directly declared by ComplianceEngine.
+DEP-0400,APP-008,netty-all,3.5.6,False,NONE,NONE,No issues detected
+DEP-0401,APP-009,react-dom,1.10.9,True,UNMAINTAINED,HIGH,Library react-dom:1.10.9 last updated 2023-02-06 (1170 days ago). No security patches or maintenance activity.
+DEP-0402,APP-009,yaml-go,5.15.0,True,VULNERABLE_DEPENDENCY,HIGH,"Library yaml-go:5.15.0 has CVE-2024-1112 (CVSS 7.8, HIGH). Patch available: upgrade to 2.0.0"
+DEP-0403,APP-009,jest,3.13.6,True,VULNERABLE_DEPENDENCY,CRITICAL,"Library jest:3.13.6 has CVE-2023-1197 (CVSS 9.1, CRITICAL). Patch available: upgrade to 3.0.0"
+DEP-0404,APP-009,cryptography,3.6.0,False,NONE,NONE,No issues detected
+DEP-0405,APP-009,redis,5.1.1,False,NONE,NONE,No issues detected
+DEP-0406,APP-009,next,2.13.7,False,NONE,NONE,No issues detected
+DEP-0407,APP-009,ansible-core,2.8.10,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library ansible-core:2.8.10 has CVE-2022-1157 (CVSS 5.4, MEDIUM). Patch available: upgrade to 4.0.0"
+DEP-0408,APP-009,sharp,1.14.0,False,NONE,NONE,No issues detected
+DEP-0409,APP-009,axios,4.14.1,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library axios:4.14.1 has CVE-2022-1196 (CVSS 4.2, MEDIUM). No patch available yet."
+DEP-0410,APP-009,winston,2.2.10,True,VULNERABLE_DEPENDENCY,LOW,"Library winston:2.2.10 has CVE-2023-1150 (CVSS 3.6, LOW). Patch available: upgrade to 3.0.0"
+DEP-0411,APP-009,babel-core,5.0.0,True,VULNERABLE_DEPENDENCY,HIGH,"Library babel-core:5.0.0 has CVE-2024-1035 (CVSS 7.8, HIGH). No patch available yet."
+DEP-0412,APP-009,chalk,3.6.10,True,VULNERABLE_DEPENDENCY,LOW,"Library chalk:3.6.10 has CVE-2022-1170 (CVSS 1.2, LOW). Patch available: upgrade to 4.0.0"
+DEP-0413,APP-009,twisted,5.3.5,False,NONE,NONE,No issues detected
+DEP-0414,APP-009,nanoid,2.3.5,True,LICENSE_UNKNOWN,MEDIUM,Library nanoid has no declared license. Legal status unclear; cannot confirm proprietary compatibility.
+DEP-0415,APP-009,inquirer,5.11.0,True,VULNERABLE_DEPENDENCY,LOW,"Library inquirer:5.11.0 has CVE-2022-1032 (CVSS 1.0, LOW). Patch available: upgrade to 4.4.0"
+DEP-0416,APP-009,mocha,3.5.10,False,NONE,NONE,No issues detected
+DEP-0417,APP-009,vue,5.14.6,False,NONE,NONE,No issues detected
+DEP-0418,APP-009,puppeteer,1.9.3,True,UNMAINTAINED,HIGH,Library puppeteer:1.9.3 last updated 2022-10-18 (1281 days ago). No security patches or maintenance activity.
+DEP-0419,APP-009,postgresql-jdbc,2.12.3,True,VULNERABLE_DEPENDENCY,LOW,"Library postgresql-jdbc:2.12.3 has CVE-2023-1011 (CVSS 0.6, LOW). Patch available: upgrade to 2.8.0"
+DEP-0420,APP-009,socket.io,5.13.10,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library socket.io:5.13.10 has CVE-2021-1038 (CVSS 6.2, MEDIUM). No patch available yet."
+DEP-0421,APP-009,sequelize,2.12.8,True,UNMAINTAINED,HIGH,Library sequelize:2.12.8 last updated 2021-01-29 (1908 days ago). No security patches or maintenance activity.
+DEP-0422,APP-009,dayjs,2.4.1,False,NONE,NONE,No issues detected
+DEP-0423,APP-009,chai,2.7.6,False,NONE,NONE,No issues detected
+DEP-0424,APP-009,graphql,1.11.6,True,VULNERABLE_DEPENDENCY,LOW,"Library graphql:1.11.6 has CVE-2025-1158 (CVSS 0.7, LOW). Patch available: upgrade to 5.0.0"
+DEP-0425,APP-009,commander,3.12.7,True,UNMAINTAINED,HIGH,Library commander:3.12.7 last updated 2020-10-06 (2023 days ago). No security patches or maintenance activity.
+DEP-0426,APP-009,morgan,4.11.6,False,NONE,NONE,No issues detected
+DEP-0427,APP-009,django,3.15.10,False,NONE,NONE,No issues detected
+DEP-0428,APP-009,multer,2.8.9,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library multer:2.8.9 has CVE-2022-1120 (CVSS 4.4, MEDIUM). Patch available: upgrade to 2.0.0"
+DEP-0429,APP-009,uuid,5.6.6,False,NONE,NONE,No issues detected
+DEP-0430,APP-009,lodash,2.12.4,True,LICENSE_CONFLICT,HIGH,Library lodash uses GPL-2.0 license in proprietary application NotificationService. Viral copyleft requires open-sourcing derivative works or removing the dependency.
+DEP-0431,APP-009,webpack,4.13.10,False,NONE,NONE,No issues detected
+DEP-0432,APP-009,helmet,2.6.0,False,NONE,NONE,No issues detected
+DEP-0433,APP-009,knex,1.7.7,False,NONE,NONE,No issues detected
+DEP-0434,APP-009,express,5.0.6,False,NONE,NONE,No issues detected
+DEP-0435,APP-009,passport,2.11.10,False,NONE,NONE,No issues detected
+DEP-0436,APP-009,node-fetch,4.11.2,True,TRANSITIVE_VULNERABILITY,MEDIUM,Transitive dependency node-fetch:4.11.2 has CVE-2023-1173 (CVSS 5.7). Inherited via dependency chain — not directly declared by NotificationService.
+DEP-0437,APP-009,moment,4.10.3,True,TRANSITIVE_LICENSE_CONFLICT,HIGH,Transitive dependency moment uses AGPL-3.0 in proprietary app NotificationService. GPL contamination through dependency chain.
+DEP-0438,APP-009,cors,1.10.5,False,NONE,NONE,No issues detected
+DEP-0439,APP-009,react,2.9.7,False,NONE,NONE,No issues detected
+DEP-0440,APP-009,mapstruct,1.11.6,False,NONE,NONE,No issues detected
+DEP-0441,APP-009,formidable,1.2.7,False,NONE,NONE,No issues detected
+DEP-0442,APP-009,pm2,2.7.1,False,NONE,NONE,No issues detected
+DEP-0443,APP-009,prettier,1.1.6,False,NONE,NONE,No issues detected
+DEP-0444,APP-009,dotenv,3.3.4,True,UNMAINTAINED,HIGH,Transitive dependency dotenv:3.3.4 last updated 2020-10-05 (2024 days ago). Unmaintained transitive risk.
+DEP-0445,APP-009,nodemon,4.1.5,False,NONE,NONE,No issues detected
+DEP-0446,APP-009,eslint,4.11.6,True,TRANSITIVE_VULNERABILITY,MEDIUM,Transitive dependency eslint:4.11.6 has CVE-2022-1016 (CVSS 6.2). Inherited via dependency chain — not directly declared by NotificationService.
+DEP-0447,APP-009,jsonwebtoken,3.1.1,False,NONE,NONE,No issues detected
+DEP-0448,APP-009,angular-core,3.2.5,False,NONE,NONE,No issues detected
+DEP-0449,APP-009,bcrypt,2.6.6,True,TRANSITIVE_VULNERABILITY,MEDIUM,Transitive dependency bcrypt:2.6.6 has CVE-2024-1138 (CVSS 4.9). Inherited via dependency chain — not directly declared by NotificationService.
+DEP-0450,APP-009,nats,2.1.6,True,TRANSITIVE_LICENSE_CONFLICT,HIGH,Transitive dependency nats uses GPL-3.0 in proprietary app NotificationService. GPL contamination through dependency chain.
+DEP-0451,APP-010,pgx,3.4.3,False,NONE,NONE,No issues detected
+DEP-0452,APP-010,protobuf-go,2.12.6,False,NONE,NONE,No issues detected
+DEP-0453,APP-010,rich,1.7.6,False,NONE,NONE,No issues detected
+DEP-0454,APP-010,logrus,3.14.5,True,LICENSE_CONFLICT,HIGH,Library logrus uses GPL-2.0 license in proprietary application VendorGateway. Viral copyleft requires open-sourcing derivative works or removing the dependency.
+DEP-0455,APP-010,fiber,5.15.4,False,NONE,NONE,No issues detected
+DEP-0456,APP-010,golangci-lint,4.0.6,True,UNMAINTAINED,HIGH,Library golangci-lint:4.0.6 last updated 2023-04-12 (1105 days ago). No security patches or maintenance activity.
+DEP-0457,APP-010,chi,1.5.9,True,LICENSE_UNKNOWN,MEDIUM,Library chi has no declared license. Legal status unclear; cannot confirm proprietary compatibility.
+DEP-0458,APP-010,mockito-core,2.6.10,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library mockito-core:2.6.10 has CVE-2023-1188 (CVSS 4.6, MEDIUM). Patch available: upgrade to 4.0.0"
+DEP-0459,APP-010,setuptools,1.9.10,False,NONE,NONE,No issues detected
+DEP-0460,APP-010,graphql,2.1.3,True,VULNERABLE_DEPENDENCY,LOW,"Library graphql:2.1.3 has CVE-2025-1158 (CVSS 0.7, LOW). Patch available: upgrade to 5.0.0"
+DEP-0461,APP-010,nats,3.12.10,False,NONE,NONE,No issues detected
+DEP-0462,APP-010,jackson-annotations,3.5.6,True,VULNERABLE_DEPENDENCY,HIGH,"Library jackson-annotations:3.5.6 has CVE-2023-1017 (CVSS 8.0, HIGH). Patch available: upgrade to 5.5.0"
+DEP-0463,APP-010,sqlx,5.13.1,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library sqlx:5.13.1 has CVE-2022-1030 (CVSS 6.2, MEDIUM). No patch available yet."
+DEP-0464,APP-010,resty,4.3.1,False,NONE,NONE,No issues detected
+DEP-0465,APP-010,aws-sdk-go,1.5.5,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library aws-sdk-go:1.5.5 has CVE-2025-1102 (CVSS 6.3, MEDIUM). No patch available yet."
+DEP-0466,APP-010,gomock,5.4.10,True,VULNERABLE_DEPENDENCY,HIGH,"Library gomock:5.4.10 has CVE-2026-1001 (CVSS 7.3, HIGH). No patch available yet."
+DEP-0467,APP-010,gin,3.2.4,True,VULNERABLE_DEPENDENCY,LOW,"Library gin:3.2.4 has CVE-2023-1159 (CVSS 2.6, LOW). No patch available yet."
+DEP-0468,APP-010,caffeine,4.0.9,False,NONE,NONE,No issues detected
+DEP-0469,APP-010,werkzeug,5.1.9,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library werkzeug:5.1.9 has CVE-2024-1004 (CVSS 5.6, MEDIUM). No patch available yet."
+DEP-0470,APP-010,go-redis,5.11.0,True,VULNERABLE_DEPENDENCY,HIGH,"Library go-redis:5.11.0 has CVE-2024-1128 (CVSS 8.4, HIGH). No patch available yet."
+DEP-0471,APP-010,grpc-go,2.9.10,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library grpc-go:2.9.10 has CVE-2021-1055 (CVSS 4.5, MEDIUM). Patch available: upgrade to 4.8.0"
+DEP-0472,APP-010,cobra,3.5.6,False,NONE,NONE,No issues detected
+DEP-0473,APP-010,echo,3.7.7,False,NONE,NONE,No issues detected
+DEP-0474,APP-010,colly,4.14.2,False,NONE,NONE,No issues detected
+DEP-0475,APP-010,zap,2.12.6,False,NONE,NONE,No issues detected
+DEP-0476,APP-010,yaml-go,1.4.2,True,VULNERABLE_DEPENDENCY,HIGH,"Library yaml-go:1.4.2 has CVE-2024-1112 (CVSS 7.8, HIGH). Patch available: upgrade to 2.0.0"
+DEP-0477,APP-010,crypto-go,3.9.7,False,NONE,NONE,No issues detected
+DEP-0478,APP-010,fasthttp,1.8.3,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library fasthttp:1.8.3 has CVE-2021-1031 (CVSS 6.9, MEDIUM). No patch available yet."
+DEP-0479,APP-010,viper,3.6.2,False,NONE,NONE,No issues detected
+DEP-0480,APP-010,bcrypt-go,4.15.0,False,NONE,NONE,No issues detected
+DEP-0481,APP-010,json-iterator,2.9.7,False,NONE,NONE,No issues detected
+DEP-0482,APP-010,gorm,2.10.5,True,VULNERABLE_DEPENDENCY,LOW,"Library gorm:2.10.5 has CVE-2024-1193 (CVSS 1.2, LOW). Patch available: upgrade to 2.0.0"
+DEP-0483,APP-010,go-jwt,1.6.3,False,NONE,NONE,No issues detected
+DEP-0484,APP-010,mux,5.11.5,False,NONE,NONE,No issues detected
+DEP-0485,APP-010,uuid-go,4.2.2,True,VULNERABLE_DEPENDENCY,MEDIUM,"Library uuid-go:4.2.2 has CVE-2025-1176 (CVSS 5.3, MEDIUM). Patch available: upgrade to 2.0.0"
+DEP-0486,APP-010,chalk,1.12.8,True,TRANSITIVE_VULNERABILITY,LOW,Transitive dependency chalk:1.12.8 has CVE-2022-1170 (CVSS 1.2). Inherited via dependency chain — not directly declared by VendorGateway.
+DEP-0487,APP-010,vue,1.2.3,False,NONE,NONE,No issues detected
+DEP-0488,APP-010,hibernate-validator,2.4.0,True,TRANSITIVE_VULNERABILITY,MEDIUM,Transitive dependency hibernate-validator:2.4.0 has CVE-2021-1061 (CVSS 5.2). Inherited via dependency chain — not directly declared by VendorGateway.
+DEP-0489,APP-010,tomcat-embed-core,3.5.1,False,NONE,NONE,No issues detected
+DEP-0490,APP-010,pip,3.5.0,True,TRANSITIVE_VULNERABILITY,HIGH,Transitive dependency pip:3.5.0 has CVE-2024-1184 (CVSS 8.6). Inherited via dependency chain — not directly declared by VendorGateway.
+DEP-0491,APP-010,chi,1.11.6,False,NONE,NONE,No issues detected
+DEP-0492,APP-010,commons-codec,2.7.3,False,NONE,NONE,No issues detected
+DEP-0493,APP-010,certifi,2.7.3,True,TRANSITIVE_VULNERABILITY,LOW,Transitive dependency certifi:2.7.3 has CVE-2022-1168 (CVSS 1.4). Inherited via dependency chain — not directly declared by VendorGateway.
+DEP-0494,APP-010,bcrypt,2.2.3,True,TRANSITIVE_VULNERABILITY,CRITICAL,Transitive dependency bcrypt:2.2.3 has CVE-2023-1074 (CVSS 9.4). Inherited via dependency chain — not directly declared by VendorGateway.
+DEP-0495,APP-010,crypto-go,4.10.3,False,NONE,NONE,No issues detected
+DEP-0496,APP-010,protobuf-java,4.1.8,False,NONE,NONE,No issues detected
+DEP-0497,APP-010,mux,4.0.1,True,TRANSITIVE_VULNERABILITY,HIGH,Transitive dependency mux:4.0.1 has CVE-2025-1047 (CVSS 7.6). Inherited via dependency chain — not directly declared by VendorGateway.
+DEP-0498,APP-010,bouncycastle-bcprov,3.2.0,False,NONE,NONE,No issues detected
+DEP-0499,APP-010,chai,3.11.1,True,TRANSITIVE_VULNERABILITY,MEDIUM,Transitive dependency chai:3.11.1 has CVE-2024-1134 (CVSS 4.8). Inherited via dependency chain — not directly declared by VendorGateway.
+DEP-0500,APP-010,nodemon,2.3.0,True,TRANSITIVE_VULNERABILITY,LOW,Transitive dependency nodemon:2.3.0 has CVE-2023-1132 (CVSS 3.8). Inherited via dependency chain — not directly declared by VendorGateway.

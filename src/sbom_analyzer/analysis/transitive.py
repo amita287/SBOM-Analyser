@@ -1,14 +1,23 @@
-"""Inherited-vulnerability analysis via the graph (Phase 4).
+"""Inherited-vulnerability analysis via the graph.
 
-A dependency that is *clean of any direct CVE itself* but sits on a path to a
-vulnerable descendant is ``transitive_vulnerable`` (Section 5.1 / 6.2). This
-module walks the structural graph to find those nodes and, for each, the nearest
-vulnerable descendant that feeds the decayed transitive score (Section 7.1).
+Two different things get called "transitive" in this project, and conflating them
+is the easiest way to get the metrics wrong. They are NOT the same:
 
-Detection stays decoupled: the "who is directly vulnerable?" question is answered
-in :mod:`analysis.vulnerabilities` and handed in here as a ``base_vuln`` map. A
-dep counts as directly vulnerable exactly when its ``base_vuln > 0`` — the same
-definition the generator uses — so the two agree by construction.
+1. **The risk type** ``transitive_vulnerability``. In the supplied dataset this
+   means "this SBOM row is itself marked ``dependency_type=transitive`` AND its
+   own library carries a CVE" — a vulnerability that arrived transitively. It is
+   decided by a column, not by walking the graph. That classification lives in
+   :mod:`sbom_analyzer.analysis.classify`, and it is what the ground truth
+   labels. (Verified: all 54 ``TRANSITIVE_VULNERABILITY`` rows are transitive-type
+   rows carrying their own CVE; the "a child of mine is vulnerable" hypothesis
+   scores *zero* true positives.)
+
+2. **Graph exposure** — this module. A dependency that is clean itself but
+   *pulls in* a vulnerable library through ``transitive_deps``. The dataset's
+   labels never flag this, but it is a real exposure, and it is what the attack
+   paths in the report are drawn from. It feeds the decayed ``transitive_vuln``
+   score component and never a risk type — so it can enrich the report without
+   moving a number the eval checks.
 """
 
 from __future__ import annotations
@@ -32,7 +41,7 @@ class TransitiveExposure:
 
 
 def dependency_nodes(graph: nx.DiGraph) -> list[str]:
-    """All dependency-occurrence nodes (excludes application roots)."""
+    """All scored SBOM-row nodes (excludes apps and phantom externals)."""
     return [
         node
         for node, data in graph.nodes(data=True)
@@ -41,55 +50,53 @@ def dependency_nodes(graph: nx.DiGraph) -> list[str]:
 
 
 def nearest_vulnerable_descendant(
-    graph: nx.DiGraph, node_id: str, base_vuln_by_dep: Mapping[str, float]
+    graph: nx.DiGraph, node_id: str, base_vuln_by_node: Mapping[str, float]
 ) -> tuple[str | None, int, float]:
     """Nearest vulnerable descendant of ``node_id``.
 
     "Nearest" is fewest hops; among descendants tied at that hop distance the one
-    with the highest ``base_vuln`` wins (ties broken by id for determinism) — the
-    same choice the generator makes, and the value that feeds
-    :func:`scoring.risk.transitive_component`.
+    with the highest ``base_vuln`` wins (ties broken by id, for determinism).
     """
     lengths = nx.single_source_shortest_path_length(graph, node_id)
     hits = [
-        (dep, hop)
-        for dep, hop in lengths.items()
-        if hop > 0 and base_vuln_by_dep.get(dep, 0.0) > 0.0
+        (node, hop)
+        for node, hop in lengths.items()
+        if hop > 0 and base_vuln_by_node.get(node, 0.0) > 0.0
     ]
     if not hits:
         return None, 0, 0.0
-    nearest_hop = min(hop for _dep, hop in hits)
+
+    nearest_hop = min(hop for _n, hop in hits)
     best = max(
-        (dep for dep, hop in hits if hop == nearest_hop),
-        key=lambda dep: (base_vuln_by_dep[dep], dep),
+        (n for n, hop in hits if hop == nearest_hop),
+        key=lambda n: (base_vuln_by_node[n], n),
     )
-    return best, nearest_hop, base_vuln_by_dep[best]
+    return best, nearest_hop, base_vuln_by_node[best]
 
 
 def classify(
-    graph: nx.DiGraph, base_vuln_by_dep: Mapping[str, float]
+    graph: nx.DiGraph, base_vuln_by_node: Mapping[str, float]
 ) -> dict[str, TransitiveExposure]:
-    """Every ``transitive_vulnerable`` dependency, keyed by id.
+    """Every dependency exposed to a vulnerable descendant, keyed by id.
 
-    A node qualifies when it is *not itself* directly vulnerable
-    (``base_vuln == 0``) yet has at least one vulnerable descendant. Directly
-    vulnerable nodes are excluded: they *are* the vulnerability, not on a path
-    to one.
+    A node qualifies when it is *not itself* vulnerable (``base_vuln == 0``) yet
+    reaches something that is. Directly vulnerable nodes are excluded: they *are*
+    the vulnerability, not a path to one.
     """
     result: dict[str, TransitiveExposure] = {}
     for node in dependency_nodes(graph):
-        if base_vuln_by_dep.get(node, 0.0) > 0.0:
-            continue  # directly vulnerable — not a transitive classification
-        dep_id, hop, base = nearest_vulnerable_descendant(
-            graph, node, base_vuln_by_dep
+        if base_vuln_by_node.get(node, 0.0) > 0.0:
+            continue
+        target, hop, base = nearest_vulnerable_descendant(
+            graph, node, base_vuln_by_node
         )
-        if dep_id is not None:
-            result[node] = TransitiveExposure(node, dep_id, hop, base)
+        if target is not None:
+            result[node] = TransitiveExposure(node, target, hop, base)
     return result
 
 
-def transitive_vulnerable_ids(
-    graph: nx.DiGraph, base_vuln_by_dep: Mapping[str, float]
+def exposed_dependency_ids(
+    graph: nx.DiGraph, base_vuln_by_node: Mapping[str, float]
 ) -> set[str]:
-    """Just the set of transitively-vulnerable dependency ids."""
-    return set(classify(graph, base_vuln_by_dep))
+    """Just the set of graph-exposed dependency ids."""
+    return set(classify(graph, base_vuln_by_node))

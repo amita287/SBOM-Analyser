@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Application — SBOM Analyzer</title>
+<script>(function(){try{var t=localStorage.getItem("sbom.theme");document.documentElement.dataset.theme=t||(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");}catch(e){document.documentElement.dataset.theme="dark";}})();</script>
 <link rel="stylesheet" href="console.css">
 <style>
   .hero {
@@ -121,7 +122,7 @@
 <script type="module">
 import {
   api, esc, fault, shell, topbar, provcard, score, sevBadge, who, ICON,
-  dropdown, download, toCSV, FINDING_COLS, SEVERITIES, RISK_TYPES, plural,
+  dropdown, download, toCSV, FINDING_COLS, SEVERITIES, RISK_TYPES, plural, CLEAN, initChrome,
 } from "./console.js";
 import { findingRow, wireRows, FINDING_CSS } from "./finding.js";
 
@@ -133,6 +134,7 @@ const appId = new URLSearchParams(location.search).get("id");
 const focusDep = new URLSearchParams(location.search).get("dep");
 
 $("#rail").outerHTML = shell("apps");
+initChrome();
 $("#si").innerHTML = ICON.search;
 
 let app = null;         // AppRiskReport
@@ -173,7 +175,7 @@ function chrome() {
     if (b.dataset.x === "visible") {
       download(`sbom-${slug}-view.csv`, toCSV(visible(), FINDING_COLS));
     } else if (b.dataset.x === "all") {
-      const at = app.findings.filter((f) => !f.risk_types.includes("clean"));
+      const at = app.findings.filter((f) => !f.risk_types.includes(CLEAN));
       download(`sbom-${slug}-findings.csv`, toCSV(at, FINDING_COLS));
     } else {
       download(`sbom-${slug}.json`, JSON.stringify(app, null, 2), "application/json");
@@ -183,8 +185,8 @@ function chrome() {
 
 /* -------------------------------------------------------------------- hero */
 function renderHero() {
-  const atRisk = app.findings.filter((f) => !f.risk_types.includes("clean")).length;
-  const vuln = app.findings.filter((f) => f.risk_types.includes("vulnerable")).length;
+  const atRisk = app.findings.filter((f) => !f.risk_types.includes(CLEAN)).length;
+  const vuln = app.findings.filter((f) => f.matched_cves.length > 0).length;
   const paths = app.findings.reduce((n, f) => n + (f.attack_paths?.length ?? 0), 0);
   const p1 = app.findings.filter((f) => f.remediation?.priority === "P1").length;
   const conflicts = app.findings.filter((f) => f.license_outcome === "conflict").length;
@@ -193,10 +195,21 @@ function renderHero() {
   /* Say what the number means. "95/100" is a fact; "reachable, exploitable, and
      shipped to customers" is the reason anyone should care. */
   const say = [
-    vuln ? `${plural(vuln, "dependency", "dependencies")} carry a live CVE` : "no live CVEs",
+    /* Do NOT say "live CVE" unless one is actually confirmed. In this dataset no
+       dependency version appears in its own advisory's affected list, so every
+       match is unconfirmed — claiming otherwise here would undo, in one line of
+       summary copy, the entire point of the confidence tier. */
+    (() => {
+      const confirmed = app.findings.filter((f) =>
+        f.matched_cves.some((c) => c.confidence === "confirmed"),
+      ).length;
+      if (confirmed) return `${plural(confirmed, "dependency", "dependencies")} carry a confirmed CVE`;
+      if (vuln) return `${plural(vuln, "dependency", "dependencies")} match a CVE (unconfirmed)`;
+      return "no CVE matches";
+    })(),
     paths ? `${plural(paths, "path")} reach one from the app` : null,
-    conflicts && meta.distributed
-      ? `${plural(conflicts, "licence conflict")} on a distributed app`
+    conflicts && meta.license_model === "proprietary"
+      ? `${plural(conflicts, "licence conflict")} in a proprietary product`
       : conflicts ? `${plural(conflicts, "licence conflict")}` : null,
   ].filter(Boolean).join(" · ");
 
@@ -208,8 +221,10 @@ function renderHero() {
           ${who(meta.owner)}
           <span><b>${esc(app.business_criticality)}</b> tier</span>
           <span><b>${esc(meta.environment ?? "—")}</b></span>
-          <span>${meta.internet_facing ? "<b>internet-facing</b>" : "internal only"}</span>
-          <span>${meta.distributed ? "<b>distributed</b> — GPL obligations bite" : "not distributed"}</span>
+          <span>${esc(meta.language ?? "—")}</span>
+          <span>${meta.license_model === "proprietary"
+            ? "<b>proprietary</b> — viral licences bite"
+            : esc(meta.license_model ?? "—")}</span>
           <span class="id">${esc(app.app_id)}</span>
         </div>
       </div>
@@ -231,7 +246,7 @@ function renderHero() {
       <div class="n">${paths}</div><div class="l micro">Attack paths</div><div class="sub">app → vulnerable dep</div>
     </div>
     <div class="tile" style="--tone:var(--sev-medium)">
-      <div class="n">${conflicts}</div><div class="l micro">Licence conflicts</div><div class="sub">${meta.distributed ? "app is distributed" : "internal use"}</div>
+      <div class="n">${conflicts}</div><div class="l micro">Licence conflicts</div><div class="sub">${meta.license_model === "proprietary" ? "proprietary product" : "internal only"}</div>
     </div>
     <div class="tile" style="--tone:var(--sev-medium)">
       <div class="n">${stale}</div><div class="l micro">Unmaintained</div><div class="sub">stale &gt; 2 years</div>
