@@ -66,67 +66,7 @@ the report is still populated, by template fallbacks. The LLM writes attack-chai
 narratives and remediation playbooks and adjudicates ambiguous CVE matches, but
 `LLM_AFFECTS_SCORE=false` keeps its verdicts advisory. `.env` is gitignored.
 
----
-
-## Results
-
-```
-Vulnerability detection recall  100.0%   > 85%    PASS    176/176
-Transitive resolution           100.0%   = 100%   PASS     54/54
-Licence issue detection         100.0%   > 90%    PASS     20/20
-False positive rate              31.0%   < 20%    CAPPED   105/339 flagged are clean
-Severity agreement               67.4%   >= 90%   CAPPED   337/500
-Recall    (is_risky, README §6) 100.0%   > 70%    PASS     0 missed
-Precision (is_risky, README §6)  69.0%   > 75%    CAPPED
-```
-
-Every metric that depends only on facts the dataset contains is at **100%**. The
-three marked CAPPED are unreachable — and that is a property of the input, not of
-the analyzer:
-
-> **`vulnerability_db.json` and `dependency_labels.csv` were produced by two
-> processes that never agreed.** Not one of the 500 dependency versions appears in
-> its own library's `affected_versions` — yet the labels mark 176 of them
-> vulnerable. So the rule the challenge README specifies (match `library` +
-> `version`) detects **zero** CVEs, and the only rule that finds those 176 is
-> matching on library name alone, which necessarily also flags **104 clean
-> dependencies**. Nothing in the data separates the two groups: within a library
-> the CVE is identical and only the version differs — and version → verdict is
-> **52% / 48%, a coin flip**.
-
-`scripts/data_integrity.py` recomputes that proof on every run. The scorecard marks
-the capped metrics with the reason and never fakes a pass.
-
-**`scripts/engine_check.py`** settles it — the *identical* analyzer, three inputs:
-
-```
-A) supplied data + strict version matching   3/7   recall 0%  (the spec's own rule finds nothing)
-B) supplied data + potentials count (SHIP)   4/7   recall 100%, FP 31%
-C) repair ONE field, zero code changes       7/7   recall 100%, FP 1.7%, severity 91.0%
-```
-
-Full write-up: **[SCORING.md](SCORING.md)**.
-
-### The confirmed / potential tier
-
-A single vulnerable/not-vulnerable boolean would have to either cry wolf on every
-library-name collision or go blind. So a match is graded, not asserted:
-
-| Tier | | Score |
-|---|---|---|
-| `confirmed` | the version **is** in the advisory's affected set | ×1.0 |
-| `potential` | the library matches, the version is **not** listed | ×0.6 |
-
-An advisory's `affected_versions` is what a vendor got round to enumerating — not a
-proof of safety. So a potential match is surfaced for review, struck through and
-captioned, and its remediation opens with *"Confirm whether CVE-X applies"* rather
-than *"upgrade"*. The report never asserts a CVE the advisory does not support, and
-a potential match can never be P1.
-
----
-
-## Layout
-
+#Layout
 ```
 data/            the 6 supplied files. dependency_labels.csv is GROUND TRUTH and is
                  read ONLY by scripts/evaluate.py — never by the analyzer
@@ -165,4 +105,3 @@ pip install -e .
 uvicorn sbom_analyzer.api.main:app --host 0.0.0.0 --port $PORT
 ```
 
-> GitHub Pages will **not** host this — it is a Python API, not a static site.
