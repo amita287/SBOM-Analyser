@@ -683,3 +683,199 @@ tr.click:hover .goto { opacity: 1; transform: translateX(0); }
   .rail .railgroup, .rail .provcard { display: none; }
   .rail a.nav { justify-content: center; }
 }
+
+/* ==========================================================================
+   Light theme
+   ==========================================================================
+   The severity steps are NOT the dark ones lightened. They are their own
+   selected steps, validated against a white surface:
+
+     critical #cc2f36   high #d97706   medium #8a6d00   low #16803c   none #5b6b7f
+
+   All five clear 3:1 contrast on white. CVD separation lands at 11.7 (protan,
+   medium/high) — inside the 8-12 floor band, which is permitted ONLY because
+   every severity is also spelled out in text (the badge says "MEDIUM"). That
+   text is not decoration; it is the accessibility relief. Do not remove it.
+
+   The obvious shortcut — reuse the dark hexes on white — was measured and fails:
+   #e07b39 lands at 2.97:1 and #d4a017 at 2.38:1, both below the floor. The other
+   obvious move — darkening them all for contrast — collapses orange and yellow to
+   deltaE 1.9 under deuteranopia, i.e. the same colour for ~5% of men. This
+   palette is the one that survives both checks.
+   ========================================================================== */
+:root[data-theme="light"] {
+  --sev-critical: #cc2f36;
+  --sev-high:     #d97706;
+  --sev-medium:   #8a6d00;
+  --sev-low:      #16803c;
+  --sev-none:     #5b6b7f;
+
+  --plane:   #f3f4f6;
+  --rail:    #ffffff;
+  --panel:   #ffffff;
+  --panel-2: #f5f6f8;
+  --panel-3: #eaecf0;
+
+  --line:        #e4e7eb;
+  --line-strong: #d2d6dc;
+
+  --ink:   #15181c;
+  --ink-2: #545e6b;
+  --ink-3: #7b8593;
+
+  --accent:      #4f46e5;
+  --accent-soft: rgba(79, 70, 229, 0.10);
+}
+
+:root[data-theme="light"] { color-scheme: light; }
+
+/* The grid texture and the masthead gradient were tuned for a dark plane; on a
+   light one they read as smudges. */
+:root[data-theme="light"] body {
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.022) 1px, transparent 1px);
+}
+:root[data-theme="light"] .btn.primary { color: #ffffff; }
+:root[data-theme="light"] .key,
+:root[data-theme="light"] .stats,
+:root[data-theme="light"] .hint-bar { background: rgba(255, 255, 255, 0.88); }
+:root[data-theme="light"] .veil { background: rgba(255, 255, 255, 0.72); }
+:root[data-theme="light"] ::-webkit-scrollbar-thumb { background: #cdd2d8; }
+:root[data-theme="light"] aside.inspector::-webkit-scrollbar-thumb { background: #cdd2d8; }
+:root[data-theme="light"] .cve .lines code,
+:root[data-theme="light"] .fault code { background: rgba(0, 0, 0, 0.05); }
+:root[data-theme="light"] .toast,
+:root[data-theme="light"] .menu > .sheet { box-shadow: 0 12px 32px rgba(15, 20, 30, 0.14); }
+
+/* --------------------------------------------------------------------------
+   Theme toggle
+   -------------------------------------------------------------------------- */
+.themebtn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  margin-top: 4px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ink-2);
+  font: inherit;
+  font-size: 13.5px;
+  cursor: pointer;
+  text-align: left;
+}
+.themebtn:hover { background: var(--panel-2); color: var(--ink); }
+.themebtn svg { stroke: currentColor; }
+.themebtn .state { margin-left: auto; font-size: 11px; color: var(--ink-3); }
+
+/* --------------------------------------------------------------------------
+   Command palette
+   -------------------------------------------------------------------------- */
+.palette {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: grid;
+  place-items: start center;
+  padding-top: 12vh;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(3px);
+}
+:root[data-theme="light"] .palette { background: rgba(20, 26, 34, 0.28); }
+.palette[hidden] { display: none; }
+
+.pal-box {
+  width: min(680px, 92vw);
+  background: var(--panel);
+  border: 1px solid var(--line-strong);
+  border-radius: 14px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+.pal-input {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+}
+.pal-input svg { stroke: var(--ink-3); }
+.pal-input input {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 15px;
+  outline: none;
+}
+.pal-input input::placeholder { color: var(--ink-3); }
+
+.pal-results { max-height: 52vh; overflow-y: auto; padding: 6px; }
+.pal-empty { padding: 26px 16px; text-align: center; color: var(--ink-3); font-size: 13px; }
+
+.pal-row {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) minmax(0, 1.25fr);
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.pal-row.on { background: var(--accent-soft); }
+.pal-row:hover { background: var(--panel-2); }
+
+.pal-kind {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 3px 0;
+  border-radius: 4px;
+  color: var(--ink-3);
+  border: 1px solid var(--line);
+}
+.pal-kind.app  { color: var(--accent); border-color: var(--accent); }
+.pal-kind.risk { color: var(--sev-critical); border-color: color-mix(in srgb, var(--sev-critical) 45%, transparent); }
+
+.pal-label { font-weight: 600; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pal-sub {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--ink-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
+   Light-mode relief for the pale tints
+   --------------------------------------------------------------------------
+   A handful of colours were written as pale tints of a hue: readable on a dark
+   plane, invisible on a light one. The blast-radius callout was literally
+   unreadable in light mode. Rather than thread a variable through every one,
+   they are pinned here to the same hue at a step that has contrast on white.
+   -------------------------------------------------------------------------- */
+:root[data-theme="light"] .blast .t { color: #7c3f11; }
+:root[data-theme="light"] .blast .t b { color: #431f06; }
+:root[data-theme="light"] .fault { color: #8a1f24; }
+:root[data-theme="light"] .fault b { color: #5f1216; }
+:root[data-theme="light"] .fault div { color: #9a3b3f; }
+
+:root[data-theme="light"] .chip[aria-pressed="true"],
+:root[data-theme="light"] .btn[aria-pressed="true"] { color: var(--accent); }
+
+:root[data-theme="light"] .path .hop.root { color: #3730a3; }
+:root[data-theme="light"] .path .hop.term { color: #9f1239; }
+:root[data-theme="light"] .cve .fp-note b { color: var(--ink); }

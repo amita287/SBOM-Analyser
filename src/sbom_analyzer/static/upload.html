@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Upload SBOM — SBOM Analyzer</title>
+<script>(function(){try{var t=localStorage.getItem("sbom.theme");document.documentElement.dataset.theme=t||(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");}catch(e){document.documentElement.dataset.theme="dark";}})();</script>
+<link rel="stylesheet" href="console.css">
+<style>
+  .wrap2 { max-width: 780px; }
+
+  .drop {
+    border: 1.5px dashed var(--line-strong);
+    border-radius: 14px;
+    background: var(--panel);
+    padding: 40px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .14s ease, background .14s ease;
+  }
+  .drop:hover, .drop.over {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .drop svg { width: 30px; height: 30px; stroke: var(--ink-3); stroke-width: 1.4; }
+  .drop .t { margin-top: 12px; font-size: 15px; font-weight: 600; }
+  .drop .s { margin-top: 5px; font-size: 12.5px; color: var(--ink-3); }
+  .drop input { display: none; }
+
+  .picked {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+    padding: 11px 14px;
+    border-radius: 10px;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    font-size: 13px;
+  }
+  .picked svg { stroke: var(--sev-low); }
+  .picked .nm { font-weight: 600; }
+  .picked .sz { color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .picked button {
+    margin-left: auto;
+    border: 0; background: transparent; cursor: pointer;
+    color: var(--ink-3); font: inherit; font-size: 12px;
+  }
+  .picked button:hover { color: var(--sev-critical); }
+
+  .opt { display: grid; grid-template-columns: 150px 1fr; gap: 10px 14px; align-items: center; }
+  .opt label { font-size: 12.5px; color: var(--ink-2); }
+  .opt .file {
+    display: flex; align-items: center; gap: 10px;
+    padding: 7px 11px;
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    background: var(--panel-2);
+    font-size: 12.5px;
+    color: var(--ink-3);
+    cursor: pointer;
+  }
+  .opt .file:hover { border-color: var(--accent); color: var(--ink-2); }
+  .opt .file.set { color: var(--ink); border-color: var(--sev-low); }
+  .opt input[type=file] { display: none; }
+
+  pre.sample {
+    margin: 0;
+    padding: 13px 15px;
+    border-radius: 10px;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    font-family: var(--mono);
+    font-size: 11.5px;
+    line-height: 1.6;
+    color: var(--ink-2);
+    overflow-x: auto;
+  }
+  .result { margin-top: 14px; }
+  .ok {
+    padding: 15px 17px;
+    border-radius: 12px;
+    border: 1px solid color-mix(in srgb, var(--sev-low) 40%, transparent);
+    background: color-mix(in srgb, var(--sev-low) 8%, transparent);
+  }
+  .ok .h { font-weight: 640; font-size: 14px; margin-bottom: 8px; }
+  .ok dl { margin: 0; display: grid; grid-template-columns: 130px 1fr; gap: 5px 12px; font-size: 13px; }
+  .ok dt { color: var(--ink-3); }
+  .ok dd { margin: 0; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div id="rail"></div>
+
+  <div class="main">
+    <div class="topbar" id="topbar"></div>
+
+    <div class="content">
+      <div class="wrap2">
+        <section class="panel" style="margin-bottom:14px">
+          <div class="head"><h2>Upload an SBOM</h2>
+            <span class="note">analysed in memory — your `data/` directory is never touched</span>
+          </div>
+          <div class="body">
+            <label class="drop" id="drop">
+              <input type="file" id="sbom" accept=".csv,text/csv">
+              <span id="dropicon"></span>
+              <div class="t">Drop <b>sbom_dependencies.csv</b> here</div>
+              <div class="s">or click to choose a file</div>
+            </label>
+            <div id="picked"></div>
+
+            <div style="margin-top:18px">
+              <div class="micro" style="margin-bottom:10px">Optional — override the reference data</div>
+              <div class="opt" id="opts"></div>
+              <div style="margin-top:10px;font-size:11.5px;color:var(--ink-3)">
+                Leave these blank and the shipped CVE database and licence matrix are
+                used. If you don't supply <b class="mono">applications.json</b>, the
+                application inventory is derived from the CSV's own
+                <b class="mono">application_id</b> column — criticality defaults to
+                <b>medium</b> and licence model to <b>proprietary</b>, which is the
+                setting under which a viral licence actually is a conflict.
+              </div>
+            </div>
+
+            <div style="margin-top:20px;display:flex;gap:10px;align-items:center">
+              <button class="btn primary" id="go" disabled>
+                <span id="goicon"></span><span>Analyse</span>
+              </button>
+              <span id="status" style="font-size:12.5px;color:var(--ink-3)"></span>
+            </div>
+
+            <div class="result" id="result"></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="head"><h2>Expected format</h2>
+            <span class="note">one row per dependency occurrence</span>
+          </div>
+          <div class="body">
+<pre class="sample">dep_id,application_id,application_name,library,version,license,dependency_type,last_updated,transitive_deps
+DEP-0001,APP-001,CustomerPortal,log4j-core,2.14.1,Apache-2.0,direct,2021-03-01,shiro:1.2.3
+DEP-0002,APP-001,CustomerPortal,shiro,1.2.3,GPL-3.0,transitive,2020-01-05,
+DEP-0003,APP-001,CustomerPortal,express,4.18.2,MIT,direct,2025-06-01,</pre>
+            <div style="margin-top:12px;font-size:12.5px;color:var(--ink-3)">
+              <b class="mono">transitive_deps</b> is optional —
+              <b class="mono">lib:version;lib:version</b>. Everything else is required.
+              A malformed file is rejected with the exact row and column, never
+              silently skipped.
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import {
+  API, esc, shell, topbar, provcard, api, ICON, initChrome, toast,
+} from "./console.js";
+
+const $ = (s) => document.querySelector(s);
+$("#rail").outerHTML = shell("upload");
+initChrome();
+$("#topbar").innerHTML = topbar({ title: "Upload SBOM", icon: "upload" });
+$("#dropicon").innerHTML = ICON.upload;
+$("#goicon").innerHTML = ICON.shield;
+
+api("/runs/latest").then((run) => ($("#provcard").innerHTML = provcard(run))).catch(() => {});
+
+/* The four optional files. Only the SBOM itself is required — nobody brings their
+   own NVD feed to look at one dependency list. */
+const OPTIONAL = [
+  ["applications", "applications.json", ".json"],
+  ["vulnerability_db", "vulnerability_db.json", ".json"],
+  ["license_rules", "license_rules.json", ".json"],
+  ["transitive_dependencies", "transitive_dependencies.json", ".json"],
+];
+
+$("#opts").innerHTML = OPTIONAL.map(([id, name, accept]) => `
+  <label for="f-${id}">${name}</label>
+  <label class="file" id="lbl-${id}" for="f-${id}">
+    <span>Choose file…</span>
+    <input type="file" id="f-${id}" accept="${accept}">
+  </label>`).join("");
+
+for (const [id] of OPTIONAL) {
+  $(`#f-${id}`).addEventListener("change", (e) => {
+    const f = e.target.files[0];
+    const lbl = $(`#lbl-${id}`);
+    lbl.classList.toggle("set", !!f);
+    lbl.querySelector("span").textContent = f ? f.name : "Choose file…";
+  });
+}
+
+const kb = (n) => (n < 1024 ? `${n} B` : `${(n / 1024).toFixed(1)} KB`);
+
+function showPicked(file) {
+  $("#go").disabled = !file;
+  $("#picked").innerHTML = !file ? "" : `
+    <div class="picked">
+      ${ICON.check}
+      <span class="nm">${esc(file.name)}</span>
+      <span class="sz">${kb(file.size)}</span>
+      <button id="clear">remove</button>
+    </div>`;
+  $("#clear")?.addEventListener("click", () => {
+    $("#sbom").value = "";
+    showPicked(null);
+  });
+}
+
+$("#sbom").addEventListener("change", (e) => showPicked(e.target.files[0]));
+
+/* Drag and drop. A drop zone that only works when you click is a picture of a
+   drop zone. */
+const drop = $("#drop");
+["dragenter", "dragover"].forEach((ev) =>
+  drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach((ev) =>
+  drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", (e) => {
+  const f = e.dataTransfer?.files?.[0];
+  if (!f) return;
+  const dt = new DataTransfer();
+  dt.items.add(f);
+  $("#sbom").files = dt.files;
+  showPicked(f);
+});
+
+$("#go").addEventListener("click", async () => {
+  const file = $("#sbom").files[0];
+  if (!file) return;
+
+  const body = new FormData();
+  body.append("sbom", file);
+  for (const [id] of OPTIONAL) {
+    const f = $(`#f-${id}`).files[0];
+    if (f) body.append(id, f);
+  }
+
+  $("#go").disabled = true;
+  $("#status").textContent = "analysing…";
+  $("#result").innerHTML = "";
+
+  try {
+    const res = await fetch(`${API}/analyze/upload`, { method: "POST", body });
+    const data = await res.json();
+
+    if (!res.ok) {
+      /* Show the loader's actual complaint — which row, which column. "422" on
+         its own tells a person nothing about what to fix. */
+      $("#result").innerHTML = `
+        <div class="fault">
+          <b>That SBOM didn't validate.</b>
+          <div style="margin-top:8px;white-space:pre-wrap;font-family:var(--mono);font-size:12px">${esc(
+            typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail, null, 2),
+          )}</div>
+        </div>`;
+      return;
+    }
+
+    const t = data.totals_per_risk_type ?? {};
+    const line = Object.entries(t)
+      .filter(([, v]) => v)
+      .map(([k, v]) => `${k.replace(/_/g, " ")} ${v}`)
+      .join(" · ");
+
+    $("#result").innerHTML = `
+      <div class="ok">
+        <div class="h">Analysed — this run is now <b class="mono">latest</b></div>
+        <dl>
+          <dt>Run</dt><dd class="mono">${esc(data.run_id)}</dd>
+          <dt>Applications</dt><dd>${data.apps}</dd>
+          <dt>Dependencies</dt><dd>${data.findings}</dd>
+          <dt>At risk</dt><dd>${data.at_risk}</dd>
+          <dt>Breakdown</dt><dd>${esc(line) || "none"}</dd>
+        </dl>
+        <div style="margin-top:12px;display:flex;gap:8px">
+          <a class="btn primary" href="dashboard.html">Open the dashboard</a>
+          <a class="btn" href="findings.html">See the findings</a>
+        </div>
+      </div>`;
+    toast(`Analysed ${data.findings} dependencies`);
+  } catch (err) {
+    $("#result").innerHTML = `
+      <div class="fault"><b>Can't reach the analyzer.</b> ${esc(err.message)}</div>`;
+  } finally {
+    $("#go").disabled = false;
+    $("#status").textContent = "";
+  }
+});
+</script>
+</body>
+</html>

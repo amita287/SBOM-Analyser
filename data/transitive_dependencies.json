@@ -1,0 +1,2606 @@
+[
+  {
+    "parent_library": "micrometer-core",
+    "parent_version": "3.0.10",
+    "child_library": "tomcat-embed-core",
+    "child_version": "2.4.0",
+    "application_id": "APP-001"
+  },
+  {
+    "parent_library": "netty-all",
+    "parent_version": "2.7.4",
+    "child_library": "assertj-core",
+    "child_version": "2.1.1",
+    "application_id": "APP-001"
+  },
+  {
+    "parent_library": "json-iterator",
+    "parent_version": "2.3.2",
+    "child_library": "disruptor",
+    "child_version": "3.1.0",
+    "application_id": "APP-001"
+  },
+  {
+    "parent_library": "log4j-api",
+    "parent_version": "5.1.3",
+    "child_library": "eslint",
+    "child_version": "3.4.1",
+    "application_id": "APP-001"
+  },
+  {
+    "parent_library": "lombok",
+    "parent_version": "4.1.2",
+    "child_library": "jackson-core",
+    "child_version": "2.2.2",
+    "application_id": "APP-001"
+  },
+  {
+    "parent_library": "jackson-annotations",
+    "parent_version": "5.0.6",
+    "child_library": "hibernate-core",
+    "child_version": "3.2.0",
+    "application_id": "APP-001"
+  },
+  {
+    "parent_library": "slf4j-api",
+    "parent_version": "2.8.8",
+    "child_library": "httpcore",
+    "child_version": "2.2.1",
+    "application_id": "APP-001"
+  },
+  {
+    "parent_library": "go-jwt",
+    "parent_version": "5.10.5",
+    "child_library": "logback-classic",
+    "child_version": "2.7.4",
+    "application_id": "APP-001"
+  },
+  {
+    "parent_library": "snakeyaml",
+    "parent_version": "3.1.0",
+    "child_library": "jackson-core",
+    "child_version": "4.9.0",
+    "application_id": "APP-001"
+  },
+  {
+    "parent_library": "snakeyaml",
+    "parent_version": "3.1.0",
+    "child_library": "aws-sdk-s3",
+    "child_version": "3.4.2",
+    "application_id": "APP-001"
+  },
+  {
+    "parent_library": "snakeyaml",
+    "parent_version": "3.1.0",
+    "child_library": "eslint",
+    "child_version": "2.2.5",
+    "application_id": "APP-001"
+  },
+  {
+    "parent_library": "opentelemetry-api",
+    "parent_version": "4.10.2",
+    "child_library": "httpcore",
+    "child_version": "2.6.2",
+    "application_id": "APP-001"
+  },
+  {
+    "parent_library": "pyyaml",
+    "parent_version": "5.7.10",
+    "child_library": "commons-io",
+    "child_version": "3.7.0",
+    "application_id": "APP-001"
+  },
+  {
+    "parent_library": "pyyaml",
+    "parent_version": "5.7.10",
+    "child_library": "eslint",
+    "child_version": "3.3.1",
+    "application_id": "APP-001"
+  },
+  {
+    "parent_library": "pyyaml",
+    "parent_version": "5.7.10",
+    "child_library": "fabric",
+    "child_version": "1.5.2",
+    "application_id": "APP-001"
+  },
+  {
+    "parent_library": "jackson-databind",
+    "parent_version": "1.1.6",
+    "child_library": "hibernate-core",
+    "child_version": "1.7.4",
+    "application_id": "APP-001"
+  },
+  {
+    "parent_library": "log4j-core",
+    "parent_version": "2.2.8",
+    "child_library": "eslint",
+    "child_version": "2.9.3",
+    "application_id": "APP-001"
+  },
+  {
+    "parent_library": "jetty-server",
+    "parent_version": "2.3.0",
+    "child_library": "disruptor",
+    "child_version": "3.1.5",
+    "application_id": "APP-001"
+  },
+  {
+    "parent_library": "jetty-server",
+    "parent_version": "2.3.0",
+    "child_library": "netty-handler",
+    "child_version": "4.2.2",
+    "application_id": "APP-001"
+  },
+  {
+    "parent_library": "mockito-core",
+    "parent_version": "1.2.10",
+    "child_library": "httpcore",
+    "child_version": "4.8.5",
+    "application_id": "APP-001"
+  },
+  {
+    "parent_library": "mockito-core",
+    "parent_version": "1.2.10",
+    "child_library": "spring-web",
+    "child_version": "4.9.1",
+    "application_id": "APP-001"
+  },
+  {
+    "parent_library": "junit-jupiter",
+    "parent_version": "4.1.8",
+    "child_library": "commons-io",
+    "child_version": "2.3.1",
+    "application_id": "APP-001"
+  },
+  {
+    "parent_library": "guava",
+    "parent_version": "1.2.6",
+    "child_library": "logback-classic",
+    "child_version": "4.1.3",
+    "application_id": "APP-001"
+  },
+  {
+    "parent_library": "guava",
+    "parent_version": "1.2.6",
+    "child_library": "netty-handler",
+    "child_version": "2.2.4",
+    "application_id": "APP-001"
+  },
+  {
+    "parent_library": "mapstruct",
+    "parent_version": "4.15.0",
+    "child_library": "netty-handler",
+    "child_version": "3.3.0",
+    "application_id": "APP-001"
+  },
+  {
+    "parent_library": "kafka-clients",
+    "parent_version": "4.8.5",
+    "child_library": "eslint",
+    "child_version": "2.2.2",
+    "application_id": "APP-001"
+  },
+  {
+    "parent_library": "kafka-clients",
+    "parent_version": "4.8.5",
+    "child_library": "fabric",
+    "child_version": "4.5.2",
+    "application_id": "APP-001"
+  },
+  {
+    "parent_library": "mysql-connector-java",
+    "parent_version": "4.2.3",
+    "child_library": "spring-web",
+    "child_version": "2.1.2",
+    "application_id": "APP-001"
+  },
+  {
+    "parent_library": "mysql-connector-java",
+    "parent_version": "4.2.3",
+    "child_library": "crypto-go",
+    "child_version": "4.2.4",
+    "application_id": "APP-001"
+  },
+  {
+    "parent_library": "sarama",
+    "parent_version": "5.0.2",
+    "child_library": "aws-sdk-s3",
+    "child_version": "3.7.4",
+    "application_id": "APP-001"
+  },
+  {
+    "parent_library": "sarama",
+    "parent_version": "5.0.2",
+    "child_library": "spring-core",
+    "child_version": "4.10.0",
+    "application_id": "APP-001"
+  },
+  {
+    "parent_library": "sarama",
+    "parent_version": "5.0.2",
+    "child_library": "assertj-core",
+    "child_version": "1.3.2",
+    "application_id": "APP-001"
+  },
+  {
+    "parent_library": "snakeyaml",
+    "parent_version": "3.15.2",
+    "child_library": "lombok",
+    "child_version": "2.6.0",
+    "application_id": "APP-002"
+  },
+  {
+    "parent_library": "vue",
+    "parent_version": "3.3.1",
+    "child_library": "commons-lang3",
+    "child_version": "3.2.0",
+    "application_id": "APP-002"
+  },
+  {
+    "parent_library": "httpcore",
+    "parent_version": "5.15.3",
+    "child_library": "log4j-core",
+    "child_version": "2.1.4",
+    "application_id": "APP-002"
+  },
+  {
+    "parent_library": "httpcore",
+    "parent_version": "5.15.3",
+    "child_library": "commons-codec",
+    "child_version": "1.1.2",
+    "application_id": "APP-002"
+  },
+  {
+    "parent_library": "logback-core",
+    "parent_version": "4.9.4",
+    "child_library": "disruptor",
+    "child_version": "1.1.0",
+    "application_id": "APP-002"
+  },
+  {
+    "parent_library": "logback-core",
+    "parent_version": "4.9.4",
+    "child_library": "commons-lang3",
+    "child_version": "1.2.5",
+    "application_id": "APP-002"
+  },
+  {
+    "parent_library": "guava",
+    "parent_version": "1.5.1",
+    "child_library": "disruptor",
+    "child_version": "1.10.5",
+    "application_id": "APP-002"
+  },
+  {
+    "parent_library": "aws-sdk-sqs",
+    "parent_version": "2.15.7",
+    "child_library": "log4j-core",
+    "child_version": "2.10.2",
+    "application_id": "APP-002"
+  },
+  {
+    "parent_library": "aws-sdk-sqs",
+    "parent_version": "2.15.7",
+    "child_library": "logback-classic",
+    "child_version": "1.6.5",
+    "application_id": "APP-002"
+  },
+  {
+    "parent_library": "spring-web",
+    "parent_version": "4.0.1",
+    "child_library": "lombok",
+    "child_version": "3.8.4",
+    "application_id": "APP-002"
+  },
+  {
+    "parent_library": "spring-web",
+    "parent_version": "4.0.1",
+    "child_library": "log4j-core",
+    "child_version": "2.10.5",
+    "application_id": "APP-002"
+  },
+  {
+    "parent_library": "hibernate-validator",
+    "parent_version": "4.10.5",
+    "child_library": "spring-core",
+    "child_version": "3.7.0",
+    "application_id": "APP-002"
+  },
+  {
+    "parent_library": "jackson-core",
+    "parent_version": "4.3.4",
+    "child_library": "jackson-annotations",
+    "child_version": "4.0.5",
+    "application_id": "APP-002"
+  },
+  {
+    "parent_library": "jackson-core",
+    "parent_version": "4.3.4",
+    "child_library": "aiohttp",
+    "child_version": "1.7.3",
+    "application_id": "APP-002"
+  },
+  {
+    "parent_library": "netty-all",
+    "parent_version": "5.4.7",
+    "child_library": "commons-codec",
+    "child_version": "2.9.1",
+    "application_id": "APP-002"
+  },
+  {
+    "parent_library": "netty-all",
+    "parent_version": "5.4.7",
+    "child_library": "logback-classic",
+    "child_version": "2.1.3",
+    "application_id": "APP-002"
+  },
+  {
+    "parent_library": "tomcat-embed-core",
+    "parent_version": "5.10.8",
+    "child_library": "disruptor",
+    "child_version": "3.7.1",
+    "application_id": "APP-002"
+  },
+  {
+    "parent_library": "postgresql-jdbc",
+    "parent_version": "2.13.9",
+    "child_library": "bandit",
+    "child_version": "2.3.1",
+    "application_id": "APP-002"
+  },
+  {
+    "parent_library": "postgresql-jdbc",
+    "parent_version": "2.13.9",
+    "child_library": "logback-classic",
+    "child_version": "3.10.2",
+    "application_id": "APP-002"
+  },
+  {
+    "parent_library": "slf4j-api",
+    "parent_version": "2.5.8",
+    "child_library": "log4j-core",
+    "child_version": "4.10.5",
+    "application_id": "APP-002"
+  },
+  {
+    "parent_library": "jackson-databind",
+    "parent_version": "2.11.9",
+    "child_library": "jackson-annotations",
+    "child_version": "1.6.0",
+    "application_id": "APP-002"
+  },
+  {
+    "parent_library": "jackson-databind",
+    "parent_version": "2.11.9",
+    "child_library": "testify",
+    "child_version": "4.4.4",
+    "application_id": "APP-002"
+  },
+  {
+    "parent_library": "jackson-databind",
+    "parent_version": "2.11.9",
+    "child_library": "netty-handler",
+    "child_version": "3.2.1",
+    "application_id": "APP-002"
+  },
+  {
+    "parent_library": "kafka-clients",
+    "parent_version": "1.10.7",
+    "child_library": "log4j-core",
+    "child_version": "3.7.4",
+    "application_id": "APP-002"
+  },
+  {
+    "parent_library": "psycopg2",
+    "parent_version": "1.11.3",
+    "child_library": "logback-classic",
+    "child_version": "1.1.5",
+    "application_id": "APP-002"
+  },
+  {
+    "parent_library": "commons-collections4",
+    "parent_version": "3.14.3",
+    "child_library": "aiohttp",
+    "child_version": "1.6.2",
+    "application_id": "APP-002"
+  },
+  {
+    "parent_library": "jetty-server",
+    "parent_version": "2.10.8",
+    "child_library": "morgan",
+    "child_version": "2.10.3",
+    "application_id": "APP-002"
+  },
+  {
+    "parent_library": "mysql-connector-java",
+    "parent_version": "1.6.8",
+    "child_library": "testify",
+    "child_version": "4.5.0",
+    "application_id": "APP-002"
+  },
+  {
+    "parent_library": "mysql-connector-java",
+    "parent_version": "1.6.8",
+    "child_library": "h2-database",
+    "child_version": "1.1.0",
+    "application_id": "APP-002"
+  },
+  {
+    "parent_library": "bouncycastle-bcprov",
+    "parent_version": "2.8.8",
+    "child_library": "disruptor",
+    "child_version": "1.6.5",
+    "application_id": "APP-002"
+  },
+  {
+    "parent_library": "pip",
+    "parent_version": "2.4.2",
+    "child_library": "django",
+    "child_version": "4.7.1",
+    "application_id": "APP-003"
+  },
+  {
+    "parent_library": "pip",
+    "parent_version": "2.4.2",
+    "child_library": "scikit-learn",
+    "child_version": "2.10.3",
+    "application_id": "APP-003"
+  },
+  {
+    "parent_library": "setuptools",
+    "parent_version": "2.12.9",
+    "child_library": "uvicorn",
+    "child_version": "4.7.1",
+    "application_id": "APP-003"
+  },
+  {
+    "parent_library": "setuptools",
+    "parent_version": "2.12.9",
+    "child_library": "django",
+    "child_version": "2.6.4",
+    "application_id": "APP-003"
+  },
+  {
+    "parent_library": "setuptools",
+    "parent_version": "2.12.9",
+    "child_library": "urllib3",
+    "child_version": "2.9.1",
+    "application_id": "APP-003"
+  },
+  {
+    "parent_library": "numpy",
+    "parent_version": "5.8.2",
+    "child_library": "click",
+    "child_version": "1.3.4",
+    "application_id": "APP-003"
+  },
+  {
+    "parent_library": "aws-sdk-s3",
+    "parent_version": "5.13.2",
+    "child_library": "click",
+    "child_version": "1.7.5",
+    "application_id": "APP-003"
+  },
+  {
+    "parent_library": "junit-jupiter",
+    "parent_version": "4.13.5",
+    "child_library": "go-redis",
+    "child_version": "1.6.1",
+    "application_id": "APP-003"
+  },
+  {
+    "parent_library": "psycopg2",
+    "parent_version": "1.3.8",
+    "child_library": "click",
+    "child_version": "2.6.5",
+    "application_id": "APP-003"
+  },
+  {
+    "parent_library": "pydantic",
+    "parent_version": "5.8.4",
+    "child_library": "boto3",
+    "child_version": "4.2.2",
+    "application_id": "APP-003"
+  },
+  {
+    "parent_library": "pydantic",
+    "parent_version": "5.8.4",
+    "child_library": "werkzeug",
+    "child_version": "4.4.2",
+    "application_id": "APP-003"
+  },
+  {
+    "parent_library": "log4j-api",
+    "parent_version": "2.3.3",
+    "child_library": "urllib3",
+    "child_version": "1.2.3",
+    "application_id": "APP-003"
+  },
+  {
+    "parent_library": "log4j-api",
+    "parent_version": "2.3.3",
+    "child_library": "gunicorn",
+    "child_version": "1.1.1",
+    "application_id": "APP-003"
+  },
+  {
+    "parent_library": "paramiko",
+    "parent_version": "1.2.4",
+    "child_library": "werkzeug",
+    "child_version": "3.9.0",
+    "application_id": "APP-003"
+  },
+  {
+    "parent_library": "pandas",
+    "parent_version": "5.5.10",
+    "child_library": "idna",
+    "child_version": "4.6.4",
+    "application_id": "APP-003"
+  },
+  {
+    "parent_library": "pandas",
+    "parent_version": "5.5.10",
+    "child_library": "scikit-learn",
+    "child_version": "2.8.0",
+    "application_id": "APP-003"
+  },
+  {
+    "parent_library": "cryptography",
+    "parent_version": "4.12.9",
+    "child_library": "werkzeug",
+    "child_version": "3.5.0",
+    "application_id": "APP-003"
+  },
+  {
+    "parent_library": "sqlalchemy",
+    "parent_version": "5.8.8",
+    "child_library": "go-redis",
+    "child_version": "4.9.0",
+    "application_id": "APP-003"
+  },
+  {
+    "parent_library": "sqlalchemy",
+    "parent_version": "5.8.8",
+    "child_library": "django",
+    "child_version": "4.1.2",
+    "application_id": "APP-003"
+  },
+  {
+    "parent_library": "redis-py",
+    "parent_version": "2.10.6",
+    "child_library": "gunicorn",
+    "child_version": "3.1.4",
+    "application_id": "APP-003"
+  },
+  {
+    "parent_library": "pyyaml",
+    "parent_version": "2.15.5",
+    "child_library": "uvicorn",
+    "child_version": "2.3.2",
+    "application_id": "APP-003"
+  },
+  {
+    "parent_library": "node-fetch",
+    "parent_version": "2.11.2",
+    "child_library": "werkzeug",
+    "child_version": "4.5.4",
+    "application_id": "APP-003"
+  },
+  {
+    "parent_library": "node-fetch",
+    "parent_version": "2.11.2",
+    "child_library": "colly",
+    "child_version": "3.7.4",
+    "application_id": "APP-003"
+  },
+  {
+    "parent_library": "httpx",
+    "parent_version": "4.5.8",
+    "child_library": "werkzeug",
+    "child_version": "1.8.2",
+    "application_id": "APP-003"
+  },
+  {
+    "parent_library": "coverage",
+    "parent_version": "2.14.1",
+    "child_library": "idna",
+    "child_version": "3.9.2",
+    "application_id": "APP-003"
+  },
+  {
+    "parent_library": "zap",
+    "parent_version": "2.8.3",
+    "child_library": "go-redis",
+    "child_version": "3.5.3",
+    "application_id": "APP-003"
+  },
+  {
+    "parent_library": "fastapi",
+    "parent_version": "5.4.9",
+    "child_library": "uvicorn",
+    "child_version": "2.7.0",
+    "application_id": "APP-003"
+  },
+  {
+    "parent_library": "fastapi",
+    "parent_version": "5.4.9",
+    "child_library": "celery",
+    "child_version": "2.6.3",
+    "application_id": "APP-003"
+  },
+  {
+    "parent_library": "jinja2",
+    "parent_version": "3.15.10",
+    "child_library": "boto3",
+    "child_version": "1.5.5",
+    "application_id": "APP-003"
+  },
+  {
+    "parent_library": "python-dateutil",
+    "parent_version": "5.6.9",
+    "child_library": "django",
+    "child_version": "4.1.3",
+    "application_id": "APP-003"
+  },
+  {
+    "parent_library": "flask",
+    "parent_version": "5.9.7",
+    "child_library": "urllib3",
+    "child_version": "4.1.0",
+    "application_id": "APP-003"
+  },
+  {
+    "parent_library": "wheel",
+    "parent_version": "2.10.3",
+    "child_library": "go-redis",
+    "child_version": "3.9.4",
+    "application_id": "APP-003"
+  },
+  {
+    "parent_library": "wheel",
+    "parent_version": "2.10.3",
+    "child_library": "pytest",
+    "child_version": "4.6.1",
+    "application_id": "APP-003"
+  },
+  {
+    "parent_library": "pyjwt",
+    "parent_version": "5.13.8",
+    "child_library": "idna",
+    "child_version": "4.4.1",
+    "application_id": "APP-003"
+  },
+  {
+    "parent_library": "coverage",
+    "parent_version": "5.12.10",
+    "child_library": "flask",
+    "child_version": "4.1.3",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "coverage",
+    "parent_version": "5.12.10",
+    "child_library": "charset-normalizer",
+    "child_version": "1.5.4",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "morgan",
+    "parent_version": "4.11.0",
+    "child_library": "celery",
+    "child_version": "2.8.3",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "morgan",
+    "parent_version": "4.11.0",
+    "child_library": "pillow",
+    "child_version": "2.3.4",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "morgan",
+    "parent_version": "4.11.0",
+    "child_library": "uvicorn",
+    "child_version": "2.9.5",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "paramiko",
+    "parent_version": "5.10.10",
+    "child_library": "bcrypt",
+    "child_version": "4.10.3",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "paramiko",
+    "parent_version": "5.10.10",
+    "child_library": "uvicorn",
+    "child_version": "3.9.1",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "paramiko",
+    "parent_version": "5.10.10",
+    "child_library": "matplotlib",
+    "child_version": "2.6.4",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "numpy",
+    "parent_version": "1.9.3",
+    "child_library": "psycopg2",
+    "child_version": "2.1.0",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "pytest",
+    "parent_version": "2.8.5",
+    "child_library": "charset-normalizer",
+    "child_version": "1.5.3",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "python-dateutil",
+    "parent_version": "2.15.9",
+    "child_library": "setuptools",
+    "child_version": "1.5.2",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "cors",
+    "parent_version": "4.13.1",
+    "child_library": "click",
+    "child_version": "3.8.0",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "cors",
+    "parent_version": "4.13.1",
+    "child_library": "flask",
+    "child_version": "3.8.4",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "django",
+    "parent_version": "2.10.8",
+    "child_library": "pillow",
+    "child_version": "2.6.2",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "mypy",
+    "parent_version": "2.4.5",
+    "child_library": "setuptools",
+    "child_version": "2.2.3",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "boto3",
+    "parent_version": "4.6.8",
+    "child_library": "matplotlib",
+    "child_version": "1.1.5",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "httpx",
+    "parent_version": "3.6.5",
+    "child_library": "setuptools",
+    "child_version": "2.7.0",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "httpx",
+    "parent_version": "3.6.5",
+    "child_library": "hibernate-core",
+    "child_version": "2.3.5",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "scipy",
+    "parent_version": "1.3.0",
+    "child_library": "setuptools",
+    "child_version": "1.4.3",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "moment",
+    "parent_version": "2.6.3",
+    "child_library": "six",
+    "child_version": "1.6.4",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "fastapi",
+    "parent_version": "5.1.4",
+    "child_library": "flask",
+    "child_version": "1.6.5",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "twisted",
+    "parent_version": "3.11.1",
+    "child_library": "scikit-learn",
+    "child_version": "1.5.3",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "pyjwt",
+    "parent_version": "5.2.2",
+    "child_library": "requests",
+    "child_version": "4.2.0",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "pyjwt",
+    "parent_version": "5.2.2",
+    "child_library": "bcrypt",
+    "child_version": "3.10.2",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "pyjwt",
+    "parent_version": "5.2.2",
+    "child_library": "hibernate-core",
+    "child_version": "3.10.2",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "formidable",
+    "parent_version": "4.4.1",
+    "child_library": "psycopg2",
+    "child_version": "2.6.2",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "pyyaml",
+    "parent_version": "5.10.7",
+    "child_library": "requests",
+    "child_version": "2.6.1",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "pyyaml",
+    "parent_version": "5.10.7",
+    "child_library": "scikit-learn",
+    "child_version": "2.5.0",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "idna",
+    "parent_version": "2.10.2",
+    "child_library": "matplotlib",
+    "child_version": "3.2.1",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "bandit",
+    "parent_version": "1.8.9",
+    "child_library": "hibernate-core",
+    "child_version": "2.8.4",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "ansible-core",
+    "parent_version": "3.5.6",
+    "child_library": "click",
+    "child_version": "2.3.0",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "ansible-core",
+    "parent_version": "3.5.6",
+    "child_library": "charset-normalizer",
+    "child_version": "2.7.4",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "ansible-core",
+    "parent_version": "3.5.6",
+    "child_library": "scikit-learn",
+    "child_version": "4.5.3",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "urllib3",
+    "parent_version": "4.12.0",
+    "child_library": "celery",
+    "child_version": "1.8.0",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "aiohttp",
+    "parent_version": "2.12.0",
+    "child_library": "requests",
+    "child_version": "3.7.1",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "pandas",
+    "parent_version": "5.4.7",
+    "child_library": "scikit-learn",
+    "child_version": "4.6.2",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "pandas",
+    "parent_version": "5.4.7",
+    "child_library": "celery",
+    "child_version": "4.0.1",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "pandas",
+    "parent_version": "5.4.7",
+    "child_library": "rich",
+    "child_version": "4.9.5",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "pydantic",
+    "parent_version": "4.11.1",
+    "child_library": "click",
+    "child_version": "1.2.2",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "markupsafe",
+    "parent_version": "2.0.9",
+    "child_library": "flask",
+    "child_version": "4.3.1",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "typescript",
+    "parent_version": "4.13.7",
+    "child_library": "uvicorn",
+    "child_version": "2.0.1",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "hibernate-validator",
+    "parent_version": "1.4.0",
+    "child_library": "rich",
+    "child_version": "2.7.5",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "hibernate-validator",
+    "parent_version": "1.4.0",
+    "child_library": "six",
+    "child_version": "3.0.0",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "hibernate-validator",
+    "parent_version": "1.4.0",
+    "child_library": "requests",
+    "child_version": "3.5.2",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "botocore",
+    "parent_version": "1.13.8",
+    "child_library": "charset-normalizer",
+    "child_version": "2.9.0",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "safety",
+    "parent_version": "1.2.7",
+    "child_library": "requests",
+    "child_version": "3.2.4",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "safety",
+    "parent_version": "1.2.7",
+    "child_library": "celery",
+    "child_version": "4.8.5",
+    "application_id": "APP-004"
+  },
+  {
+    "parent_library": "formidable",
+    "parent_version": "5.8.5",
+    "child_library": "postgresql-jdbc",
+    "child_version": "1.7.0",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "cheerio",
+    "parent_version": "3.15.7",
+    "child_library": "testify",
+    "child_version": "1.5.4",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "bcrypt",
+    "parent_version": "1.9.8",
+    "child_library": "axios",
+    "child_version": "2.9.3",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "mocha",
+    "parent_version": "4.10.8",
+    "child_library": "micrometer-core",
+    "child_version": "4.5.4",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "mocha",
+    "parent_version": "4.10.8",
+    "child_library": "express",
+    "child_version": "1.7.1",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "nanoid",
+    "parent_version": "3.12.1",
+    "child_library": "postgresql-jdbc",
+    "child_version": "1.3.1",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "winston",
+    "parent_version": "1.4.10",
+    "child_library": "axios",
+    "child_version": "3.9.5",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "sequelize",
+    "parent_version": "3.2.9",
+    "child_library": "postgresql-jdbc",
+    "child_version": "1.0.5",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "sequelize",
+    "parent_version": "3.2.9",
+    "child_library": "axios",
+    "child_version": "3.1.2",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "commander",
+    "parent_version": "2.13.9",
+    "child_library": "bull",
+    "child_version": "2.3.4",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "dotenv",
+    "parent_version": "4.4.4",
+    "child_library": "bull",
+    "child_version": "4.2.0",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "dotenv",
+    "parent_version": "4.4.4",
+    "child_library": "echo",
+    "child_version": "2.10.3",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "babel-core",
+    "parent_version": "5.15.3",
+    "child_library": "testify",
+    "child_version": "3.1.4",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "node-fetch",
+    "parent_version": "2.8.7",
+    "child_library": "micrometer-core",
+    "child_version": "3.9.0",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "node-fetch",
+    "parent_version": "2.8.7",
+    "child_library": "echo",
+    "child_version": "3.8.0",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "node-fetch",
+    "parent_version": "2.8.7",
+    "child_library": "dayjs",
+    "child_version": "4.7.4",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "morgan",
+    "parent_version": "5.10.6",
+    "child_library": "testify",
+    "child_version": "3.0.5",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "morgan",
+    "parent_version": "5.10.6",
+    "child_library": "webpack",
+    "child_version": "4.9.1",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "nodemon",
+    "parent_version": "2.15.2",
+    "child_library": "helmet",
+    "child_version": "4.6.1",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "nodemon",
+    "parent_version": "2.15.2",
+    "child_library": "dayjs",
+    "child_version": "4.10.1",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "nodemon",
+    "parent_version": "2.15.2",
+    "child_library": "bull",
+    "child_version": "2.9.5",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "next",
+    "parent_version": "4.15.4",
+    "child_library": "echo",
+    "child_version": "3.6.4",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "next",
+    "parent_version": "4.15.4",
+    "child_library": "postgresql-jdbc",
+    "child_version": "3.5.2",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "next",
+    "parent_version": "4.15.4",
+    "child_library": "micrometer-core",
+    "child_version": "3.1.2",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "cors",
+    "parent_version": "5.12.7",
+    "child_library": "testify",
+    "child_version": "2.5.4",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "knex",
+    "parent_version": "1.0.1",
+    "child_library": "testify",
+    "child_version": "3.4.1",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "chalk",
+    "parent_version": "1.0.9",
+    "child_library": "testify",
+    "child_version": "1.1.4",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "vue",
+    "parent_version": "1.5.4",
+    "child_library": "testify",
+    "child_version": "3.4.1",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "vue",
+    "parent_version": "1.5.4",
+    "child_library": "echo",
+    "child_version": "1.4.0",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "react",
+    "parent_version": "4.12.5",
+    "child_library": "protobuf-java",
+    "child_version": "2.10.3",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "react",
+    "parent_version": "4.12.5",
+    "child_library": "express",
+    "child_version": "1.2.4",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "react",
+    "parent_version": "4.12.5",
+    "child_library": "graphql",
+    "child_version": "4.3.4",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "puppeteer",
+    "parent_version": "1.12.4",
+    "child_library": "graphql",
+    "child_version": "1.8.1",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "apollo-server",
+    "parent_version": "5.1.6",
+    "child_library": "mysql-connector-java",
+    "child_version": "4.3.1",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "react-dom",
+    "parent_version": "5.7.7",
+    "child_library": "postgresql-jdbc",
+    "child_version": "1.5.5",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "react-dom",
+    "parent_version": "5.7.7",
+    "child_library": "mysql-connector-java",
+    "child_version": "1.6.0",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "react-dom",
+    "parent_version": "5.7.7",
+    "child_library": "axios",
+    "child_version": "2.10.5",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "angular-core",
+    "parent_version": "5.4.9",
+    "child_library": "express",
+    "child_version": "2.0.1",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "angular-core",
+    "parent_version": "5.4.9",
+    "child_library": "postgresql-jdbc",
+    "child_version": "1.4.0",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "angular-core",
+    "parent_version": "5.4.9",
+    "child_library": "protobuf-java",
+    "child_version": "4.9.1",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "jest",
+    "parent_version": "5.2.1",
+    "child_library": "dayjs",
+    "child_version": "4.5.0",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "spring-boot-starter",
+    "parent_version": "2.11.8",
+    "child_library": "webpack",
+    "child_version": "2.0.3",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "yargs",
+    "parent_version": "1.0.0",
+    "child_library": "protobuf-java",
+    "child_version": "2.10.2",
+    "application_id": "APP-005"
+  },
+  {
+    "parent_library": "zap",
+    "parent_version": "4.6.3",
+    "child_library": "inquirer",
+    "child_version": "4.8.4",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "pyjwt",
+    "parent_version": "2.0.4",
+    "child_library": "react-dom",
+    "child_version": "2.1.0",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "pyjwt",
+    "parent_version": "2.0.4",
+    "child_library": "commons-lang3",
+    "child_version": "2.8.5",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "moment",
+    "parent_version": "3.15.9",
+    "child_library": "commons-lang3",
+    "child_version": "3.3.3",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "moment",
+    "parent_version": "3.15.9",
+    "child_library": "cors",
+    "child_version": "3.4.0",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "testify",
+    "parent_version": "2.11.4",
+    "child_library": "uuid",
+    "child_version": "2.2.1",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "testify",
+    "parent_version": "2.11.4",
+    "child_library": "coverage",
+    "child_version": "1.0.2",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "testify",
+    "parent_version": "2.11.4",
+    "child_library": "mapstruct",
+    "child_version": "2.7.2",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "crypto-go",
+    "parent_version": "5.1.10",
+    "child_library": "mapstruct",
+    "child_version": "1.6.3",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "python-dateutil",
+    "parent_version": "2.14.5",
+    "child_library": "commons-lang3",
+    "child_version": "2.9.5",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "mux",
+    "parent_version": "4.10.1",
+    "child_library": "uuid",
+    "child_version": "2.7.2",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "logrus",
+    "parent_version": "5.6.9",
+    "child_library": "bouncycastle-bcprov",
+    "child_version": "1.8.3",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "logrus",
+    "parent_version": "5.6.9",
+    "child_library": "mapstruct",
+    "child_version": "2.7.2",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "go-jwt",
+    "parent_version": "5.2.3",
+    "child_library": "mapstruct",
+    "child_version": "4.2.4",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "go-jwt",
+    "parent_version": "5.2.3",
+    "child_library": "go-jwt",
+    "child_version": "1.2.1",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "viper",
+    "parent_version": "2.6.2",
+    "child_library": "logback-classic",
+    "child_version": "4.3.0",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "resty",
+    "parent_version": "1.4.4",
+    "child_library": "inquirer",
+    "child_version": "2.0.0",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "gson",
+    "parent_version": "4.2.9",
+    "child_library": "uuid",
+    "child_version": "1.4.1",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "gson",
+    "parent_version": "4.2.9",
+    "child_library": "paramiko",
+    "child_version": "1.2.2",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "gson",
+    "parent_version": "4.2.9",
+    "child_library": "jedis",
+    "child_version": "4.2.2",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "spring-core",
+    "parent_version": "2.1.4",
+    "child_library": "paramiko",
+    "child_version": "2.10.1",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "fiber",
+    "parent_version": "1.4.8",
+    "child_library": "uuid",
+    "child_version": "2.8.4",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "gin",
+    "parent_version": "5.3.6",
+    "child_library": "cors",
+    "child_version": "4.9.4",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "json-iterator",
+    "parent_version": "3.5.4",
+    "child_library": "commons-lang3",
+    "child_version": "2.3.1",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "golangci-lint",
+    "parent_version": "5.1.7",
+    "child_library": "mapstruct",
+    "child_version": "2.9.1",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "golangci-lint",
+    "parent_version": "5.1.7",
+    "child_library": "uvicorn",
+    "child_version": "2.10.2",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "pgx",
+    "parent_version": "1.2.2",
+    "child_library": "uvicorn",
+    "child_version": "1.1.4",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "pgx",
+    "parent_version": "1.2.2",
+    "child_library": "nats",
+    "child_version": "1.8.1",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "aiohttp",
+    "parent_version": "2.9.2",
+    "child_library": "inquirer",
+    "child_version": "2.7.5",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "aiohttp",
+    "parent_version": "2.9.2",
+    "child_library": "jedis",
+    "child_version": "1.2.2",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "fasthttp",
+    "parent_version": "2.2.7",
+    "child_library": "logback-classic",
+    "child_version": "1.1.1",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "chi",
+    "parent_version": "2.2.5",
+    "child_library": "commons-lang3",
+    "child_version": "3.10.3",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "chi",
+    "parent_version": "2.2.5",
+    "child_library": "pyjwt",
+    "child_version": "3.7.5",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "yargs",
+    "parent_version": "1.2.10",
+    "child_library": "commons-lang3",
+    "child_version": "3.8.4",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "colly",
+    "parent_version": "2.9.2",
+    "child_library": "bouncycastle-bcprov",
+    "child_version": "4.7.4",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "sqlx",
+    "parent_version": "2.1.6",
+    "child_library": "react-dom",
+    "child_version": "1.2.2",
+    "application_id": "APP-006"
+  },
+  {
+    "parent_library": "viper",
+    "parent_version": "5.1.10",
+    "child_library": "pydantic",
+    "child_version": "3.10.0",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "logback-classic",
+    "parent_version": "2.14.10",
+    "child_library": "aiohttp",
+    "child_version": "4.5.5",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "logback-classic",
+    "parent_version": "2.14.10",
+    "child_library": "jinja2",
+    "child_version": "4.1.1",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "mypy",
+    "parent_version": "3.2.5",
+    "child_library": "pydantic",
+    "child_version": "2.10.3",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "mypy",
+    "parent_version": "3.2.5",
+    "child_library": "jinja2",
+    "child_version": "2.0.3",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "certifi",
+    "parent_version": "3.2.1",
+    "child_library": "pydantic",
+    "child_version": "3.7.3",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "certifi",
+    "parent_version": "3.2.1",
+    "child_library": "bouncycastle-bcprov",
+    "child_version": "2.4.1",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "markupsafe",
+    "parent_version": "1.7.1",
+    "child_library": "scipy",
+    "child_version": "2.1.2",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "scikit-learn",
+    "parent_version": "4.6.9",
+    "child_library": "charset-normalizer",
+    "child_version": "3.3.4",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "scikit-learn",
+    "parent_version": "4.6.9",
+    "child_library": "scipy",
+    "child_version": "4.3.2",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "python-dateutil",
+    "parent_version": "4.2.0",
+    "child_library": "uvicorn",
+    "child_version": "3.1.0",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "python-dateutil",
+    "parent_version": "4.2.0",
+    "child_library": "click",
+    "child_version": "1.0.2",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "spring-core",
+    "parent_version": "3.12.10",
+    "child_library": "jinja2",
+    "child_version": "3.7.1",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "redis-py",
+    "parent_version": "1.10.8",
+    "child_library": "jinja2",
+    "child_version": "3.4.4",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "redis-py",
+    "parent_version": "1.10.8",
+    "child_library": "bouncycastle-bcprov",
+    "child_version": "3.8.2",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "wheel",
+    "parent_version": "4.5.5",
+    "child_library": "aiohttp",
+    "child_version": "1.3.1",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "paramiko",
+    "parent_version": "3.15.7",
+    "child_library": "numpy",
+    "child_version": "2.8.2",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "paramiko",
+    "parent_version": "3.15.7",
+    "child_library": "black",
+    "child_version": "2.9.0",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "helmet",
+    "parent_version": "4.2.3",
+    "child_library": "click",
+    "child_version": "1.5.1",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "pandas",
+    "parent_version": "1.2.7",
+    "child_library": "charset-normalizer",
+    "child_version": "4.5.5",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "pyjwt",
+    "parent_version": "5.4.3",
+    "child_library": "click",
+    "child_version": "4.1.3",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "cryptography",
+    "parent_version": "3.4.5",
+    "child_library": "click",
+    "child_version": "4.1.3",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "psycopg2",
+    "parent_version": "3.5.6",
+    "child_library": "numpy",
+    "child_version": "4.8.5",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "bandit",
+    "parent_version": "5.2.4",
+    "child_library": "scipy",
+    "child_version": "2.8.3",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "matplotlib",
+    "parent_version": "5.2.0",
+    "child_library": "httpx",
+    "child_version": "1.8.0",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "matplotlib",
+    "parent_version": "5.2.0",
+    "child_library": "scipy",
+    "child_version": "1.10.3",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "rich",
+    "parent_version": "2.5.6",
+    "child_library": "aiohttp",
+    "child_version": "3.5.1",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "rich",
+    "parent_version": "2.5.6",
+    "child_library": "click",
+    "child_version": "2.2.0",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "cobra",
+    "parent_version": "5.8.10",
+    "child_library": "uvicorn",
+    "child_version": "4.10.5",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "pip",
+    "parent_version": "1.0.3",
+    "child_library": "gunicorn",
+    "child_version": "1.4.3",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "pip",
+    "parent_version": "1.0.3",
+    "child_library": "botocore",
+    "child_version": "2.7.3",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "six",
+    "parent_version": "4.15.9",
+    "child_library": "click",
+    "child_version": "4.3.5",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "redis",
+    "parent_version": "4.10.8",
+    "child_library": "httpx",
+    "child_version": "4.0.1",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "redis",
+    "parent_version": "4.10.8",
+    "child_library": "aiohttp",
+    "child_version": "3.3.3",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "redis",
+    "parent_version": "4.10.8",
+    "child_library": "uvicorn",
+    "child_version": "3.7.1",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "setuptools",
+    "parent_version": "4.11.7",
+    "child_library": "numpy",
+    "child_version": "2.3.1",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "coverage",
+    "parent_version": "1.13.7",
+    "child_library": "numpy",
+    "child_version": "2.8.0",
+    "application_id": "APP-007"
+  },
+  {
+    "parent_library": "aws-sdk-s3",
+    "parent_version": "4.14.7",
+    "child_library": "log4j-core",
+    "child_version": "1.3.3",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "guava",
+    "parent_version": "3.9.7",
+    "child_library": "netty-all",
+    "child_version": "3.4.1",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "mysql-connector-java",
+    "parent_version": "2.15.0",
+    "child_library": "netty-all",
+    "child_version": "3.6.3",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "tomcat-embed-core",
+    "parent_version": "5.4.2",
+    "child_library": "aws-sdk-sqs",
+    "child_version": "4.6.1",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "lettuce-core",
+    "parent_version": "4.10.8",
+    "child_library": "gson",
+    "child_version": "3.8.5",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "lettuce-core",
+    "parent_version": "4.10.8",
+    "child_library": "mapstruct",
+    "child_version": "1.10.4",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "jedis",
+    "parent_version": "1.6.9",
+    "child_library": "axios",
+    "child_version": "1.10.4",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "postgresql-jdbc",
+    "parent_version": "3.6.3",
+    "child_library": "gson",
+    "child_version": "1.7.0",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "commander",
+    "parent_version": "5.7.7",
+    "child_library": "setuptools",
+    "child_version": "4.0.3",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "boto3",
+    "parent_version": "1.8.8",
+    "child_library": "numpy",
+    "child_version": "4.1.5",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "logback-classic",
+    "parent_version": "3.5.3",
+    "child_library": "gson",
+    "child_version": "2.0.0",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "logback-classic",
+    "parent_version": "3.5.3",
+    "child_library": "jetty-server",
+    "child_version": "4.4.4",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "logback-classic",
+    "parent_version": "3.5.3",
+    "child_library": "mapstruct",
+    "child_version": "3.10.3",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "log4j-api",
+    "parent_version": "4.8.3",
+    "child_library": "axios",
+    "child_version": "4.0.0",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "h2-database",
+    "parent_version": "4.15.6",
+    "child_library": "setuptools",
+    "child_version": "3.6.4",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "spring-boot-starter",
+    "parent_version": "3.12.2",
+    "child_library": "resilience4j",
+    "child_version": "1.4.5",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "netty-handler",
+    "parent_version": "3.6.1",
+    "child_library": "axios",
+    "child_version": "2.0.1",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "netty-handler",
+    "parent_version": "3.6.1",
+    "child_library": "jetty-server",
+    "child_version": "4.1.2",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "netty-handler",
+    "parent_version": "3.6.1",
+    "child_library": "caffeine",
+    "child_version": "4.2.4",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "junit-jupiter",
+    "parent_version": "3.13.6",
+    "child_library": "resilience4j",
+    "child_version": "3.6.4",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "junit-jupiter",
+    "parent_version": "3.13.6",
+    "child_library": "axios",
+    "child_version": "4.5.0",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "grpc-core",
+    "parent_version": "4.6.5",
+    "child_library": "netty-all",
+    "child_version": "2.5.2",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "grpc-core",
+    "parent_version": "4.6.5",
+    "child_library": "resilience4j",
+    "child_version": "1.10.5",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "grpc-core",
+    "parent_version": "4.6.5",
+    "child_library": "disruptor",
+    "child_version": "1.0.3",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "commons-io",
+    "parent_version": "4.0.9",
+    "child_library": "disruptor",
+    "child_version": "2.1.4",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "commons-io",
+    "parent_version": "4.0.9",
+    "child_library": "axios",
+    "child_version": "4.1.5",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "commons-io",
+    "parent_version": "4.0.9",
+    "child_library": "opentelemetry-api",
+    "child_version": "4.9.0",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "jackson-databind",
+    "parent_version": "4.2.1",
+    "child_library": "resilience4j",
+    "child_version": "1.7.3",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "jackson-databind",
+    "parent_version": "4.2.1",
+    "child_library": "disruptor",
+    "child_version": "4.6.4",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "micrometer-core",
+    "parent_version": "3.0.7",
+    "child_library": "disruptor",
+    "child_version": "2.9.1",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "commons-lang3",
+    "parent_version": "5.13.8",
+    "child_library": "gson",
+    "child_version": "3.4.2",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "pgx",
+    "parent_version": "5.4.0",
+    "child_library": "mapstruct",
+    "child_version": "1.5.1",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "pgx",
+    "parent_version": "5.4.0",
+    "child_library": "resilience4j",
+    "child_version": "4.7.4",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "pgx",
+    "parent_version": "5.4.0",
+    "child_library": "aws-sdk-sqs",
+    "child_version": "3.9.4",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "kafka-clients",
+    "parent_version": "3.9.6",
+    "child_library": "log4j-core",
+    "child_version": "2.7.4",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "jackson-annotations",
+    "parent_version": "3.0.1",
+    "child_library": "opentelemetry-api",
+    "child_version": "2.3.2",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "jackson-annotations",
+    "parent_version": "3.0.1",
+    "child_library": "axios",
+    "child_version": "2.3.2",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "jackson-annotations",
+    "parent_version": "3.0.1",
+    "child_library": "disruptor",
+    "child_version": "2.5.4",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "logback-core",
+    "parent_version": "1.5.4",
+    "child_library": "netty-all",
+    "child_version": "1.5.1",
+    "application_id": "APP-008"
+  },
+  {
+    "parent_library": "yaml-go",
+    "parent_version": "5.15.0",
+    "child_library": "moment",
+    "child_version": "4.0.2",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "jest",
+    "parent_version": "3.13.6",
+    "child_library": "bcrypt",
+    "child_version": "2.4.3",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "jest",
+    "parent_version": "3.13.6",
+    "child_library": "react",
+    "child_version": "4.2.4",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "jest",
+    "parent_version": "3.13.6",
+    "child_library": "cors",
+    "child_version": "3.9.1",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "cryptography",
+    "parent_version": "3.6.0",
+    "child_library": "nodemon",
+    "child_version": "4.7.3",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "redis",
+    "parent_version": "5.1.1",
+    "child_library": "bcrypt",
+    "child_version": "2.6.1",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "ansible-core",
+    "parent_version": "2.8.10",
+    "child_library": "pm2",
+    "child_version": "1.5.0",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "ansible-core",
+    "parent_version": "2.8.10",
+    "child_library": "angular-core",
+    "child_version": "1.8.2",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "ansible-core",
+    "parent_version": "2.8.10",
+    "child_library": "dotenv",
+    "child_version": "4.7.1",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "sharp",
+    "parent_version": "1.14.0",
+    "child_library": "pm2",
+    "child_version": "1.4.0",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "sharp",
+    "parent_version": "1.14.0",
+    "child_library": "node-fetch",
+    "child_version": "2.5.5",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "axios",
+    "parent_version": "4.14.1",
+    "child_library": "cors",
+    "child_version": "1.9.0",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "axios",
+    "parent_version": "4.14.1",
+    "child_library": "bcrypt",
+    "child_version": "2.4.0",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "winston",
+    "parent_version": "2.2.10",
+    "child_library": "dotenv",
+    "child_version": "4.0.5",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "winston",
+    "parent_version": "2.2.10",
+    "child_library": "react",
+    "child_version": "1.6.5",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "nanoid",
+    "parent_version": "2.3.5",
+    "child_library": "prettier",
+    "child_version": "2.1.5",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "inquirer",
+    "parent_version": "5.11.0",
+    "child_library": "angular-core",
+    "child_version": "2.4.0",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "inquirer",
+    "parent_version": "5.11.0",
+    "child_library": "bcrypt",
+    "child_version": "3.10.5",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "dayjs",
+    "parent_version": "2.4.1",
+    "child_library": "prettier",
+    "child_version": "3.2.5",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "graphql",
+    "parent_version": "1.11.6",
+    "child_library": "angular-core",
+    "child_version": "1.6.3",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "graphql",
+    "parent_version": "1.11.6",
+    "child_library": "prettier",
+    "child_version": "1.4.4",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "commander",
+    "parent_version": "3.12.7",
+    "child_library": "react",
+    "child_version": "2.0.0",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "commander",
+    "parent_version": "3.12.7",
+    "child_library": "cors",
+    "child_version": "3.7.3",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "morgan",
+    "parent_version": "4.11.6",
+    "child_library": "nodemon",
+    "child_version": "2.3.3",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "django",
+    "parent_version": "3.15.10",
+    "child_library": "nats",
+    "child_version": "3.10.5",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "multer",
+    "parent_version": "2.8.9",
+    "child_library": "node-fetch",
+    "child_version": "1.10.5",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "multer",
+    "parent_version": "2.8.9",
+    "child_library": "moment",
+    "child_version": "4.6.5",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "uuid",
+    "parent_version": "5.6.6",
+    "child_library": "nodemon",
+    "child_version": "4.1.0",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "uuid",
+    "parent_version": "5.6.6",
+    "child_library": "mapstruct",
+    "child_version": "3.2.2",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "webpack",
+    "parent_version": "4.13.10",
+    "child_library": "dotenv",
+    "child_version": "1.7.4",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "helmet",
+    "parent_version": "2.6.0",
+    "child_library": "moment",
+    "child_version": "2.1.2",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "helmet",
+    "parent_version": "2.6.0",
+    "child_library": "bcrypt",
+    "child_version": "1.6.0",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "helmet",
+    "parent_version": "2.6.0",
+    "child_library": "eslint",
+    "child_version": "3.1.2",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "knex",
+    "parent_version": "1.7.7",
+    "child_library": "angular-core",
+    "child_version": "1.1.1",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "express",
+    "parent_version": "5.0.6",
+    "child_library": "formidable",
+    "child_version": "3.10.2",
+    "application_id": "APP-009"
+  },
+  {
+    "parent_library": "protobuf-go",
+    "parent_version": "2.12.6",
+    "child_library": "vue",
+    "child_version": "3.9.3",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "protobuf-go",
+    "parent_version": "2.12.6",
+    "child_library": "bcrypt",
+    "child_version": "2.10.5",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "protobuf-go",
+    "parent_version": "2.12.6",
+    "child_library": "protobuf-java",
+    "child_version": "4.3.0",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "rich",
+    "parent_version": "1.7.6",
+    "child_library": "bouncycastle-bcprov",
+    "child_version": "4.10.3",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "logrus",
+    "parent_version": "3.14.5",
+    "child_library": "nodemon",
+    "child_version": "2.0.4",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "fiber",
+    "parent_version": "5.15.4",
+    "child_library": "pip",
+    "child_version": "2.1.2",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "fiber",
+    "parent_version": "5.15.4",
+    "child_library": "crypto-go",
+    "child_version": "1.8.1",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "golangci-lint",
+    "parent_version": "4.0.6",
+    "child_library": "chai",
+    "child_version": "1.3.5",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "mockito-core",
+    "parent_version": "2.6.10",
+    "child_library": "chi",
+    "child_version": "2.6.5",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "setuptools",
+    "parent_version": "1.9.10",
+    "child_library": "bcrypt",
+    "child_version": "2.1.5",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "graphql",
+    "parent_version": "2.1.3",
+    "child_library": "pip",
+    "child_version": "2.9.3",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "nats",
+    "parent_version": "3.12.10",
+    "child_library": "vue",
+    "child_version": "3.10.5",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "resty",
+    "parent_version": "4.3.1",
+    "child_library": "mux",
+    "child_version": "3.8.2",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "aws-sdk-go",
+    "parent_version": "1.5.5",
+    "child_library": "nodemon",
+    "child_version": "4.7.4",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "gomock",
+    "parent_version": "5.4.10",
+    "child_library": "mux",
+    "child_version": "4.7.1",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "gomock",
+    "parent_version": "5.4.10",
+    "child_library": "bouncycastle-bcprov",
+    "child_version": "4.5.3",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "gomock",
+    "parent_version": "5.4.10",
+    "child_library": "tomcat-embed-core",
+    "child_version": "3.4.3",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "gin",
+    "parent_version": "3.2.4",
+    "child_library": "hibernate-validator",
+    "child_version": "1.4.4",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "gin",
+    "parent_version": "3.2.4",
+    "child_library": "crypto-go",
+    "child_version": "4.0.3",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "gin",
+    "parent_version": "3.2.4",
+    "child_library": "chalk",
+    "child_version": "2.7.3",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "go-redis",
+    "parent_version": "5.11.0",
+    "child_library": "chai",
+    "child_version": "1.4.2",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "go-redis",
+    "parent_version": "5.11.0",
+    "child_library": "bouncycastle-bcprov",
+    "child_version": "4.4.2",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "grpc-go",
+    "parent_version": "2.9.10",
+    "child_library": "crypto-go",
+    "child_version": "4.5.2",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "cobra",
+    "parent_version": "3.5.6",
+    "child_library": "nodemon",
+    "child_version": "4.0.1",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "zap",
+    "parent_version": "2.12.6",
+    "child_library": "vue",
+    "child_version": "4.10.5",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "zap",
+    "parent_version": "2.12.6",
+    "child_library": "commons-codec",
+    "child_version": "2.5.3",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "zap",
+    "parent_version": "2.12.6",
+    "child_library": "certifi",
+    "child_version": "4.2.0",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "yaml-go",
+    "parent_version": "1.4.2",
+    "child_library": "chi",
+    "child_version": "4.9.5",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "fasthttp",
+    "parent_version": "1.8.3",
+    "child_library": "tomcat-embed-core",
+    "child_version": "2.3.0",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "viper",
+    "parent_version": "3.6.2",
+    "child_library": "protobuf-java",
+    "child_version": "2.3.2",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "bcrypt-go",
+    "parent_version": "4.15.0",
+    "child_library": "tomcat-embed-core",
+    "child_version": "1.2.0",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "bcrypt-go",
+    "parent_version": "4.15.0",
+    "child_library": "chi",
+    "child_version": "1.0.5",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "json-iterator",
+    "parent_version": "2.9.7",
+    "child_library": "vue",
+    "child_version": "1.10.0",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "gorm",
+    "parent_version": "2.10.5",
+    "child_library": "tomcat-embed-core",
+    "child_version": "4.1.0",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "go-jwt",
+    "parent_version": "1.6.3",
+    "child_library": "bouncycastle-bcprov",
+    "child_version": "2.0.1",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "go-jwt",
+    "parent_version": "1.6.3",
+    "child_library": "tomcat-embed-core",
+    "child_version": "2.6.4",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "mux",
+    "parent_version": "5.11.5",
+    "child_library": "bcrypt",
+    "child_version": "2.9.2",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "mux",
+    "parent_version": "5.11.5",
+    "child_library": "bouncycastle-bcprov",
+    "child_version": "2.4.0",
+    "application_id": "APP-010"
+  },
+  {
+    "parent_library": "mux",
+    "parent_version": "5.11.5",
+    "child_library": "chalk",
+    "child_version": "1.3.5",
+    "application_id": "APP-010"
+  }
+]

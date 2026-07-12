@@ -1,0 +1,7 @@
+# The dataset is byte-sensitive. `dependency_labels.csv` is cp1252, not UTF-8 (it
+# carries an em dash at byte 0x97), and git's automatic CRLF conversion would
+# rewrite the very bytes the eval harness decodes. Ship them exactly as supplied.
+data/** -text
+
+# Everything else: normalise line endings in the repo, check out native.
+* text=auto

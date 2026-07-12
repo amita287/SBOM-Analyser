@@ -1,0 +1,102 @@
+[
+  {
+    "app_id": "APP-001",
+    "name": "CustomerPortal",
+    "language": "Java",
+    "criticality": "HIGH",
+    "license_model": "proprietary",
+    "business_owner": "Sarah Chen",
+    "department": "Engineering",
+    "deployment": "cloud"
+  },
+  {
+    "app_id": "APP-002",
+    "name": "PaymentService",
+    "language": "Java",
+    "criticality": "CRITICAL",
+    "license_model": "proprietary",
+    "business_owner": "Mike Torres",
+    "department": "Finance",
+    "deployment": "cloud"
+  },
+  {
+    "app_id": "APP-003",
+    "name": "InternalAPI",
+    "language": "Python",
+    "criticality": "MEDIUM",
+    "license_model": "proprietary",
+    "business_owner": "Priya Patel",
+    "department": "Engineering",
+    "deployment": "on-prem"
+  },
+  {
+    "app_id": "APP-004",
+    "name": "HRPortal",
+    "language": "Python",
+    "criticality": "HIGH",
+    "license_model": "proprietary",
+    "business_owner": "James Wilson",
+    "department": "HR",
+    "deployment": "cloud"
+  },
+  {
+    "app_id": "APP-005",
+    "name": "AnalyticsDashboard",
+    "language": "JavaScript",
+    "criticality": "MEDIUM",
+    "license_model": "proprietary",
+    "business_owner": "Lisa Wang",
+    "department": "Data",
+    "deployment": "cloud"
+  },
+  {
+    "app_id": "APP-006",
+    "name": "MobileBackend",
+    "language": "Go",
+    "criticality": "HIGH",
+    "license_model": "proprietary",
+    "business_owner": "Carlos Rivera",
+    "department": "Mobile",
+    "deployment": "cloud"
+  },
+  {
+    "app_id": "APP-007",
+    "name": "DevToolkit",
+    "language": "Python",
+    "criticality": "LOW",
+    "license_model": "internal-only",
+    "business_owner": "Amy Liu",
+    "department": "DevOps",
+    "deployment": "on-prem"
+  },
+  {
+    "app_id": "APP-008",
+    "name": "ComplianceEngine",
+    "language": "Java",
+    "criticality": "CRITICAL",
+    "license_model": "proprietary",
+    "business_owner": "Robert Kim",
+    "department": "Compliance",
+    "deployment": "on-prem"
+  },
+  {
+    "app_id": "APP-009",
+    "name": "NotificationService",
+    "language": "JavaScript",
+    "criticality": "MEDIUM",
+    "license_model": "proprietary",
+    "business_owner": "Nina Sharma",
+    "department": "Engineering",
+    "deployment": "cloud"
+  },
+  {
+    "app_id": "APP-010",
+    "name": "VendorGateway",
+    "language": "Go",
+    "criticality": "HIGH",
+    "license_model": "proprietary",
+    "business_owner": "David Okafor",
+    "department": "Procurement",
+    "deployment": "cloud"
+  }
+]

@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Findings — SBOM Analyzer</title>
+<script>(function(){try{var t=localStorage.getItem("sbom.theme");document.documentElement.dataset.theme=t||(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");}catch(e){document.documentElement.dataset.theme="dark";}})();</script>
 <link rel="stylesheet" href="console.css">
 <style>
   .bar {
@@ -100,7 +101,7 @@
 <script type="module">
 import {
   api, esc, fault, shell, topbar, provcard, ICON, RISK_TYPES,
-  dropdown, download, toCSV, FINDING_COLS, plural,
+  dropdown, download, toCSV, FINDING_COLS, plural, CLEAN, initChrome,
 } from "./console.js";
 import { findingRow, wireRows, FINDING_CSS } from "./finding.js";
 
@@ -108,6 +109,7 @@ document.head.append(Object.assign(document.createElement("style"), { textConten
 
 const $ = (s) => document.querySelector(s);
 $("#rail").outerHTML = shell("findings");
+initChrome();
 $("#si").innerHTML = ICON.search;
 
 $("#topbar").innerHTML = topbar({
@@ -145,7 +147,7 @@ function visible() {
     /* With no chip selected, show the at-risk set. The 180 clean rows are noise
        in an explorer — you ask for them explicitly with the Clean chip. */
     if (active.size === 0) {
-      if (f.risk_types.includes("clean")) return false;
+      if (f.risk_types.includes(CLEAN)) return false;
     } else if (!f.risk_types.some((t) => active.has(t))) return false;
 
     if (onlyApp && f.app_id !== onlyApp) return false;
@@ -183,7 +185,7 @@ function render() {
   $("#shown").textContent = `${page.length} of ${rows.length}`;
   $("#tally").innerHTML =
     `${plural(rows.length, "finding")} · ` +
-    `${rows.filter((f) => f.risk_types.includes("vulnerable")).length} vulnerable · ` +
+    `${rows.filter((f) => f.matched_cves.length > 0).length} vulnerable · ` +
     `${rows.reduce((n, f) => n + (f.attack_paths?.length ?? 0), 0)} attack paths`;
 
   $("#more").hidden = rows.length <= limit;
@@ -230,7 +232,7 @@ $("#exportsheet").addEventListener("click", (e) => {
      silently truncated at the scroll position would be a trap. */
   const rows =
     b.dataset.x === "visible" ? visible()
-    : b.dataset.x === "all" ? all.filter((f) => !f.risk_types.includes("clean"))
+    : b.dataset.x === "all" ? all.filter((f) => !f.risk_types.includes(CLEAN))
     : all;
 
   download(`sbom-findings-${stamp}.csv`, toCSV(

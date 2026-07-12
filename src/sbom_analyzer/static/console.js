@@ -27,13 +27,20 @@ export const SEV_HEX = {
   none: "#5b6b7f",
 };
 
+/* The dataset's taxonomy. `none` is its word for "clean" — the UI says "Clean",
+   because that is what a human calls it, but the wire value is `none` and every
+   filter must use it. */
 export const RISK_TYPES = [
-  ["vulnerable", "Vulnerable"],
-  ["transitive_vulnerable", "Transitive"],
-  ["license_conflict", "License"],
+  ["vulnerable_dependency", "Vulnerable"],
+  ["transitive_vulnerability", "Transitive"],
+  ["license_conflict", "Licence conflict"],
+  ["transitive_license_conflict", "Licence (transitive)"],
+  ["license_unknown", "Licence unknown"],
   ["unmaintained", "Unmaintained"],
-  ["clean", "Clean"],
+  ["none", "Clean"],
 ];
+
+export const CLEAN = "none";
 export const RISK_LABEL = Object.fromEntries(RISK_TYPES);
 
 /* -------------------------------------------------------------------------- */
@@ -62,6 +69,9 @@ export const ICON = {
   bug: P('<path d="M9 6a3 3 0 016 0M6 10h12v4a6 6 0 01-12 0v-4zM4 12H2M22 12h-2M5 6l2 2M19 6l-2 2M5 19l2.5-2M19 19l-2.5-2"/>'),
   scale: P('<path d="M12 4v16M7 20h10M5 8h14M5 8l-2.5 6h5L5 8zM19 8l-2.5 6h5L19 8z"/>'),
   clock: P('<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>'),
+  sun: P('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'),
+  moon: P('<path d="M20 14.5A8.5 8.5 0 019.5 4a8.5 8.5 0 1010.5 10.5z"/>'),
+  upload: P('<path d="M12 16V4M7.5 8.5L12 4l4.5 4.5"/><path d="M4 15v3a2 2 0 002 2h12a2 2 0 002-2v-3"/>'),
 };
 
 /* -------------------------------------------------------------------------- */
@@ -100,7 +110,7 @@ export const plural = (n, one, many) => `${n} ${n === 1 ? one : (many ?? one + "
 
 /* A dependency can hold several risk types at once (vulnerable AND unmaintained).
    Order them worst-first, so a tag row reads the way a human triages. */
-const RISK_ORDER = ["vulnerable", "transitive_vulnerable", "license_conflict", "unmaintained", "clean"];
+const RISK_ORDER = RISK_TYPES.map(([k]) => k);
 export const sortRiskTypes = (t) =>
   [...(t ?? [])].sort((a, b) => RISK_ORDER.indexOf(a) - RISK_ORDER.indexOf(b));
 
@@ -179,19 +189,19 @@ export const FINDING_COLS = [
   { header: "app_id", get: (f) => f.app_id },
   { header: "library", get: (f) => f.library_name },
   { header: "version", get: (f) => f.version },
-  { header: "ecosystem", get: (f) => f.ecosystem },
+  { header: "dependency_type", get: (f) => f.dependency_type },
   { header: "license", get: (f) => f.license },
   { header: "license_outcome", get: (f) => f.license_outcome },
   { header: "risk_score", get: (f) => score(f.risk_score) },
   { header: "severity", get: (f) => f.severity },
   { header: "risk_types", get: (f) => sortRiskTypes(f.risk_types) },
-  { header: "cves", get: (f) => f.matched_cves.filter((c) => !c.is_false_positive).map((c) => c.cve_id) },
-  { header: "cves_dismissed", get: (f) => f.matched_cves.filter((c) => c.is_false_positive).map((c) => c.cve_id) },
-  { header: "max_cvss", get: (f) => {
-      const live = f.matched_cves.filter((c) => !c.is_false_positive);
-      return live.length ? Math.max(...live.map((c) => c.cvss_score)).toFixed(1) : "";
-    } },
-  { header: "patch_available", get: (f) => f.matched_cves.some((c) => !c.is_false_positive && c.patch_available) },
+  { header: "primary_risk_type", get: (f) => f.primary_risk_type },
+  { header: "vuln_status", get: (f) => f.vuln_status },
+  { header: "cves_confirmed", get: (f) => f.matched_cves.filter((c) => c.confidence === "confirmed").map((c) => c.cve_id) },
+  { header: "cves_unconfirmed", get: (f) => f.matched_cves.filter((c) => c.confidence !== "confirmed").map((c) => c.cve_id) },
+  { header: "max_cvss", get: (f) => (f.matched_cves.length
+      ? Math.max(...f.matched_cves.map((c) => c.cvss_score)).toFixed(1) : "") },
+  { header: "patch_available", get: (f) => f.matched_cves.some((c) => c.patch_available) },
   { header: "fixed_versions", get: (f) => f.matched_cves.filter((c) => c.fixed_version).map((c) => c.fixed_version) },
   { header: "attack_paths", get: (f) => (f.attack_paths ?? []).length },
   { header: "last_updated", get: (f) => f.maintenance?.last_updated ?? "" },
@@ -208,13 +218,14 @@ export const APP_COLS = [
   { header: "owner", get: (a) => a.owner ?? "" },
   { header: "environment", get: (a) => a.environment ?? "" },
   { header: "business_criticality", get: (a) => a.business_criticality },
-  { header: "internet_facing", get: (a) => a.internet_facing ?? "" },
-  { header: "distributed", get: (a) => a.distributed ?? "" },
+  { header: "license_model", get: (a) => a.license_model ?? "" },
+  { header: "language", get: (a) => a.language ?? "" },
+  { header: "department", get: (a) => a.department ?? "" },
   { header: "app_score", get: (a) => score(a.app_score) },
   { header: "severity", get: (a) => a.severity },
   { header: "dependencies", get: (a) => a.findings.length },
-  { header: "at_risk", get: (a) => a.findings.filter((f) => !f.risk_types.includes("clean")).length },
-  { header: "vulnerable", get: (a) => a.findings.filter((f) => f.risk_types.includes("vulnerable")).length },
+  { header: "at_risk", get: (a) => a.findings.filter((f) => !f.risk_types.includes(CLEAN)).length },
+  { header: "vulnerable", get: (a) => a.findings.filter((f) => f.matched_cves.length).length },
   { header: "attack_paths", get: (a) => a.findings.reduce((n, f) => n + (f.attack_paths?.length ?? 0), 0) },
 ];
 
@@ -240,6 +251,7 @@ const NAV = [
   ["apps", "applications.html", "apps", "Applications"],
   ["graph", "graph.html", "graph", "Dependency graph"],
   ["findings", "findings.html", "list", "Findings"],
+  ["upload", "upload.html", "upload", "Upload SBOM"],
 ];
 
 export function shell(page) {
@@ -277,6 +289,7 @@ export function shell(page) {
       </a>
 
       <div class="railfill"></div>
+      <button class="themebtn" id="themebtn"></button>
       <div class="provcard" id="provcard"></div>
     </aside>`;
 }
@@ -359,4 +372,255 @@ export function ticker(el, getLast) {
     const s = Math.round((Date.now() - at) / 1000);
     el.textContent = s < 5 ? "updated just now" : `updated ${s}s ago`;
   }, 1000);
+}
+
+/* ==========================================================================
+   Theme
+   ========================================================================== */
+
+/* Cytoscape paints to a canvas and cannot read a CSS custom property, so the
+   graph needs real hex. Read them off the live stylesheet rather than keeping a
+   second hard-coded copy that silently rots — the whole point of a theme is that
+   these values move. */
+export function severityHex() {
+  const root = getComputedStyle(document.documentElement);
+  const read = (name, fallback) =>
+    (root.getPropertyValue(name) || "").trim() || fallback;
+  return {
+    critical: read("--sev-critical", SEV_HEX.critical),
+    high: read("--sev-high", SEV_HEX.high),
+    medium: read("--sev-medium", SEV_HEX.medium),
+    low: read("--sev-low", SEV_HEX.low),
+    none: read("--sev-none", SEV_HEX.none),
+  };
+}
+
+export function chromeHex() {
+  const root = getComputedStyle(document.documentElement);
+  const read = (n, f) => (root.getPropertyValue(n) || "").trim() || f;
+  return {
+    ink2: read("--ink-2", "#9b9fa6"),
+    line: read("--line-strong", "#2e3236"),
+    panel: read("--panel", "#131416"),
+    panel3: read("--panel-3", "#202327"),
+    accent: read("--accent", "#8091f5"),
+  };
+}
+
+const THEME_KEY = "sbom.theme";
+
+export const currentTheme = () =>
+  document.documentElement.dataset.theme === "light" ? "light" : "dark";
+
+export function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  try {
+    localStorage.setItem(THEME_KEY, theme);
+  } catch {
+    /* private mode: the choice just won't persist. Not worth failing over. */
+  }
+  // The graph repaints from real hex, so it has to be told.
+  dispatchEvent(new CustomEvent("themechange", { detail: { theme } }));
+}
+
+/* Runs before first paint (inlined in each page's <head>) so the console never
+   flashes dark-then-light. Falls back to the OS preference. */
+export function initTheme() {
+  let saved = null;
+  try {
+    saved = localStorage.getItem(THEME_KEY);
+  } catch {
+    /* ignore */
+  }
+  const os =
+    typeof matchMedia === "function" &&
+    matchMedia("(prefers-color-scheme: light)").matches
+      ? "light"
+      : "dark";
+  document.documentElement.dataset.theme = saved || os;
+}
+
+function wireThemeToggle() {
+  const btn = document.getElementById("themebtn");
+  if (!btn) return;
+  const paint = () => {
+    const t = currentTheme();
+    btn.innerHTML =
+      (t === "light" ? ICON.moon : ICON.sun) +
+      `<span>${t === "light" ? "Dark" : "Light"} theme</span>` +
+      `<span class="state">${t}</span>`;
+  };
+  btn.addEventListener("click", () => {
+    applyTheme(currentTheme() === "light" ? "dark" : "light");
+    paint();
+  });
+  paint();
+}
+
+/* ==========================================================================
+   Command palette — the sidebar search
+   ==========================================================================
+   It used to be a button that navigated to the findings page. That is not a
+   search; it is a redirect wearing a search's clothes. This indexes the run once
+   and matches applications, libraries, dependency ids, licences and CVE ids, then
+   jumps straight to the row.
+   ========================================================================== */
+let paletteIndex = null;
+
+async function buildIndex() {
+  if (paletteIndex) return paletteIndex;
+  const rep = await api("/runs/latest/report");
+
+  const items = [];
+  for (const app of rep.apps) {
+    items.push({
+      kind: "app",
+      label: app.name,
+      sub: `${app.app_id} · ${app.findings.length} dependencies`,
+      href: `app.html?id=${encodeURIComponent(app.app_id)}`,
+      hay: `${app.name} ${app.app_id}`.toLowerCase(),
+      score: app.app_score,
+    });
+
+    for (const f of app.findings) {
+      const cves = f.matched_cves.map((c) => c.cve_id).join(" ");
+      items.push({
+        kind: f.is_risk ? "risk" : "dep",
+        label: `${f.library_name} ${f.version}`,
+        sub: `${f.dependency_id} · ${app.name}${cves ? ` · ${cves}` : ""}`,
+        href: `app.html?id=${encodeURIComponent(f.app_id)}&dep=${encodeURIComponent(
+          f.dependency_id,
+        )}`,
+        hay: `${f.library_name} ${f.version} ${f.dependency_id} ${f.license} ${cves}`.toLowerCase(),
+        score: f.risk_score,
+      });
+    }
+  }
+  paletteIndex = items;
+  return items;
+}
+
+function wirePalette() {
+  document.body.insertAdjacentHTML(
+    "beforeend",
+    `<div class="palette" id="palette" hidden>
+       <div class="pal-box" role="dialog" aria-label="Search">
+         <div class="pal-input">
+           ${ICON.search}
+           <input id="pal-q" type="text" autocomplete="off" spellcheck="false"
+                  placeholder="Search applications, libraries, CVE ids…">
+           <kbd>esc</kbd>
+         </div>
+         <div class="pal-results" id="pal-results"></div>
+       </div>
+     </div>`,
+  );
+
+  const box = document.getElementById("palette");
+  const input = document.getElementById("pal-q");
+  const out = document.getElementById("pal-results");
+  let rows = [];
+  let cursor = 0;
+
+  const close = () => {
+    box.hidden = true;
+    input.value = "";
+    out.innerHTML = "";
+  };
+
+  const open = async () => {
+    box.hidden = false;
+    input.focus();
+    try {
+      await buildIndex();
+      render();
+    } catch (err) {
+      out.innerHTML = `<div class="pal-empty">Can't reach the analyzer — ${esc(
+        err.message,
+      )}</div>`;
+    }
+  };
+
+  const render = () => {
+    const q = input.value.trim().toLowerCase();
+    if (!q) {
+      rows = [];
+      out.innerHTML =
+        `<div class="pal-empty">Type to search — an app name, a library, ` +
+        `a dependency id, or a CVE.</div>`;
+      return;
+    }
+
+    /* Applications first, then risky dependencies by score, then clean ones. A
+       search that buries the app you just named under forty of its own libraries
+       is not being helpful. */
+    const rank = { app: 0, risk: 1, dep: 2 };
+    rows = (paletteIndex ?? [])
+      .filter((it) => it.hay.includes(q))
+      .sort((a, b) =>
+        rank[a.kind] !== rank[b.kind]
+          ? rank[a.kind] - rank[b.kind]
+          : (b.score ?? 0) - (a.score ?? 0),
+      )
+      .slice(0, 40);
+
+    cursor = 0;
+    out.innerHTML = rows.length
+      ? rows
+          .map(
+            (it, i) => `
+              <button class="pal-row ${i === 0 ? "on" : ""}" data-i="${i}">
+                <span class="pal-kind ${it.kind}">${it.kind}</span>
+                <span class="pal-label">${esc(it.label)}</span>
+                <span class="pal-sub">${esc(it.sub)}</span>
+              </button>`,
+          )
+          .join("")
+      : `<div class="pal-empty">No match for "${esc(input.value)}".</div>`;
+  };
+
+  const move = (d) => {
+    if (!rows.length) return;
+    cursor = (cursor + d + rows.length) % rows.length;
+    out
+      .querySelectorAll(".pal-row")
+      .forEach((r, i) => r.classList.toggle("on", i === cursor));
+    out.querySelector(".pal-row.on")?.scrollIntoView({ block: "nearest" });
+  };
+
+  const go = (i) => {
+    if (rows[i]) location.href = rows[i].href;
+  };
+
+  input.addEventListener("input", render);
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown") { e.preventDefault(); move(1); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); move(-1); }
+    else if (e.key === "Enter") { e.preventDefault(); go(cursor); }
+    else if (e.key === "Escape") close();
+  });
+  out.addEventListener("click", (e) => {
+    const row = e.target.closest(".pal-row");
+    if (row) go(Number(row.dataset.i));
+  });
+  box.addEventListener("click", (e) => {
+    if (e.target === box) close();
+  });
+
+  document.getElementById("railsearch")?.addEventListener("click", open);
+  addEventListener("keydown", (e) => {
+    const typing = /input|textarea|select/i.test(e.target.tagName);
+    if ((e.key === "/" && !typing) || (e.key === "k" && (e.metaKey || e.ctrlKey))) {
+      e.preventDefault();
+      open();
+    }
+  });
+
+  render();
+}
+
+/* Wired up by every page immediately after `shell()` puts the rail in the DOM. */
+export function initChrome() {
+  wireThemeToggle();
+  wirePalette();
 }

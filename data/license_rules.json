@@ -1,0 +1,122 @@
+[
+  {
+    "license": "MIT",
+    "spdx": "MIT",
+    "risk_level": "LOW",
+    "compatible_with_proprietary": true,
+    "viral": false,
+    "notes": "Permissive; no restrictions on use"
+  },
+  {
+    "license": "Apache-2.0",
+    "spdx": "Apache-2.0",
+    "risk_level": "LOW",
+    "compatible_with_proprietary": true,
+    "viral": false,
+    "notes": "Permissive; patent grant included"
+  },
+  {
+    "license": "BSD-2-Clause",
+    "spdx": "BSD-2-Clause",
+    "risk_level": "LOW",
+    "compatible_with_proprietary": true,
+    "viral": false,
+    "notes": "Permissive; minimal restrictions"
+  },
+  {
+    "license": "BSD-3-Clause",
+    "spdx": "BSD-3-Clause",
+    "risk_level": "LOW",
+    "compatible_with_proprietary": true,
+    "viral": false,
+    "notes": "Permissive; no endorsement clause"
+  },
+  {
+    "license": "ISC",
+    "spdx": "ISC",
+    "risk_level": "LOW",
+    "compatible_with_proprietary": true,
+    "viral": false,
+    "notes": "Permissive; simplified BSD"
+  },
+  {
+    "license": "MPL-2.0",
+    "spdx": "MPL-2.0",
+    "risk_level": "MEDIUM",
+    "compatible_with_proprietary": true,
+    "viral": false,
+    "notes": "File-level copyleft; modifications to MPL files must be shared"
+  },
+  {
+    "license": "LGPL-2.1",
+    "spdx": "LGPL-2.1-only",
+    "risk_level": "MEDIUM",
+    "compatible_with_proprietary": true,
+    "viral": false,
+    "notes": "Weak copyleft; linking OK, modifications must be shared"
+  },
+  {
+    "license": "LGPL-3.0",
+    "spdx": "LGPL-3.0-only",
+    "risk_level": "MEDIUM",
+    "compatible_with_proprietary": true,
+    "viral": false,
+    "notes": "Weak copyleft; linking OK with additional patent provisions"
+  },
+  {
+    "license": "GPL-2.0",
+    "spdx": "GPL-2.0-only",
+    "risk_level": "CRITICAL",
+    "compatible_with_proprietary": false,
+    "viral": true,
+    "notes": "Strong copyleft; derivative works must be GPL. Incompatible with proprietary distribution"
+  },
+  {
+    "license": "GPL-3.0",
+    "spdx": "GPL-3.0-only",
+    "risk_level": "CRITICAL",
+    "compatible_with_proprietary": false,
+    "viral": true,
+    "notes": "Strong copyleft; derivative works must be GPL-3.0. Patent retaliation clause"
+  },
+  {
+    "license": "AGPL-3.0",
+    "spdx": "AGPL-3.0-only",
+    "risk_level": "CRITICAL",
+    "compatible_with_proprietary": false,
+    "viral": true,
+    "notes": "Network copyleft; even SaaS usage triggers obligations"
+  },
+  {
+    "license": "SSPL-1.0",
+    "spdx": "SSPL-1.0",
+    "risk_level": "HIGH",
+    "compatible_with_proprietary": false,
+    "viral": true,
+    "notes": "Server Side Public License; very restrictive for cloud services"
+  },
+  {
+    "license": "Unlicense",
+    "spdx": "Unlicense",
+    "risk_level": "LOW",
+    "compatible_with_proprietary": true,
+    "viral": false,
+    "notes": "Public domain dedication"
+  },
+  {
+    "license": "UNKNOWN",
+    "spdx": "NOASSERTION",
+    "risk_level": "HIGH",
+    "compatible_with_proprietary": false,
+    "viral": false,
+    "notes": "No license specified; legal status unclear. Treat as restrictive"
+  },
+  {
+    "license": "Dual-MIT/Commercial",
+    "spdx": "MIT",
+    "risk_level": "LOW",
+    "compatible_with_proprietary": true,
+    "viral": false,
+    "notes": "Dual licensed; commercial license available for proprietary use"
+  }
+]

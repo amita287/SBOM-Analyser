@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Applications — SBOM Analyzer</title>
+<script>(function(){try{var t=localStorage.getItem("sbom.theme");document.documentElement.dataset.theme=t||(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");}catch(e){document.documentElement.dataset.theme="dark";}})();</script>
 <link rel="stylesheet" href="console.css">
 <style>
   .bar {
@@ -121,11 +122,12 @@
 <script type="module">
 import {
   api, esc, fault, shell, topbar, provcard, poll, ticker, score, sevBadge,
-  who, dropdown, download, toCSV, APP_COLS, FINDING_COLS, ICON, SEVERITIES,
+  who, dropdown, download, toCSV, APP_COLS, FINDING_COLS, ICON, SEVERITIES, CLEAN, initChrome,
 } from "./console.js";
 
 const $ = (s) => document.querySelector(s);
 $("#rail").outerHTML = shell("apps");
+initChrome();
 $("#si").innerHTML = ICON.search;
 
 $("#topbar").innerHTML = topbar({
@@ -166,8 +168,8 @@ function enrich(rep, records) {
 
     for (const f of a.findings) {
       bySev[f.severity] = (bySev[f.severity] ?? 0) + 1;
-      if (!f.risk_types.includes("clean")) atRisk++;
-      if (f.risk_types.includes("vulnerable")) vulnerable++;
+      if (!f.risk_types.includes(CLEAN)) atRisk++;
+      if (f.matched_cves.length > 0) vulnerable++;
       paths += f.attack_paths?.length ?? 0;
     }
     const m = meta.get(a.app_id) ?? {};
@@ -175,8 +177,9 @@ function enrich(rep, records) {
       ...a,
       owner: m.owner ?? "",
       environment: m.environment ?? "",
-      internet_facing: !!m.internet_facing,
-      distributed: !!m.distributed,
+      license_model: m.license_model ?? "",
+      language: m.language ?? "",
+      department: m.department ?? "",
       bySev, at_risk: atRisk, vulnerable, paths,
     };
   });
@@ -228,9 +231,13 @@ function render() {
             <td><span class="tag">${esc(a.business_criticality)}</span></td>
             <td>
               <div class="env ${esc(a.environment)}"><span class="d"></span>${esc(a.environment || "—")}</div>
+              <!-- A viral licence is only a conflict when the product ships, so
+                   the proprietary flag is the one worth surfacing: it is what
+                   makes GPL bite. (No backticks in here - this markup lives
+                   inside a JS template literal and they would terminate it.) -->
               <div class="flags" style="margin-top:5px">
-                <span class="flag ${a.internet_facing ? "on" : ""}">internet</span>
-                <span class="flag ${a.distributed ? "on" : ""}">distributed</span>
+                <span class="flag ${a.license_model === "proprietary" ? "on" : ""}">${esc(a.license_model || "—")}</span>
+                <span class="flag">${esc(a.language || "—")}</span>
               </div>
             </td>
             <td class="num">${n(a.at_risk)}</td>
@@ -309,7 +316,7 @@ $("#exportsheet").addEventListener("click", (e) => {
     const fs = report.apps
       .filter((a) => ids.has(a.app_id))
       .flatMap((a) => a.findings)
-      .filter((f) => !f.risk_types.includes("clean"))
+      .filter((f) => !f.risk_types.includes(CLEAN))
       .sort((a, b2) => b2.risk_score - a.risk_score);
     download(`sbom-findings-${stamp}.csv`, toCSV(fs, FINDING_COLS));
   } else {

@@ -10,7 +10,8 @@
       "Bash(python -c ' *)",
       "Bash(PYTHONIOENCODING=utf-8 python drive2.py)",
       "Bash(taskkill //F //FI \"WINDOWTITLE eq *uvicorn*\")",
-      "Bash(PYTHONIOENCODING=utf-8 python g.py)"
+      "Bash(PYTHONIOENCODING=utf-8 python g.py)",
+      "Bash(python -)"
     ]
   }
 }

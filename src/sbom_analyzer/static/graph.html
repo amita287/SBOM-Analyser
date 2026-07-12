@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Graph — SBOM Analyzer</title>
+<script>(function(){try{var t=localStorage.getItem("sbom.theme");document.documentElement.dataset.theme=t||(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");}catch(e){document.documentElement.dataset.theme="dark";}})();</script>
 <link rel="stylesheet" href="console.css">
 <style>
   .stage {
@@ -428,11 +429,12 @@
 <script type="module">
 import {
   api, esc, fault, shell, topbar, provcard, score, sevBadge, riskTags,
-  SEV_HEX, RISK_TYPES, plural, ICON,
+  SEV_HEX, RISK_TYPES, plural, ICON, CLEAN, initChrome, severityHex, chromeHex,
 } from "./console.js";
 
 const $ = (s) => document.querySelector(s);
 $("#rail").outerHTML = shell("graph");
+initChrome();
 
 $("#topbar").innerHTML = topbar({
   title: "Dependency graph",
@@ -462,17 +464,20 @@ let pinnedPath = null;                    // a single path, highlighted alone
 /* and anything holding a real CVE gets a hard 2px ring. Three encodings, one */
 /* message.                                                                   */
 /* ========================================================================== */
-const STYLE = [
+let PAL = severityHex();
+let CHR = chromeHex();
+
+const buildStyle = () => [
   {
     selector: "node",
     style: {
-      "background-color": (n) => SEV_HEX[n.data("severity")] ?? SEV_HEX.none,
+      "background-color": (n) => PAL[n.data("severity")] ?? PAL.none,
       "width": (n) => 16 + (Number(n.data("risk_score")) || 0) * 0.30,
       "height": (n) => 16 + (Number(n.data("risk_score")) || 0) * 0.30,
       "label": "data(label)",
       "font-size": 10,
       "font-family": "system-ui, -apple-system, 'Segoe UI', sans-serif",
-      "color": "#9b9fa6",
+      "color": CHR.ink2,
       "text-valign": "bottom",
       "text-margin-y": 5,
       "text-max-width": 74,
@@ -494,13 +499,13 @@ const STYLE = [
       width: "label",
       height: 22,
       padding: "10px",
-      "background-color": "#1c2434",
+      "background-color": CHR.panel3,
       "border-width": 1.5,
-      "border-color": "#8091f5",
+      "border-color": CHR.accent,
       label: "data(label)",
       "font-size": 11,
       "font-weight": 600,
-      color: "#c3ccff",
+      color: CHR.accent,
       "text-valign": "center",
       "text-margin-y": 0,
       "text-max-width": 200,
@@ -510,16 +515,16 @@ const STYLE = [
   {
     /* Secondary encoding: a ring means "a CVE actually matched this version". */
     selector: 'node[?cve_count][kind = "dependency"]',
-    style: { "border-width": 2, "border-color": "#e5484d", "border-opacity": 0.85 },
+    style: { "border-width": 2, "border-color": PAL.critical, "border-opacity": 0.85 },
   },
   {
     selector: "edge",
     style: {
       width: 1,
-      "line-color": "#2b3a4f",
+      "line-color": CHR.line,
       "curve-style": "bezier",
       "target-arrow-shape": "triangle",
-      "target-arrow-color": "#2b3a4f",
+      "target-arrow-color": CHR.line,
       "arrow-scale": 0.55,
       opacity: 0.55,
       "transition-property": "opacity, line-color, width",
@@ -532,7 +537,7 @@ const STYLE = [
   { selector: "node.lit", style: { "text-opacity": 1, "z-index": 10 } },
   {
     selector: "edge.lit",
-    style: { "line-color": "#8091f5", "target-arrow-color": "#8091f5", opacity: 0.9, width: 1.6, "z-index": 10 },
+    style: { "line-color": CHR.accent, "target-arrow-color": CHR.accent, opacity: 0.9, width: 1.6, "z-index": 10 },
   },
 
   /* The attack path. Red, thicker, on top of everything. This is the one thing
@@ -540,8 +545,8 @@ const STYLE = [
   {
     selector: "edge.attack",
     style: {
-      "line-color": "#e5484d",
-      "target-arrow-color": "#e5484d",
+      "line-color": PAL.critical,
+      "target-arrow-color": PAL.critical,
       opacity: 1,
       width: 2.4,
       "z-index": 20,
@@ -551,7 +556,7 @@ const STYLE = [
     selector: "node.attack",
     style: {
       "border-width": 2.5,
-      "border-color": "#e5484d",
+      "border-color": PAL.critical,
       "border-opacity": 1,
       "text-opacity": 1,
       "z-index": 20,
@@ -573,6 +578,14 @@ const STYLE = [
      are anonymous dots until you zoom past 1.1, where there is room for everyone. */
   { selector: "node.quiet", style: { "text-opacity": 0 } },
 ];
+
+/* Cytoscape cannot read a CSS custom property, so a theme flip has to be
+   pushed into it by hand. Rebuild the stylesheet from the live values. */
+addEventListener("themechange", () => {
+  PAL = severityHex();
+  CHR = chromeHex();
+  cy?.style(buildStyle());
+});
 
 /* ========================================================================== */
 /* Load                                                                       */
@@ -658,7 +671,7 @@ async function load() {
     cy = cytoscape({
       container: $("#cy"),
       elements: [...g.nodes, ...g.edges],
-      style: STYLE,
+      style: buildStyle(),
       minZoom: 0.15,
       maxZoom: 3.2,
       wheelSensitivity: 0.22,
@@ -676,7 +689,7 @@ async function load() {
        reclassifying 500 nodes per scroll event would make the canvas crawl. */
     const clean = cy.nodes('[kind = "dependency"]').filter((n) => {
       const t = n.data("risk_types") ?? [];
-      return t.length === 0 || (t.length === 1 && t[0] === "clean");
+      return t.length === 0 || (t.length === 1 && t[0] === CLEAN);
     });
     clean.addClass("quiet");
 
@@ -950,8 +963,8 @@ function inspectApp(id) {
   const a = appsById.get(id);
   if (!a) return;
 
-  const atRisk = a.findings.filter((f) => !f.risk_types.includes("clean")).length;
-  const vuln = a.findings.filter((f) => f.risk_types.includes("vulnerable")).length;
+  const atRisk = a.findings.filter((f) => !f.risk_types.includes(CLEAN)).length;
+  const vuln = a.findings.filter((f) => f.matched_cves.length > 0).length;
   const paths = a.findings.reduce((n, f) => n + (f.attack_paths?.length ?? 0), 0);
   const node = cy.getElementById(id);
 
@@ -980,8 +993,10 @@ function inspectApp(id) {
         <dt>At risk</dt><dd class="${atRisk ? "warnish" : "okish"}">${atRisk}</dd>
         <dt>Vulnerable</dt><dd class="${vuln ? "badish" : "okish"}">${vuln}</dd>
         <dt>Attack paths</dt><dd class="${paths ? "badish" : "okish"}">${paths}</dd>
-        <dt>Internet</dt><dd>${node.data("internet_facing") ? "facing" : "internal"}</dd>
-        <dt>Distributed</dt><dd>${node.data("distributed") ? "yes — GPL obligations bite" : "no"}</dd>
+        <dt>Owner</dt><dd>${esc(node.data("owner") ?? "—")}</dd>
+        <dt>Environment</dt><dd>${esc(node.data("environment") ?? "—")}</dd>
+        <dt>Licence model</dt><dd>${node.data("license_model") === "proprietary"
+          ? "proprietary — viral licences bite" : esc(node.data("license_model") ?? "—")}</dd>
       </dl>
     </div>
 
@@ -1019,14 +1034,14 @@ function inspectDep(id) {
   }
 
   const tone = `var(--sev-${f.severity})`;
-  const real = f.matched_cves.filter((c) => !c.is_false_positive);
-  const fps = f.matched_cves.filter((c) => c.is_false_positive);
+  const real = f.matched_cves.filter((c) => c.confidence === "confirmed");
+  const fps = f.matched_cves.filter((c) => c.confidence !== "confirmed");
   const paths = f.attack_paths ?? [];
   const m = f.maintenance;
 
   const licenceClass =
     f.license_outcome === "conflict" ? "badish"
-    : f.license_outcome === "review" ? "warnish"
+    : f.license_outcome === "unknown" ? "warnish"
     : "okish";
 
   $("#inspector").innerHTML = `
@@ -1036,7 +1051,7 @@ function inspectDep(id) {
         ${sevBadge(f.severity)}
         ${riskTags(f.risk_types)}
       </div>
-      <div class="meta"><span class="id">${esc(f.dependency_id)} &middot; ${esc(f.ecosystem)} &middot; ${esc(node.data("dependency_type") ?? "")}</span></div>
+      <div class="meta"><span class="id">${esc(f.dependency_id)} &middot; ${esc(f.dependency_type ?? "")}</span></div>
     </div>
 
     <div class="blk">
@@ -1063,8 +1078,8 @@ function inspectDep(id) {
 
     ${real.length || fps.length ? `
       <div class="blk">
-        <h3>${plural(real.length, "CVE")}${fps.length ? ` &middot; ${fps.length} dismissed` : ""}</h3>
-        ${[...real, ...fps].map(cveCard).join("")}
+        <h3>${plural(real.length, "confirmed CVE")}${fps.length ? ` &middot; ${fps.length} unconfirmed` : ""}</h3>
+        ${[...real, ...fps].map((c) => cveCard(c, f.version)).join("")}
       </div>` : ""}
 
     ${paths.length ? `
@@ -1128,31 +1143,38 @@ const proseSource = (f) => `
       : "Template-generated — no model wrote this."}
   </div>`;
 
-function cveCard(c) {
+function cveCard(c, version) {
   const tone = `var(--sev-${c.cvss_severity === "critical" ? "critical"
     : c.cvss_severity === "high" ? "high"
     : c.cvss_severity === "medium" ? "medium" : "low"})`;
 
+  /* Exploitability is a property of the ADVISORY here, not of our code — the new
+     CVE database publishes a rating, where the old SBOM carried a usage signal. */
   const exploitClass =
-    c.exploitability === "calls_vulnerable_function" ? "calls"
-    : c.exploitability === "imports_only" ? "imports" : "";
+    c.exploitability === "high" ? "calls"
+    : c.exploitability === "medium" ? "imports" : "";
 
   const exploitText = {
-    calls_vulnerable_function: "calls the vulnerable function",
-    imports_only: "imports only",
-    not_referenced: "not referenced",
+    high: "high exploitability",
+    medium: "medium exploitability",
+    low: "low exploitability",
+    none: "not exploitable",
   }[c.exploitability] ?? c.exploitability ?? "";
 
+  /* `potential`: right library, but this version is NOT in the advisory's
+     affected list. Shown, struck through, and captioned — never asserted. */
+  const unconfirmed = c.confidence !== "confirmed";
+
   return `
-    <div class="cve ${c.is_false_positive ? "fp" : ""}" style="--tone:${tone}">
+    <div class="cve ${unconfirmed ? "fp" : ""}" style="--tone:${tone}">
       <div class="top">
         <span class="cid">${esc(c.cve_id)}</span>
         <span class="cvss">${c.cvss_score.toFixed(1)} ${esc(c.cvss_severity)}</span>
       </div>
       <div class="lines">
-        <div><span class="k">Affects</span> <code>${esc(c.affected_versions)}</code></div>
-        ${c.vulnerable_function
-          ? `<div><span class="k">Function</span> <code>${esc(c.vulnerable_function)}</code></div>` : ""}
+        <div><span class="k">Affects</span> <code>${esc((c.affected_versions ?? []).join(", ") || "—")}</code></div>
+        ${c.description
+          ? `<div><span class="k">Detail</span> ${esc(c.description)}</div>` : ""}
         <div>
           <span class="k">Fix</span>
           ${c.patch_available && c.fixed_version
@@ -1162,11 +1184,11 @@ function cveCard(c) {
         ${exploitText
           ? `<div style="margin-top:3px"><span class="exploit ${exploitClass}">${esc(exploitText)}</span></div>` : ""}
       </div>
-      ${c.is_false_positive ? `
+      ${unconfirmed ? `
         <div class="fp-note">
-          <b>Dismissed.</b>
-          <span>The version falls in the advisory's range but is a backported-safe
-          build. Excluded from the score.</span>
+          <b>Unconfirmed.</b>
+          <span>The library matches, but version ${esc(version)} is not in this
+          advisory's affected list. Scored at reduced weight — verify upstream.</span>
         </div>` : ""}
     </div>`;
 }

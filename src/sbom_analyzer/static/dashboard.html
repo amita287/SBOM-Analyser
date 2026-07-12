@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Overview — SBOM Analyzer</title>
+<script>(function(){try{var t=localStorage.getItem("sbom.theme");document.documentElement.dataset.theme=t||(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");}catch(e){document.documentElement.dataset.theme="dark";}})();</script>
 <link rel="stylesheet" href="console.css">
 <style>
   .split { display: grid; grid-template-columns: 1.15fr 1fr; gap: 14px; margin-bottom: 14px; align-items: start; }
@@ -34,8 +35,7 @@
     display: block;
     height: 100%;
     border-radius: 3px;
-    background: var(--accent);
-    opacity: .85;
+    background: var(--bar, #e5484d);
   }
   .mixrow .ct { text-align: right; font-variant-numeric: tabular-nums; font-weight: 640; font-size: 13px; }
   .mixrow .pc { text-align: right; font-variant-numeric: tabular-nums; font-size: 11.5px; color: var(--ink-3); }
@@ -84,7 +84,7 @@
 
         <section class="panel">
           <div class="head">
-            <h2>Worst applications</h2>
+            <h2>Applications with High Risks</h2>
             <div class="tools">
               <a class="btn" href="applications.html">All 10 <span id="allarrow"></span></a>
             </div>
@@ -127,11 +127,12 @@
 import {
   api, esc, fault, shell, topbar, provcard, poll, ticker, score, sevBadge,
   riskTags, plural, dropdown, download, toCSV, FINDING_COLS, APP_COLS,
-  ICON, SEVERITIES, RISK_TYPES, SEV_HEX,
+  ICON, SEVERITIES, RISK_TYPES, SEV_HEX, CLEAN, initChrome,
 } from "./console.js";
 
 const $ = (s) => document.querySelector(s);
 $("#rail").outerHTML = shell("overview");
+initChrome();
 $("#allarrow").innerHTML = ICON.arrow;
 
 $("#topbar").innerHTML = topbar({
@@ -166,13 +167,25 @@ let cachedRunId = null;
 let report = null;
 let lastAt = 0;
 
-const TILES = [
-  ["vulnerable", "Vulnerable", "critical", "direct CVE match"],
-  ["transitive_vulnerable", "Transitive", "high", "reached via a dependency"],
-  ["license_conflict", "License", "medium", "incompatible obligation"],
-  ["unmaintained", "Unmaintained", "medium", "stale &gt; 2 years"],
-  ["clean", "Clean", "low", "no finding"],
-];
+/* Keys come from RISK_TYPES (console.js), never hand-typed. They were hand-typed
+   once — `vulnerable` and `transitive_vulnerable` — and when the taxonomy changed
+   to `vulnerable_dependency` / `transitive_vulnerability` the tiles silently read
+   0 while the chart beside them showed 205 and 96. A missing key must not render
+   as a confident zero. */
+const TILE_TONE = {
+  vulnerable_dependency: ["critical", "direct CVE match"],
+  transitive_vulnerability: ["high", "arrived as a transitive dep"],
+  license_conflict: ["medium", "viral licence, proprietary app"],
+  transitive_license_conflict: ["medium", "inherited licence conflict"],
+  license_unknown: ["medium", "no licence declared"],
+  unmaintained: ["medium", "stale &gt; 2 years"],
+  none: ["low", "no finding"],
+};
+
+const TILES = RISK_TYPES.map(([key, label]) => {
+  const [tone, sub] = TILE_TONE[key] ?? ["none", ""];
+  return [key, label, tone, sub];
+});
 
 function renderTiles(run) {
   const t = run.totals_per_risk_type ?? {};
@@ -208,13 +221,25 @@ function renderMix(run) {
   const total = rows.reduce((n, [, v]) => n + v, 0) || 1;
   const max = Math.max(...rows.map(([, v]) => v)) || 1;
 
-  $("#mix").innerHTML = rows.map(([label, v]) => `
-    <div class="mixrow">
-      <span class="nm">${label}</span>
-      <span class="tr"><i style="width:${(v / max) * 100}%"></i></span>
-      <span class="ct">${v}</span>
-      <span class="pc">${Math.round((v / total) * 100)}%</span>
-    </div>`).join("");
+  /* Sequential red ramp: one hue, strongest for the largest count. This is a
+     MAGNITUDE scale (how many dependencies), not identity, so a single hue that
+     deepens is right and a rainbow would be wrong.
+
+     Mixed against the panel with color-mix rather than hard-coded, so the ramp
+     re-derives itself in light mode instead of staying tuned for a dark one. */
+  $("#mix").innerHTML = rows.map(([label, v], i) => {
+    const strength = 100 - (i / Math.max(1, rows.length - 1)) * 62; // 100% -> 38%
+    return `
+      <div class="mixrow">
+        <span class="nm">${label}</span>
+        <span class="tr">
+          <i style="width:${(v / max) * 100}%;
+                    --bar:color-mix(in srgb, var(--sev-critical) ${strength}%, var(--panel-3))"></i>
+        </span>
+        <span class="ct">${v}</span>
+        <span class="pc">${Math.round((v / total) * 100)}%</span>
+      </div>`;
+  }).join("");
 
   /* The totals exceed the finding count on purpose: one dependency can be
      vulnerable AND unmaintained at once. Say so, rather than let a reader find
@@ -270,7 +295,7 @@ function renderTop(rep) {
          Either the estate is spotless or the analyzer hasn't run.</td></tr>`
     : rows.map((r, i) => {
         const f = byId.get(r.dependency_id);
-        const cves = f?.matched_cves?.filter((c) => !c.is_false_positive).length ?? 0;
+        const cves = f?.matched_cves?.length ?? 0;
         return `
           <tr class="click" onclick="location.href='app.html?id=${encodeURIComponent(r.app_id)}&amp;dep=${encodeURIComponent(r.dependency_id)}'">
             <td class="rank">${String(i + 1).padStart(2, "0")}</td>
@@ -301,7 +326,7 @@ $("#exportsheet").addEventListener("click", (e) => {
   const stamp = report.run_id;
 
   if (btn.dataset.x === "findings") {
-    const at = report.apps.flatMap((a) => a.findings).filter((f) => !f.risk_types.includes("clean"));
+    const at = report.apps.flatMap((a) => a.findings).filter((f) => !f.risk_types.includes(CLEAN));
     at.sort((a, b) => b.risk_score - a.risk_score);
     download(`sbom-findings-${stamp}.csv`, toCSV(at, FINDING_COLS));
   } else if (btn.dataset.x === "apps") {

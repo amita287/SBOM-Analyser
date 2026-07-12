@@ -413,7 +413,7 @@
       <div class="n">{{ totals.unmaintained }}</div><div class="l">Unmaintained</div>
     </div>
     <div class="kpi" style="--tone: var(--low)">
-      <div class="n">{{ totals.clean }}</div><div class="l">Clean</div>
+      <div class="n">{{ totals.none }}</div><div class="l">Clean</div>
     </div>
   </div>
 
@@ -501,7 +501,7 @@
               <span class="tag {{ rt.value }}">{{ rt.value | replace("_", " ") }}</span>
             {% endfor %}
           </span>
-          <span class="eco">{{ f.ecosystem.value }}</span>
+          <span class="eco">{{ f.dependency_type.value }}</span>
           <span class="score">{{ "%.1f" | format(f.risk_score) }}</span>
         </summary>
 
@@ -547,12 +547,12 @@
             <tbody>
             {% for c in f.matched_cves %}
               <tr>
-                <td class="cve {% if c.is_false_positive %}strike{% endif %}">{{ c.cve_id }}</td>
+                <td class="cve {% if not c.is_confirmed %}strike{% endif %}">{{ c.cve_id }}</td>
                 <td>{{ "%.1f" | format(c.cvss_score) }} <span class="tag">{{ c.cvss_severity.value }}</span></td>
-                <td class="mono">{{ c.affected_versions }}</td>
+                <td class="mono">{{ c.affected_versions | join(", ") }}</td>
                 <td>
-                  {%- if c.is_false_positive -%}
-                    <span class="fp-note">backported patch — not exploitable</span>
+                  {%- if not c.is_confirmed -%}
+                    <span class="fp-note">unconfirmed — version not in the advisory's affected list</span>
                   {%- elif c.patch_available -%}
                     upgrade to <b class="mono">{{ c.fixed_version }}</b>
                   {%- else -%}

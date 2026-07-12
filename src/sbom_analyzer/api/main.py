@@ -28,11 +28,15 @@ the event loop.
 from __future__ import annotations
 
 from collections.abc import Iterator
+import csv
+import io
+import json
+import tempfile
 from contextlib import asynccontextmanager, suppress
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, File, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -41,7 +45,13 @@ from pydantic import BaseModel, Field
 from .. import __version__
 from ..analysis.maintenance import TODAY
 from ..config import get_settings
-from ..graph.builder import NODE_KIND_APP, NODE_KIND_DEP, build_graph
+from ..analysis.vulnerabilities import VulnerabilityMatcher
+from ..graph.builder import (
+    NODE_KIND_APP,
+    NODE_KIND_DEP,
+    NODE_KIND_EXT,
+    external_node_id,
+)
 from ..ingestion.loaders import DataValidationError, load_dataset
 from ..llm.client import LLMClient
 from ..models.entities import Application
@@ -122,13 +132,37 @@ store = RunStore()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):  # pragma: no cover - exercised via TestClient
-    """Adopt the last CLI-written report so GETs work before any POST."""
-    path = get_settings().reports_dir / "analysis.json"
+    """Make sure a run exists before the first request.
+
+    Adopt the last CLI-written report if there is one. If there ISN'T — a fresh
+    clone, or a container whose `reports/` is empty — analyse `data/` right here.
+
+    Without this, `uvicorn` starts happily and then answers every single endpoint
+    with "No analysis run available. POST /analyze first." A deployed app that
+    boots into a 404 and expects the visitor to know to POST something is broken,
+    however correct each individual part of it is.
+    """
+    settings = get_settings()
+    path = settings.reports_dir / "analysis.json"
+
     if path.is_file():
         with suppress(Exception):  # a stale/corrupt artifact must not block boot
             store.add(
                 AnalysisReport.model_validate_json(path.read_text(encoding="utf-8"))
             )
+
+    if not store.list():
+        with suppress(Exception):  # no data/ dir? still boot; /health must answer
+            report = build_report(
+                load_dataset(settings.data_dir),
+                run_id=store.next_run_id(),
+                client=LLMClient(settings),
+                settings=settings,
+            )
+            store.add(report)
+            write_report(report, path)
+            write_html(report, settings.reports_dir / "report.html")
+
     yield
 
 
@@ -270,12 +304,155 @@ def get_app(app_id: str, run_id: str = LATEST) -> AppRiskReport:
     raise HTTPException(status_code=404, detail=f"Unknown app id: {app_id!r}")
 
 
-@app.get("/applications", response_model=list[Application])
+def _synthesise_applications(staged: Path) -> None:
+    """Derive `applications.json` from an uploaded SBOM's own columns.
+
+    The CSV already names every application it references (`application_id`,
+    `application_name`). The rest of the record — criticality, licence model,
+    owner — is not in an SBOM and cannot be invented, so it takes an explicit,
+    conservative default rather than a flattering one:
+
+    - ``criticality: MEDIUM``      — neither alarmist nor dismissive.
+    - ``license_model: proprietary`` — the setting under which a viral licence IS
+      a conflict. Guessing "internal-only" would silently suppress every GPL
+      finding in the upload, which is the one mistake here with legal consequences.
+
+    Upload a real `applications.json` to score against your actual estate.
+    """
+    rows = csv.DictReader(
+        io.StringIO(
+            staged.joinpath("sbom_dependencies.csv").read_text(
+                encoding="utf-8", errors="replace"
+            ),
+            newline="",
+        )
+    )
+
+    seen: dict[str, str] = {}
+    for row in rows:
+        app_id = (row.get("application_id") or "").strip()
+        if app_id and app_id not in seen:
+            seen[app_id] = (row.get("application_name") or app_id).strip() or app_id
+
+    staged.joinpath("applications.json").write_text(
+        json.dumps(
+            [
+                {
+                    "app_id": app_id,
+                    "name": name,
+                    "language": "",
+                    "criticality": "MEDIUM",
+                    "license_model": "proprietary",
+                    "business_owner": "",
+                    "department": "",
+                    "deployment": "cloud",
+                }
+                for app_id, name in seen.items()
+            ],
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+
+@app.post("/analyze/upload", response_model=RunSummary, status_code=201)
+def analyze_upload(
+    sbom: UploadFile = File(..., description="sbom_dependencies.csv"),
+    applications: UploadFile | None = File(None, description="applications.json"),
+    vulnerability_db: UploadFile | None = File(None),
+    license_rules: UploadFile | None = File(None),
+    transitive_dependencies: UploadFile | None = File(None),
+) -> RunSummary:
+    """Analyse an uploaded SBOM.
+
+    Only the dependency CSV is required. Anything not supplied falls back to the
+    copy in ``data/`` — you rarely bring your own CVE feed or licence matrix, and
+    demanding all five files just to look at one SBOM would make the feature
+    useless.
+
+    The upload is analysed in a temp directory and **never** writes to ``data/``.
+    Someone dropping a file into a web form must not be able to overwrite the
+    dataset the scorecard is measured against.
+
+    The run is registered in memory and becomes ``latest``, so the whole console
+    switches to it. Nothing is persisted to ``reports/``: a restart returns you to
+    the canonical run, which is the right default for an ad-hoc upload.
+    """
+    settings = get_settings()
+
+    # What may fall back to `data/`, and what may NOT.
+    #
+    # The CVE feed and the licence matrix are *reference* data — nobody brings
+    # their own NVD to look at one SBOM, so those fall back.
+    #
+    # `transitive_dependencies.json` must NEVER fall back. Its edges belong to the
+    # SBOM that was uploaded, and pairing 372 edges from the shipped dataset with
+    # an uploaded CSV that declares none is a contradiction the loader rightly
+    # rejects. The same edges already ride along on the CSV's `transitive_deps`
+    # column, so nothing is lost by omitting the file.
+    REFERENCE = {
+        "vulnerability_db.json": vulnerability_db,
+        "license_rules.json": license_rules,
+    }
+
+    with tempfile.TemporaryDirectory(prefix="sbom-upload-") as tmp:
+        staged = Path(tmp)
+        staged.joinpath("sbom_dependencies.csv").write_bytes(sbom.file.read())
+
+        for name, upload in REFERENCE.items():
+            if upload is not None and upload.filename:
+                staged.joinpath(name).write_bytes(upload.file.read())
+            elif (fallback := settings.data_dir / name).is_file():
+                staged.joinpath(name).write_bytes(fallback.read_bytes())
+
+        if transitive_dependencies is not None and transitive_dependencies.filename:
+            staged.joinpath("transitive_dependencies.json").write_bytes(
+                transitive_dependencies.file.read()
+            )
+
+        if applications is not None and applications.filename:
+            staged.joinpath("applications.json").write_bytes(applications.file.read())
+        else:
+            # Synthesise the application inventory from the SBOM itself. Requiring
+            # applications.json just to scan a dependency list would make the
+            # feature useless for the common case: someone with one CSV.
+            _synthesise_applications(staged)
+
+        try:
+            dataset = load_dataset(staged)
+        except (DataValidationError, FileNotFoundError, ValueError) as exc:
+            # A malformed upload is the caller's problem — and they need to be told
+            # WHICH row and WHICH column. A bare "422" helps nobody.
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+        client = LLMClient(settings)
+        report = build_report(
+            dataset,
+            run_id=f"upload-{store.next_run_id()}",
+            client=client,
+            settings=settings,
+        )
+
+    store.add(report)
+    return _summarize(report, client)
+
+
+@app.get(
+    "/applications",
+    response_model=list[Application],
+    # `Application` declares validation aliases so it can read the dataset's own
+    # column names (`business_owner`, `criticality`, `deployment`). FastAPI
+    # serialises BY ALIAS by default, which would send those raw column names
+    # straight back out — and the console, the report and every other consumer
+    # speak the codebase's vocabulary, not the CSV's. Translate on the way in
+    # only; the wire format stays consistent with the rest of the API.
+    response_model_by_alias=False,
+)
 def list_applications() -> list[Application]:
     """The application records as they were ingested.
 
     `AppRiskReport` carries the *scored* view of an app — it deliberately drops
-    the descriptive fields (owner, environment, internet_facing) because scoring
+    the descriptive fields (owner, environment, license_model) because scoring
     has no use for them. The console does: an app's owner is who you actually
     send the P1 to. Ten tiny records, straight off the loader.
     """
@@ -344,102 +521,116 @@ def get_graph(
     ),
     run_id: str = LATEST,
 ) -> GraphResponse:
-    """The dependency DAG as Cytoscape elements, enriched with scored findings.
+    """The dependency DAG as Cytoscape elements.
 
-    Structure comes from the parsed SBOM; severity/score come from the run. The
-    two are joined on ``dependency_id``, which is the graph node key on both sides.
+    Built from the RUN, not from `data/` on disk. That distinction is the whole
+    bug it fixes: an uploaded SBOM becomes `latest`, but re-parsing `data/` served
+    the shipped dataset's graph against the upload's findings, the app ids did not
+    intersect, and the canvas rendered zero nodes.
+
+    Everything needed is already on the report — `app_id` implies the app->dep
+    edge, and `transitive_children` carries the dep->external ones — so the graph
+    is a projection of the report rather than a second, divergent source of truth.
     """
     report = _require_run(run_id)
-    settings = get_settings()
-    try:
-        dataset = load_dataset(settings.data_dir)
-        graph = build_graph(dataset.applications, dataset.dependencies)
-    except (DataValidationError, FileNotFoundError, ValueError) as exc:
-        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
     apps_by_id = {a.app_id: a for a in report.apps}
     if app_id is not None and app_id not in apps_by_id:
         raise HTTPException(status_code=404, detail=f"Unknown app id: {app_id!r}")
 
-    findings = {f.dependency_id: f for f in _all_findings(report)}
-
-    def in_scope(node_id: str, attrs: dict) -> bool:
-        if app_id is None:
-            return True
-        if attrs.get("kind") == NODE_KIND_APP:
-            return node_id == app_id
-        return attrs.get("app_id") == app_id
+    scoped = [a for a in report.apps if app_id is None or a.app_id == app_id]
 
     nodes: list[GraphNode] = []
-    for node_id, attrs in graph.nodes(data=True):
-        if not in_scope(node_id, attrs):
-            continue
+    edges: list[GraphEdge] = []
+    seen_ext: set[str] = set()
 
-        if attrs.get("kind") == NODE_KIND_APP:
-            owner = apps_by_id.get(node_id)
-            nodes.append(
-                GraphNode(
-                    data={
-                        "id": node_id,
-                        "label": attrs.get("name", node_id),
-                        "kind": NODE_KIND_APP,
-                        "app_id": node_id,
-                        "severity": owner.severity.value if owner else "none",
-                        "risk_score": owner.app_score if owner else 0.0,
-                        "risk_types": [],
-                        "business_criticality": attrs.get("business_criticality"),
-                        "internet_facing": attrs.get("internet_facing", False),
-                        "distributed": attrs.get("distributed", False),
-                    }
-                )
-            )
-            continue
-
-        # A dependency the analyzer never scored would be a real inconsistency;
-        # surface it as `none` rather than dropping the node and hiding the hole.
-        found = findings.get(node_id)
+    for app in scoped:
         nodes.append(
             GraphNode(
                 data={
-                    "id": node_id,
-                    "label": attrs.get("library_name", node_id),
-                    "kind": NODE_KIND_DEP,
-                    "app_id": attrs.get("app_id"),
-                    "version": attrs.get("version", ""),
-                    "ecosystem": attrs.get("ecosystem"),
-                    "license": attrs.get("license", ""),
-                    "dependency_type": attrs.get("dependency_type"),
-                    "severity": found.severity.value if found else "none",
-                    "risk_score": found.risk_score if found else 0.0,
-                    "risk_types": [rt.value for rt in found.risk_types]
-                    if found
-                    else [],
-                    # Confirmed CVEs only. A dependency whose sole match is a
-                    # backported-safe build is NOT carrying a live CVE, and the
-                    # graph must not ring it in red — that is the exact false
-                    # alarm the FP check exists to suppress. The dismissed ones
-                    # are still counted, separately, so the UI can show its work.
-                    "cve_count": sum(
-                        1 for c in found.matched_cves if not c.is_false_positive
-                    )
-                    if found
-                    else 0,
-                    "dismissed_cve_count": sum(
-                        1 for c in found.matched_cves if c.is_false_positive
-                    )
-                    if found
-                    else 0,
-                    "scored": found is not None,
+                    "id": app.app_id,
+                    "label": app.name,
+                    "kind": NODE_KIND_APP,
+                    "app_id": app.app_id,
+                    "severity": app.severity.value,
+                    "risk_score": app.app_score,
+                    "risk_types": [],
+                    "business_criticality": app.business_criticality.value,
+                    "owner": app.owner,
+                    "environment": app.environment,
+                    "license_model": app.license_model,
                 }
             )
         )
 
-    node_ids = {n.data["id"] for n in nodes}
-    edges = [
-        GraphEdge(data={"id": f"{src}~{dst}", "source": src, "target": dst})
-        for src, dst in graph.edges()
-        if src in node_ids and dst in node_ids
-    ]
+        for f in app.findings:
+            nodes.append(
+                GraphNode(
+                    data={
+                        "id": f.dependency_id,
+                        "label": f.library_name,
+                        "kind": NODE_KIND_DEP,
+                        "app_id": f.app_id,
+                        "version": f.version,
+                        "license": f.license,
+                        "dependency_type": f.dependency_type.value,
+                        "severity": f.severity.value,
+                        "risk_score": f.risk_score,
+                        "risk_types": [rt.value for rt in f.risk_types],
+                        "vuln_status": f.vuln_status.value,
+                        # Confirmed CVEs only. A `potential` match — right library,
+                        # wrong version — must NOT ring the node red: asserting a
+                        # vulnerability the advisory never claimed is the exact
+                        # false alarm the confidence tier exists to prevent.
+                        "cve_count": len(f.confirmed_cves),
+                        "unconfirmed_cve_count": len(f.potential_cves),
+                        "scored": True,
+                    }
+                )
+            )
+            edges.append(
+                GraphEdge(
+                    data={
+                        "id": f"{f.app_id}~{f.dependency_id}",
+                        "source": f.app_id,
+                        "target": f.dependency_id,
+                    }
+                )
+            )
+
+            # Phantom transitive children: named by the SBOM, never an SBOM row,
+            # so never scored — but real structure, and a vulnerable one is a real
+            # exposure. Drawn, flagged, and clearly marked unscored.
+            for child in f.transitive_children:
+                ext_id = external_node_id(f.app_id, child.library_name, child.version)
+                if ext_id not in seen_ext:
+                    seen_ext.add(ext_id)
+                    nodes.append(
+                        GraphNode(
+                            data={
+                                "id": ext_id,
+                                "label": child.library_name,
+                                "kind": NODE_KIND_EXT,
+                                "app_id": f.app_id,
+                                "version": child.version,
+                                "severity": "none",
+                                "risk_score": 0.0,
+                                "risk_types": [],
+                                "cve_count": len(child.cve_ids),
+                                "scored": False,
+                            }
+                        )
+                    )
+                edges.append(
+                    GraphEdge(
+                        data={
+                            "id": f"{f.dependency_id}~{ext_id}",
+                            "source": f.dependency_id,
+                            "target": ext_id,
+                        }
+                    )
+                )
+
     return GraphResponse(run_id=report.run_id, nodes=nodes, edges=edges)
 
 

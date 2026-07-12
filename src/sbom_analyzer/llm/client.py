@@ -27,6 +27,7 @@ it (:meth:`complete_model`).
 from __future__ import annotations
 
 import json
+import time
 import logging
 from typing import Any, TypeVar
 
@@ -41,6 +42,38 @@ T = TypeVar("T", bound=BaseModel)
 # Anthropic default. Overridden by LLM_MODEL.
 DEFAULT_ANTHROPIC_MODEL = "claude-opus-4-8"
 DEFAULT_OPENAI_BASE_URL = "https://api.openai.com/v1"
+# Gemini speaks OpenAI's wire format at this host, so it reuses the same request
+# shape rather than pulling in the google-genai SDK for four fields.
+DEFAULT_GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai"
+
+# A 429 means "wait", not "give up". Free-tier keys rate-limit hard, so a single
+# attempt throws away answers the provider would have given. Bounded on purpose:
+# when the daily quota is genuinely spent, retrying forever just hangs the run.
+RATE_LIMIT_RETRIES = 3
+RATE_LIMIT_BACKOFF = 2.0  # seconds; doubles each attempt
+
+
+def _is_rate_limited(exc: Exception) -> bool:
+    """Every provider spells 429 differently; all of them say it somewhere."""
+    text = str(exc).lower()
+    return "429" in text or "rate limit" in text or "quota" in text
+
+
+def _gemini_base_url(configured: str) -> str:
+    """Resolve LLM_BASE_URL to Gemini's OpenAI-compatible endpoint.
+
+    `https://generativelanguage.googleapis.com` is the obvious thing to put in
+    LLM_BASE_URL, and it is *wrong* — the OpenAI-compatible surface lives under
+    `/v1beta/openai`. Posting to the bare host returns a bare 404 with no hint,
+    which reads as "the model is gone" and sends you chasing the wrong bug.
+
+    So accept the host and finish the path. Anyone who has already pointed at a
+    full OpenAI-compatible URL (their own proxy, a gateway) is left alone.
+    """
+    base = (configured or DEFAULT_GEMINI_BASE_URL).rstrip("/")
+    if base.endswith("/openai") or "/v1" in base:
+        return base
+    return f"{base}/v1beta/openai"
 
 OPENAI_TEMPERATURE = 0.0  # accepted on OpenAI-compatible APIs; rejected by Anthropic
 DEFAULT_MAX_TOKENS = 1024
@@ -87,16 +120,28 @@ def _harden(node: Any) -> None:
 
 
 def _extract_json(text: str) -> dict[str, Any] | None:
-    """Parse a JSON object out of a model reply, tolerating ```json fences."""
+    """Parse a JSON object out of a model reply, tolerating fences and chatter.
+
+    Even in JSON mode, models append prose — Gemini in particular will happily
+    emit ``{"ok": true}`` and then keep talking. Scanning from the first ``{`` to
+    the *last* ``}`` looks like it handles that, but it breaks the moment the
+    trailing chatter contains a brace of its own: the slice then runs past the end
+    of the real object and fails to parse, and a perfectly good answer is thrown
+    away as "non-JSON".
+
+    So decode the first complete object and ignore whatever follows.
+    """
     body = text.strip()
     if body.startswith("```"):
         body = body.split("\n", 1)[-1] if "\n" in body else ""
         body = body.rsplit("```", 1)[0]
-    start, end = body.find("{"), body.rfind("}")
-    if start == -1 or end <= start:
+
+    start = body.find("{")
+    if start == -1:
         return None
+
     try:
-        parsed = json.loads(body[start : end + 1])
+        parsed, _end = json.JSONDecoder().raw_decode(body[start:])
     except json.JSONDecodeError:
         return None
     return parsed if isinstance(parsed, dict) else None
@@ -143,11 +188,26 @@ class LLMClient:
 
         self.calls += 1
         budget = max_tokens or self.settings.llm_max_tokens or DEFAULT_MAX_TOKENS
-        try:
-            raw = self._raw_complete(system, user, schema, budget)
-        except Exception as exc:  # noqa: BLE001 — the whole point: never propagate
-            self._fail(f"LLM call failed ({self.settings.llm_provider.value}): {exc}")
-            return None
+
+        # A 429 is not a failure, it is a *wait*. Falling straight back to the
+        # template on a rate limit throws away an answer the provider was willing
+        # to give — and on a free-tier key, which rate-limits aggressively, that is
+        # most of them. Retry a couple of times with backoff, then give up
+        # honestly. Bounded: a run must never hang on a quota that is exhausted for
+        # the day rather than merely busy.
+        for attempt in range(RATE_LIMIT_RETRIES):
+            try:
+                raw = self._raw_complete(system, user, schema, budget)
+                break
+            except Exception as exc:  # noqa: BLE001
+                if not _is_rate_limited(exc) or attempt == RATE_LIMIT_RETRIES - 1:
+                    self._fail(
+                        f"LLM call failed ({self.settings.llm_provider.value}): {exc}"
+                    )
+                    return None
+                delay = RATE_LIMIT_BACKOFF * (2**attempt)
+                logger.warning("rate limited; retrying in %.0fs", delay)
+                time.sleep(delay)
 
         data = _extract_json(raw or "")
         if data is None:
@@ -187,7 +247,10 @@ class LLMClient:
             return self._complete_anthropic(system, user, schema, max_tokens)
         if provider is LLMProvider.openai:
             return self._complete_openai(system, user, max_tokens)
+        if provider is LLMProvider.gemini:
+            return self._complete_gemini(system, user, max_tokens)
         raise RuntimeError(f"unsupported LLM provider: {provider!r}")
+       
 
     def _complete_anthropic(
         self,
@@ -251,17 +314,64 @@ class LLMClient:
             timeout=DEFAULT_TIMEOUT,
         )
 
+    def _complete_gemini(self, system: str, user: str, max_tokens: int) -> str:
+        """Gemini via its OpenAI-compatible surface.
+
+        Same wire format as `_complete_openai`, different host and a different
+        failure mode worth naming: Google retires model ids, and a retired id
+        answers **404**, not 400. Left unexplained that reads as "the endpoint is
+        wrong" and sends you debugging the URL, which is fine. The message below
+        says what is actually true — the id is dead — and how to find a live one.
+        """
+        import httpx
+
+        model = self.settings.llm_model
+        if not model:
+            raise RuntimeError("LLM_MODEL is required when LLM_PROVIDER=gemini")
+
+        base_url = _gemini_base_url(self.settings.llm_base_url)
+
+        response = httpx.post(
+            f"{base_url}/chat/completions",
+            headers={"Authorization": f"Bearer {self.settings.llm_api_key}"},
+            json={
+                "model": model,
+                "temperature": OPENAI_TEMPERATURE,
+                "max_tokens": max_tokens,
+                "response_format": {"type": "json_object"},
+                "messages": [
+                    {"role": "system", "content": system},
+                    {"role": "user", "content": user},
+                ],
+            },
+            timeout=DEFAULT_TIMEOUT,
+        )
+
         # Surface the provider's own message. `raise_for_status()` alone reports
-        # only "402 Payment Required", hiding the part that says *why* — which is
-        # what turns a debuggable failure into a silent fallback.
+        # only "404 Not Found", hiding the part that says *why* — which is what
+        # turns a debuggable failure into a silent fallback.
         try:
             body = response.json()
         except ValueError:
             body = {}
+
+        # Gemini returns its error wrapped in a single-element LIST, not a bare
+        # object like every other OpenAI-compatible provider. Unwrap it, or the
+        # message below never fires and the caller is told nothing.
+        if isinstance(body, list) and body:
+            body = body[0]
+
         if isinstance(body, dict) and body.get("error"):
             err = body["error"]
             message = err.get("message") if isinstance(err, dict) else err
+            if response.status_code == 404:
+                message = (
+                    f"{message} (LLM_MODEL={model!r}). List the ids your key can "
+                    f"actually reach with: GET "
+                    f"https://generativelanguage.googleapis.com/v1beta/models"
+                    f"?key=$LLM_API_KEY"
+                )
             raise RuntimeError(f"HTTP {response.status_code}: {message}")
-        response.raise_for_status()
 
+        response.raise_for_status()
         return body["choices"][0]["message"]["content"]

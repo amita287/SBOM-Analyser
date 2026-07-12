@@ -54,27 +54,13 @@ def main() -> None:
 
     totals = report.summary.totals_per_risk_type
     n_findings = sum(len(app.findings) for app in report.apps)
-    at_risk = sum(
-        1
-        for app in report.apps
-        for f in app.findings
-        if f.risk_types != [RiskType.clean]
-    )
+    at_risk = sum(1 for app in report.apps for f in app.findings if f.is_risk)
     print(f"Wrote {out_path}")
     print(f"Wrote {html_path}")
     print(f"  findings={n_findings}  at_risk={at_risk}")
     print(
         "  by type: "
-        + "  ".join(
-            f"{rt.value}={totals.get(rt, 0)}"
-            for rt in (
-                RiskType.vulnerable,
-                RiskType.transitive_vulnerable,
-                RiskType.license_conflict,
-                RiskType.unmaintained,
-                RiskType.clean,
-            )
-        )
+        + "  ".join(f"{rt.value}={totals.get(rt, 0)}" for rt in RiskType)
     )
     top = report.summary.top_riskiest
     if top:
