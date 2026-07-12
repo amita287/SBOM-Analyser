@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Findings — SBOM Analyzer</title>
+<link rel="stylesheet" href="console.css">
+<style>
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+    flex-wrap: wrap;
+  }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 11px;
+    border-radius: 999px;
+    border: 1px solid var(--line-strong);
+    background: var(--panel-2);
+    color: var(--ink-2);
+    font-size: 12.5px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .chip:hover { background: var(--panel-3); color: var(--ink); }
+  .chip[aria-pressed="true"] {
+    background: var(--accent-soft);
+    border-color: rgba(128,145,245,.45);
+    color: #c3ccff;
+  }
+  .chip .c { font-variant-numeric: tabular-nums; font-size: 11px; color: var(--ink-3); }
+
+  .foot {
+    padding: 12px 16px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--ink-3);
+  }
+  .foot .grow { flex: 1; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div id="rail"></div>
+
+  <div class="main">
+    <div class="topbar" id="topbar"></div>
+
+    <div class="content">
+      <div id="fault"></div>
+
+      <section class="panel">
+        <div class="bar">
+          <div class="search">
+            <span id="si"></span>
+            <input type="search" id="q" placeholder="Search library, CVE, licence, id…">
+          </div>
+          <select id="app"><option value="">All applications</option></select>
+          <div class="chips" id="chips"></div>
+          <span class="grow" style="flex:1"></span>
+          <span class="micro" id="shown"></span>
+        </div>
+
+        <div style="padding:0 16px">
+          <table id="tbl">
+            <thead>
+              <tr>
+                <th class="tw"></th>
+                <th class="sortable" data-k="library_name">Dependency <span class="caret">▼</span></th>
+                <th>Application</th>
+                <th>Risk</th>
+                <th class="sortable" data-k="license">Licence <span class="caret">▼</span></th>
+                <th>Severity</th>
+                <th class="sortable num" data-k="risk_score" aria-sort="descending">Score <span class="caret">▼</span></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div class="foot">
+          <span id="tally"></span>
+          <span class="grow"></span>
+          <button class="btn" id="more" hidden>Show 100 more</button>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import {
+  api, esc, fault, shell, topbar, provcard, ICON, RISK_TYPES,
+  dropdown, download, toCSV, FINDING_COLS, plural,
+} from "./console.js";
+import { findingRow, wireRows, FINDING_CSS } from "./finding.js";
+
+document.head.append(Object.assign(document.createElement("style"), { textContent: FINDING_CSS }));
+
+const $ = (s) => document.querySelector(s);
+$("#rail").outerHTML = shell("findings");
+$("#si").innerHTML = ICON.search;
+
+$("#topbar").innerHTML = topbar({
+  title: "Findings",
+  icon: "list",
+  right: `
+    <div class="menu">
+      <button class="btn primary" id="exportbtn">${ICON.down}<span>Export</span></button>
+      <div class="sheet" id="exportsheet" hidden>
+        <div class="lbl">Download</div>
+        <button data-x="visible">${ICON.list}<span>Findings in view<span class="d">CSV · respects every filter</span></span></button>
+        <button data-x="all">${ICON.list}<span>All at-risk findings<span class="d">CSV · all 320</span></span></button>
+        <button data-x="everything">${ICON.list}<span>Every occurrence<span class="d">CSV · all 500, clean included</span></span></button>
+      </div>
+    </div>`,
+});
+
+let report = null;
+let all = [];             // every finding, flattened
+let byId = new Map();
+let appName = new Map();
+let label = (id) => id;
+
+let active = new Set();   // empty == at-risk only (clean is noise by default)
+let query = "";
+let onlyApp = "";
+let sortKey = "risk_score";
+let sortDir = -1;
+let limit = 100;          // the table is virtual-ish: render in pages, not all 500
+
+function visible() {
+  const q = query.trim().toLowerCase();
+
+  const rows = all.filter((f) => {
+    /* With no chip selected, show the at-risk set. The 180 clean rows are noise
+       in an explorer — you ask for them explicitly with the Clean chip. */
+    if (active.size === 0) {
+      if (f.risk_types.includes("clean")) return false;
+    } else if (!f.risk_types.some((t) => active.has(t))) return false;
+
+    if (onlyApp && f.app_id !== onlyApp) return false;
+    if (!q) return true;
+
+    return (
+      f.library_name.toLowerCase().includes(q) ||
+      f.dependency_id.toLowerCase().includes(q) ||
+      (f.license ?? "").toLowerCase().includes(q) ||
+      (appName.get(f.app_id) ?? "").toLowerCase().includes(q) ||
+      f.matched_cves.some((c) => c.cve_id.toLowerCase().includes(q))
+    );
+  });
+
+  rows.sort((x, y) => {
+    const a = x[sortKey], b = y[sortKey];
+    if (typeof a === "string") return a.localeCompare(b) * sortDir;
+    return (a - b) * sortDir;
+  });
+  return rows;
+}
+
+function render() {
+  const rows = visible();
+  const page = rows.slice(0, limit);
+  const tbody = $("#tbl tbody");
+
+  tbody.innerHTML = !rows.length
+    ? `<tr><td colspan="7" class="empty"><span class="big">No finding matches.</span>
+         Clear a filter, or search for a CVE id.</td></tr>`
+    : page.map((f) => findingRow(f, { showApp: true, appName: (id) => appName.get(id) ?? id })).join("");
+
+  wireRows(tbody, { byId, label });
+
+  $("#shown").textContent = `${page.length} of ${rows.length}`;
+  $("#tally").innerHTML =
+    `${plural(rows.length, "finding")} · ` +
+    `${rows.filter((f) => f.risk_types.includes("vulnerable")).length} vulnerable · ` +
+    `${rows.reduce((n, f) => n + (f.attack_paths?.length ?? 0), 0)} attack paths`;
+
+  $("#more").hidden = rows.length <= limit;
+  $("#more").textContent = `Show ${Math.min(100, rows.length - limit)} more`;
+
+  document.querySelectorAll("th.sortable").forEach((th) => {
+    if (th.dataset.k === sortKey) {
+      th.setAttribute("aria-sort", sortDir < 0 ? "descending" : "ascending");
+      th.querySelector(".caret").textContent = sortDir < 0 ? "▼" : "▲";
+    } else th.removeAttribute("aria-sort");
+  });
+}
+
+function renderChips() {
+  const counts = {};
+  for (const f of all) for (const rt of f.risk_types) counts[rt] = (counts[rt] ?? 0) + 1;
+
+  $("#chips").innerHTML = RISK_TYPES.map(
+    ([k, l]) => `<button class="chip" data-rt="${k}" aria-pressed="false">
+        ${esc(l)} <span class="c">${counts[k] ?? 0}</span></button>`,
+  ).join("");
+
+  $("#chips").querySelectorAll(".chip").forEach((c) =>
+    c.addEventListener("click", () => {
+      const rt = c.dataset.rt;
+      active.has(rt) ? active.delete(rt) : active.add(rt);
+      c.setAttribute("aria-pressed", active.has(rt));
+      limit = 100;
+      render();
+    }),
+  );
+}
+
+/* ---------------------------------------------------------------- export -- */
+dropdown($("#exportbtn"), $("#exportsheet"));
+$("#exportsheet").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-x]");
+  if (!b || !report) return;
+  $("#exportsheet").hidden = true;
+  const stamp = report.run_id;
+
+  /* "In view" exports the whole filtered set, not just the rendered page —
+     the 100-row limit is a rendering budget, not a filter, and an export that
+     silently truncated at the scroll position would be a trap. */
+  const rows =
+    b.dataset.x === "visible" ? visible()
+    : b.dataset.x === "all" ? all.filter((f) => !f.risk_types.includes("clean"))
+    : all;
+
+  download(`sbom-findings-${stamp}.csv`, toCSV(
+    [...rows].sort((x, y) => y.risk_score - x.risk_score), FINDING_COLS));
+});
+
+/* ------------------------------------------------------------------ boot -- */
+async function boot() {
+  try {
+    const [run, rep] = await Promise.all([api("/runs/latest"), api("/runs/latest/report")]);
+    report = rep;
+
+    appName = new Map(rep.apps.map((a) => [a.app_id, a.name]));
+    all = rep.apps.flatMap((a) => a.findings);
+    byId = new Map(all.map((f) => [f.dependency_id, f]));
+
+    const libs = new Map(all.map((f) => [f.dependency_id, f.library_name]));
+    label = (id) => appName.get(id) ?? libs.get(id) ?? id;
+
+    $("#app").innerHTML =
+      `<option value="">All applications</option>` +
+      [...rep.apps]
+        .sort((a, b) => b.app_score - a.app_score)
+        .map((a) => `<option value="${esc(a.app_id)}">${esc(a.name)}</option>`)
+        .join("");
+
+    $("#provcard").innerHTML = provcard(run);
+    renderChips();
+    render();
+  } catch (err) {
+    fault($("#fault"), err);
+  }
+}
+
+document.querySelectorAll("th.sortable").forEach((th) =>
+  th.addEventListener("click", () => {
+    const k = th.dataset.k;
+    if (k === sortKey) sortDir = -sortDir;
+    else { sortKey = k; sortDir = -1; }
+    render();
+  }),
+);
+
+$("#q").addEventListener("input", (e) => { query = e.target.value; limit = 100; render(); });
+$("#app").addEventListener("change", (e) => { onlyApp = e.target.value; limit = 100; render(); });
+$("#more").addEventListener("click", () => { limit += 100; render(); });
+$("#railsearch").addEventListener("click", () => $("#q").focus());
+addEventListener("keydown", (e) => {
+  if (e.key === "/" && !/input|select/i.test(e.target.tagName)) { e.preventDefault(); $("#q").focus(); }
+});
+
+boot();
+</script>
+</body>
+</html>

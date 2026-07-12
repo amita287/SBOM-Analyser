@@ -30,16 +30,21 @@ from __future__ import annotations
 from collections.abc import Iterator
 from contextlib import asynccontextmanager, suppress
 from datetime import datetime
+from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Query
-from fastapi.responses import HTMLResponse
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from .. import __version__
 from ..analysis.maintenance import TODAY
 from ..config import get_settings
+from ..graph.builder import NODE_KIND_APP, NODE_KIND_DEP, build_graph
 from ..ingestion.loaders import DataValidationError, load_dataset
 from ..llm.client import LLMClient
+from ..models.entities import Application
 from ..models.findings import (
     AnalysisReport,
     AppRiskReport,
@@ -50,6 +55,10 @@ from ..reporting.html import render_html, write_html
 from ..reporting.report import build_report, write_report
 
 LATEST = "latest"
+
+# The static console (dashboard + graph) ships next to the package so it is
+# installed with it and served from the same origin as the API.
+STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
 
 
 # --------------------------------------------------------------------------- #
@@ -128,6 +137,15 @@ app = FastAPI(
     version=__version__,
     summary="Software supply chain risk scorer — deterministic core, LLM narratives.",
     lifespan=lifespan,
+)
+
+# The bundled console is same-origin, but a Vite/live-server dev loop on another
+# port is not. Read-only API over a local, synthetic dataset — nothing to guard.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
 )
 
 
@@ -252,6 +270,21 @@ def get_app(app_id: str, run_id: str = LATEST) -> AppRiskReport:
     raise HTTPException(status_code=404, detail=f"Unknown app id: {app_id!r}")
 
 
+@app.get("/applications", response_model=list[Application])
+def list_applications() -> list[Application]:
+    """The application records as they were ingested.
+
+    `AppRiskReport` carries the *scored* view of an app — it deliberately drops
+    the descriptive fields (owner, environment, internet_facing) because scoring
+    has no use for them. The console does: an app's owner is who you actually
+    send the P1 to. Ten tiny records, straight off the loader.
+    """
+    try:
+        return load_dataset(get_settings().data_dir).applications
+    except (DataValidationError, FileNotFoundError) as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
 @app.get("/findings", response_model=list[DependencyFinding])
 def get_findings(
     risk_type: RiskType | None = Query(
@@ -278,3 +311,150 @@ def get_findings(
     ]
     results.sort(key=lambda f: (-f.risk_score, f.dependency_id))
     return results[:limit]
+
+
+# --------------------------------------------------------------------------- #
+# Graph — the dependency DAG, in Cytoscape's element shape
+#
+# The report carries `attack_paths`, but those only cover edges that terminate at
+# a vulnerable node. Reconstructing the graph from them would silently drop most
+# of the DAG, so this route goes back to the real edge list and reuses the very
+# same `build_graph()` the analyzer runs on. Parsed, never inferred.
+# --------------------------------------------------------------------------- #
+class GraphNode(BaseModel):
+    data: dict[str, object]
+
+
+class GraphEdge(BaseModel):
+    data: dict[str, object]
+
+
+class GraphResponse(BaseModel):
+    run_id: str
+    nodes: list[GraphNode] = Field(default_factory=list)
+    edges: list[GraphEdge] = Field(default_factory=list)
+
+
+@app.get("/graph", response_model=GraphResponse)
+def get_graph(
+    app_id: str | None = Query(
+        None,
+        description="Restrict to one application's subtree. Omit for the whole estate "
+        "(510 nodes — heavy to lay out; the console defaults to one app).",
+    ),
+    run_id: str = LATEST,
+) -> GraphResponse:
+    """The dependency DAG as Cytoscape elements, enriched with scored findings.
+
+    Structure comes from the parsed SBOM; severity/score come from the run. The
+    two are joined on ``dependency_id``, which is the graph node key on both sides.
+    """
+    report = _require_run(run_id)
+    settings = get_settings()
+    try:
+        dataset = load_dataset(settings.data_dir)
+        graph = build_graph(dataset.applications, dataset.dependencies)
+    except (DataValidationError, FileNotFoundError, ValueError) as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    apps_by_id = {a.app_id: a for a in report.apps}
+    if app_id is not None and app_id not in apps_by_id:
+        raise HTTPException(status_code=404, detail=f"Unknown app id: {app_id!r}")
+
+    findings = {f.dependency_id: f for f in _all_findings(report)}
+
+    def in_scope(node_id: str, attrs: dict) -> bool:
+        if app_id is None:
+            return True
+        if attrs.get("kind") == NODE_KIND_APP:
+            return node_id == app_id
+        return attrs.get("app_id") == app_id
+
+    nodes: list[GraphNode] = []
+    for node_id, attrs in graph.nodes(data=True):
+        if not in_scope(node_id, attrs):
+            continue
+
+        if attrs.get("kind") == NODE_KIND_APP:
+            owner = apps_by_id.get(node_id)
+            nodes.append(
+                GraphNode(
+                    data={
+                        "id": node_id,
+                        "label": attrs.get("name", node_id),
+                        "kind": NODE_KIND_APP,
+                        "app_id": node_id,
+                        "severity": owner.severity.value if owner else "none",
+                        "risk_score": owner.app_score if owner else 0.0,
+                        "risk_types": [],
+                        "business_criticality": attrs.get("business_criticality"),
+                        "internet_facing": attrs.get("internet_facing", False),
+                        "distributed": attrs.get("distributed", False),
+                    }
+                )
+            )
+            continue
+
+        # A dependency the analyzer never scored would be a real inconsistency;
+        # surface it as `none` rather than dropping the node and hiding the hole.
+        found = findings.get(node_id)
+        nodes.append(
+            GraphNode(
+                data={
+                    "id": node_id,
+                    "label": attrs.get("library_name", node_id),
+                    "kind": NODE_KIND_DEP,
+                    "app_id": attrs.get("app_id"),
+                    "version": attrs.get("version", ""),
+                    "ecosystem": attrs.get("ecosystem"),
+                    "license": attrs.get("license", ""),
+                    "dependency_type": attrs.get("dependency_type"),
+                    "severity": found.severity.value if found else "none",
+                    "risk_score": found.risk_score if found else 0.0,
+                    "risk_types": [rt.value for rt in found.risk_types]
+                    if found
+                    else [],
+                    # Confirmed CVEs only. A dependency whose sole match is a
+                    # backported-safe build is NOT carrying a live CVE, and the
+                    # graph must not ring it in red — that is the exact false
+                    # alarm the FP check exists to suppress. The dismissed ones
+                    # are still counted, separately, so the UI can show its work.
+                    "cve_count": sum(
+                        1 for c in found.matched_cves if not c.is_false_positive
+                    )
+                    if found
+                    else 0,
+                    "dismissed_cve_count": sum(
+                        1 for c in found.matched_cves if c.is_false_positive
+                    )
+                    if found
+                    else 0,
+                    "scored": found is not None,
+                }
+            )
+        )
+
+    node_ids = {n.data["id"] for n in nodes}
+    edges = [
+        GraphEdge(data={"id": f"{src}~{dst}", "source": src, "target": dst})
+        for src, dst in graph.edges()
+        if src in node_ids and dst in node_ids
+    ]
+    return GraphResponse(run_id=report.run_id, nodes=nodes, edges=edges)
+
+
+# --------------------------------------------------------------------------- #
+# Static console
+# --------------------------------------------------------------------------- #
+@app.get("/", include_in_schema=False)
+def index() -> RedirectResponse:
+    return RedirectResponse(url="/static/dashboard.html")
+
+
+# check_dir=False: a missing console should 404 those paths, not refuse to boot
+# the API it is only a client of.
+app.mount(
+    "/static",
+    StaticFiles(directory=STATIC_DIR, html=True, check_dir=False),
+    name="static",
+)

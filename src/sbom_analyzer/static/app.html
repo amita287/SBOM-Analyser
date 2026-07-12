@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Application — SBOM Analyzer</title>
+<link rel="stylesheet" href="console.css">
+<style>
+  .hero {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+  .hero .l { min-width: 0; flex: 1; }
+  .hero h1 {
+    margin: 0 0 8px;
+    font-size: 22px;
+    font-weight: 660;
+    letter-spacing: -.02em;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    flex-wrap: wrap;
+  }
+  .hero .meta { display: flex; flex-wrap: wrap; gap: 7px 16px; align-items: center; font-size: 12.5px; color: var(--ink-3); }
+  .hero .meta b { color: var(--ink-2); font-weight: 600; }
+
+  /* The verdict block. A big number is not a finding — say what it means. */
+  .verdict {
+    flex: none;
+    width: 268px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--tone, var(--sev-none));
+  }
+  .verdict .n { font-size: 34px; font-weight: 660; letter-spacing: -.03em; line-height: 1; }
+  .verdict .n .of { font-size: 14px; font-weight: 500; color: var(--ink-3); letter-spacing: 0; }
+  .verdict .say { margin-top: 8px; font-size: 12.5px; color: var(--ink-2); line-height: 1.5; }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+    flex-wrap: wrap;
+  }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 11px;
+    border-radius: 999px;
+    border: 1px solid var(--line-strong);
+    background: var(--panel-2);
+    color: var(--ink-2);
+    font-size: 12.5px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .chip:hover { background: var(--panel-3); color: var(--ink); }
+  .chip[aria-pressed="true"] {
+    background: var(--accent-soft);
+    border-color: rgba(128,145,245,.45);
+    color: #c3ccff;
+  }
+  .chip .c { font-variant-numeric: tabular-nums; font-size: 11px; color: var(--ink-3); }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div id="rail"></div>
+
+  <div class="main">
+    <div class="topbar" id="topbar"></div>
+
+    <div class="content">
+      <div id="fault"></div>
+      <div id="hero"></div>
+      <div class="tiles" id="tiles"></div>
+
+      <section class="panel">
+        <div class="bar">
+          <div class="search">
+            <span id="si"></span>
+            <input type="search" id="q" placeholder="Search library, CVE, licence…">
+          </div>
+          <div class="chips" id="chips"></div>
+          <span style="flex:1"></span>
+          <span class="micro" id="shown"></span>
+        </div>
+
+        <div style="padding:0 16px">
+          <table id="tbl">
+            <thead>
+              <tr>
+                <th class="tw"></th>
+                <th class="sortable" data-k="library_name">Dependency <span class="caret">▼</span></th>
+                <th>Risk</th>
+                <th class="sortable" data-k="license">Licence <span class="caret">▼</span></th>
+                <th>Severity</th>
+                <th class="sortable num" data-k="risk_score" aria-sort="descending">Score <span class="caret">▼</span></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import {
+  api, esc, fault, shell, topbar, provcard, score, sevBadge, who, ICON,
+  dropdown, download, toCSV, FINDING_COLS, SEVERITIES, RISK_TYPES, plural,
+} from "./console.js";
+import { findingRow, wireRows, FINDING_CSS } from "./finding.js";
+
+/* One stylesheet for the finding rows, injected from the module that owns them. */
+document.head.append(Object.assign(document.createElement("style"), { textContent: FINDING_CSS }));
+
+const $ = (s) => document.querySelector(s);
+const appId = new URLSearchParams(location.search).get("id");
+const focusDep = new URLSearchParams(location.search).get("dep");
+
+$("#rail").outerHTML = shell("apps");
+$("#si").innerHTML = ICON.search;
+
+let app = null;         // AppRiskReport
+let meta = {};          // Application record (owner, environment, flags)
+let byId = new Map();
+let label = (id) => id;
+let active = new Set(); // risk-type filter; empty == everything
+let query = "";
+let sortKey = "risk_score";
+let sortDir = -1;
+
+/* ------------------------------------------------------------------- chrome */
+function chrome() {
+  $("#topbar").innerHTML = topbar({
+    title: `<a href="applications.html" style="color:var(--ink-3)">Applications</a>`,
+    icon: "apps",
+    crumb: esc(app?.name ?? appId ?? ""),
+    right: `
+      <a class="btn" href="graph.html?app=${encodeURIComponent(appId)}">${ICON.graph}<span>Open in graph</span></a>
+      <div class="menu">
+        <button class="btn primary" id="exportbtn">${ICON.down}<span>Export</span></button>
+        <div class="sheet" id="exportsheet" hidden>
+          <div class="lbl">This application</div>
+          <button data-x="visible">${ICON.list}<span>Findings in view<span class="d">CSV · respects filters</span></span></button>
+          <button data-x="all">${ICON.list}<span>All at-risk findings<span class="d">CSV · every risk in this app</span></span></button>
+          <button data-x="json">${ICON.code}<span>App report<span class="d">JSON · this app only</span></span></button>
+        </div>
+      </div>`,
+  });
+
+  dropdown($("#exportbtn"), $("#exportsheet"));
+  $("#exportsheet").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-x]");
+    if (!b) return;
+    $("#exportsheet").hidden = true;
+    const slug = app.name.replace(/[^a-z0-9]+/gi, "-").toLowerCase();
+
+    if (b.dataset.x === "visible") {
+      download(`sbom-${slug}-view.csv`, toCSV(visible(), FINDING_COLS));
+    } else if (b.dataset.x === "all") {
+      const at = app.findings.filter((f) => !f.risk_types.includes("clean"));
+      download(`sbom-${slug}-findings.csv`, toCSV(at, FINDING_COLS));
+    } else {
+      download(`sbom-${slug}.json`, JSON.stringify(app, null, 2), "application/json");
+    }
+  });
+}
+
+/* -------------------------------------------------------------------- hero */
+function renderHero() {
+  const atRisk = app.findings.filter((f) => !f.risk_types.includes("clean")).length;
+  const vuln = app.findings.filter((f) => f.risk_types.includes("vulnerable")).length;
+  const paths = app.findings.reduce((n, f) => n + (f.attack_paths?.length ?? 0), 0);
+  const p1 = app.findings.filter((f) => f.remediation?.priority === "P1").length;
+  const conflicts = app.findings.filter((f) => f.license_outcome === "conflict").length;
+  const stale = app.findings.filter((f) => f.maintenance?.is_stale).length;
+
+  /* Say what the number means. "95/100" is a fact; "reachable, exploitable, and
+     shipped to customers" is the reason anyone should care. */
+  const say = [
+    vuln ? `${plural(vuln, "dependency", "dependencies")} carry a live CVE` : "no live CVEs",
+    paths ? `${plural(paths, "path")} reach one from the app` : null,
+    conflicts && meta.distributed
+      ? `${plural(conflicts, "licence conflict")} on a distributed app`
+      : conflicts ? `${plural(conflicts, "licence conflict")}` : null,
+  ].filter(Boolean).join(" · ");
+
+  $("#hero").innerHTML = `
+    <div class="hero">
+      <div class="l">
+        <h1>${esc(app.name)} ${sevBadge(app.severity)}</h1>
+        <div class="meta">
+          ${who(meta.owner)}
+          <span><b>${esc(app.business_criticality)}</b> tier</span>
+          <span><b>${esc(meta.environment ?? "—")}</b></span>
+          <span>${meta.internet_facing ? "<b>internet-facing</b>" : "internal only"}</span>
+          <span>${meta.distributed ? "<b>distributed</b> — GPL obligations bite" : "not distributed"}</span>
+          <span class="id">${esc(app.app_id)}</span>
+        </div>
+      </div>
+      <div class="verdict" style="--tone:var(--sev-${esc(app.severity)})">
+        <div class="n">${score(app.app_score)}<span class="of"> / 100</span></div>
+        <div class="say">${esc(say)}</div>
+      </div>
+    </div>`;
+
+  $("#tiles").innerHTML = `
+    <div class="tile" style="--tone:var(--sev-critical)">
+      <div class="n">${atRisk}<span class="of"> / ${app.findings.length}</span></div>
+      <div class="l micro">At risk</div><div class="sub">of this app's dependencies</div>
+    </div>
+    <div class="tile" style="--tone:var(--sev-critical)">
+      <div class="n">${vuln}</div><div class="l micro">Vulnerable</div><div class="sub">direct CVE match</div>
+    </div>
+    <div class="tile" style="--tone:var(--sev-high)">
+      <div class="n">${paths}</div><div class="l micro">Attack paths</div><div class="sub">app → vulnerable dep</div>
+    </div>
+    <div class="tile" style="--tone:var(--sev-medium)">
+      <div class="n">${conflicts}</div><div class="l micro">Licence conflicts</div><div class="sub">${meta.distributed ? "app is distributed" : "internal use"}</div>
+    </div>
+    <div class="tile" style="--tone:var(--sev-medium)">
+      <div class="n">${stale}</div><div class="l micro">Unmaintained</div><div class="sub">stale &gt; 2 years</div>
+    </div>
+    <div class="tile" style="--tone:var(--sev-critical)">
+      <div class="n">${p1}</div><div class="l micro">P1 remediations</div><div class="sub">fix these first</div>
+    </div>`;
+}
+
+/* ------------------------------------------------------------------- table */
+function renderChips() {
+  const counts = {};
+  for (const f of app.findings)
+    for (const rt of f.risk_types) counts[rt] = (counts[rt] ?? 0) + 1;
+
+  $("#chips").innerHTML = RISK_TYPES.map(
+    ([k, l]) => `
+      <button class="chip" data-rt="${k}" aria-pressed="${active.has(k)}">
+        ${esc(l)} <span class="c">${counts[k] ?? 0}</span>
+      </button>`,
+  ).join("");
+
+  $("#chips").querySelectorAll(".chip").forEach((c) =>
+    c.addEventListener("click", () => {
+      const rt = c.dataset.rt;
+      active.has(rt) ? active.delete(rt) : active.add(rt);
+      c.setAttribute("aria-pressed", active.has(rt));
+      render();
+    }),
+  );
+}
+
+function visible() {
+  const q = query.trim().toLowerCase();
+  const rows = app.findings.filter((f) => {
+    if (active.size && !f.risk_types.some((t) => active.has(t))) return false;
+    if (!q) return true;
+    return (
+      f.library_name.toLowerCase().includes(q) ||
+      f.dependency_id.toLowerCase().includes(q) ||
+      (f.license ?? "").toLowerCase().includes(q) ||
+      f.matched_cves.some((c) => c.cve_id.toLowerCase().includes(q))
+    );
+  });
+
+  rows.sort((x, y) => {
+    const a = x[sortKey], b = y[sortKey];
+    if (typeof a === "string") return a.localeCompare(b) * sortDir;
+    return (a - b) * sortDir;
+  });
+  return rows;
+}
+
+function render() {
+  const rows = visible();
+  const tbody = $("#tbl tbody");
+
+  tbody.innerHTML = !rows.length
+    ? `<tr><td colspan="6" class="empty"><span class="big">Nothing matches.</span>
+         Clear the filters or search for something else.</td></tr>`
+    : rows.map((f) => findingRow(f)).join("");
+
+  wireRows(tbody, { byId, label });
+  $("#shown").textContent = `${rows.length} of ${app.findings.length}`;
+
+  document.querySelectorAll("th.sortable").forEach((th) => {
+    if (th.dataset.k === sortKey) {
+      th.setAttribute("aria-sort", sortDir < 0 ? "descending" : "ascending");
+      th.querySelector(".caret").textContent = sortDir < 0 ? "▼" : "▲";
+    } else th.removeAttribute("aria-sort");
+  });
+}
+
+/* -------------------------------------------------------------------- boot */
+async function boot() {
+  if (!appId) { location.replace("applications.html"); return; }
+
+  try {
+    const [run, rep, records] = await Promise.all([
+      api("/runs/latest"),
+      api("/runs/latest/report"),
+      api("/applications"),
+    ]);
+
+    app = rep.apps.find((a) => a.app_id === appId);
+    if (!app) throw new Error(`404 — no application ${appId} in this run`);
+    meta = records.find((r) => r.app_id === appId) ?? {};
+
+    /* Attack-path hops are ids. Resolve them to names using every finding in the
+       run, not just this app's — a path can traverse ids this app also owns, but
+       the app node at path[0] never lives in the findings list. */
+    const names = new Map(rep.apps.map((a) => [a.app_id, a.name]));
+    const libs = new Map();
+    for (const a of rep.apps) for (const f of a.findings) libs.set(f.dependency_id, f.library_name);
+    label = (id) => names.get(id) ?? libs.get(id) ?? id;
+
+    byId = new Map(app.findings.map((f) => [f.dependency_id, f]));
+
+    document.title = `${app.name} — SBOM Analyzer`;
+    $("#provcard").innerHTML = provcard(run);
+    chrome();
+    renderHero();
+    renderChips();
+    render();
+
+    /* Deep link from the dashboard's top-10: open straight onto that row. */
+    if (focusDep) {
+      const tr = $(`tr.row[data-dep="${CSS.escape(focusDep)}"]`);
+      if (tr) {
+        tr.click();
+        tr.scrollIntoView({ block: "center", behavior: "smooth" });
+      }
+    }
+  } catch (err) {
+    fault($("#fault"), err);
+  }
+}
+
+document.querySelectorAll("th.sortable").forEach((th) =>
+  th.addEventListener("click", () => {
+    const k = th.dataset.k;
+    if (k === sortKey) sortDir = -sortDir;
+    else { sortKey = k; sortDir = -1; }
+    render();
+  }),
+);
+
+$("#q").addEventListener("input", (e) => { query = e.target.value; render(); });
+$("#railsearch").addEventListener("click", () => $("#q").focus());
+addEventListener("keydown", (e) => {
+  if (e.key === "/" && !/input/i.test(e.target.tagName)) { e.preventDefault(); $("#q").focus(); }
+});
+
+boot();
+</script>
+</body>
+</html>

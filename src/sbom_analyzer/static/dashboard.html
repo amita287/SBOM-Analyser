@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Overview — SBOM Analyzer</title>
+<link rel="stylesheet" href="console.css">
+<style>
+  .split { display: grid; grid-template-columns: 1.15fr 1fr; gap: 14px; margin-bottom: 14px; align-items: start; }
+  @media (max-width: 1240px) { .split { grid-template-columns: 1fr; } }
+
+  /* Risk mix.
+     This was a stacked bar coloured by the severity ramp. That was wrong twice
+     over. Risk TYPE is a categorical dimension, not a severity — borrowing the
+     status palette for it meant `license_conflict` and `unmaintained` both came
+     out medium-yellow, so two different categories shared one swatch and their
+     segments fused into a single unreadable block. And five close values in one
+     stacked bar is the form you use when you want nobody to compare them.
+
+     So: one bar per category, one colour for the whole series (the accent —
+     which is not, and cannot be mistaken for, any severity hue), sorted long-to-
+     short, every value direct-labelled. Comparison is the job; a bar chart does
+     the job. */
+  .mixrow {
+    display: grid;
+    grid-template-columns: 104px 1fr 44px 40px;
+    align-items: center;
+    gap: 12px;
+    padding: 7px 0;
+  }
+  .mixrow .nm { font-size: 12.5px; color: var(--ink-2); }
+  .mixrow .tr { height: 8px; border-radius: 3px; background: var(--panel-3); overflow: hidden; }
+  .mixrow .tr i {
+    display: block;
+    height: 100%;
+    border-radius: 3px;
+    background: var(--accent);
+    opacity: .85;
+  }
+  .mixrow .ct { text-align: right; font-variant-numeric: tabular-nums; font-weight: 640; font-size: 13px; }
+  .mixrow .pc { text-align: right; font-variant-numeric: tabular-nums; font-size: 11.5px; color: var(--ink-3); }
+  .mixnote { margin-top: 12px; font-size: 11.5px; color: var(--ink-3); }
+
+  .worst { display: grid; gap: 2px; }
+  .worst a {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    color: inherit;
+  }
+  .worst a:hover { background: var(--panel-2); text-decoration: none; }
+  .worst .pos { font-family: var(--mono); font-size: 11px; color: var(--ink-3); width: 16px; }
+  .worst .nm { font-weight: 600; font-size: 13px; }
+  .worst .sp { flex: 1; max-width: 130px; }
+  .worst .sc { font-variant-numeric: tabular-nums; font-weight: 640; min-width: 26px; text-align: right; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div id="rail"></div>
+
+  <div class="main">
+    <div class="topbar" id="topbar"></div>
+
+    <div class="content">
+      <div id="fault"></div>
+
+      <div class="tiles" id="tiles"></div>
+      <div id="blast"></div>
+
+      <div class="split">
+        <section class="panel">
+          <div class="head">
+            <h2>Risk mix</h2>
+            <span class="note">a dependency can carry more than one label</span>
+          </div>
+          <div class="body">
+            <div id="mix"></div>
+            <div class="mixnote" id="mixnote"></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="head">
+            <h2>Worst applications</h2>
+            <div class="tools">
+              <a class="btn" href="applications.html">All 10 <span id="allarrow"></span></a>
+            </div>
+          </div>
+          <div class="body">
+            <div class="worst" id="worst"></div>
+          </div>
+        </section>
+      </div>
+
+      <section class="panel">
+        <div class="head">
+          <h2>Top 10 riskiest dependencies</h2>
+          <span class="note">across every application</span>
+          <div class="tools">
+            <a class="btn" href="findings.html">All findings</a>
+          </div>
+        </div>
+        <div class="body tight">
+          <table id="top">
+            <thead>
+              <tr>
+                <th class="rank"></th>
+                <th>Dependency</th>
+                <th>Application</th>
+                <th>Risk</th>
+                <th>Severity</th>
+                <th class="num">Score</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import {
+  api, esc, fault, shell, topbar, provcard, poll, ticker, score, sevBadge,
+  riskTags, plural, dropdown, download, toCSV, FINDING_COLS, APP_COLS,
+  ICON, SEVERITIES, RISK_TYPES, SEV_HEX,
+} from "./console.js";
+
+const $ = (s) => document.querySelector(s);
+$("#rail").outerHTML = shell("overview");
+$("#allarrow").innerHTML = ICON.arrow;
+
+$("#topbar").innerHTML = topbar({
+  title: "Overview",
+  icon: "grid",
+  right: `
+    <span class="tick" id="tick"></span>
+    <button class="btn" id="refresh" title="Refresh (r)">${ICON.refresh}</button>
+    <div class="menu">
+      <button class="btn primary" id="exportbtn">${ICON.down}<span>Export</span></button>
+      <div class="sheet" id="exportsheet" hidden>
+        <div class="lbl">Download</div>
+        <button data-x="findings">${ICON.list}<span>At-risk findings<span class="d">CSV · 320 rows</span></span></button>
+        <button data-x="apps">${ICON.apps}<span>Applications<span class="d">CSV · 10 rows</span></span></button>
+        <button data-x="json">${ICON.code}<span>Full report<span class="d">JSON · the canonical artifact</span></span></button>
+        <hr>
+        <div class="lbl">Open</div>
+        <a href="${new URLSearchParams(location.search).get("api") ?? ""}/runs/latest/report.html" target="_blank" rel="noopener">
+          ${ICON.file}<span>HTML report ↗</span>
+        </a>
+      </div>
+    </div>`,
+});
+
+const REFRESH_MS = 30_000;
+
+/* The report is immutable for a run_id and weighs ~600KB. Poll the cheap summary
+   every 30s; re-pull the report only when the run actually changes. A dashboard
+   that re-downloads an unchanged 600KB blob 120 times an hour isn't "live", it's
+   just loud. */
+let cachedRunId = null;
+let report = null;
+let lastAt = 0;
+
+const TILES = [
+  ["vulnerable", "Vulnerable", "critical", "direct CVE match"],
+  ["transitive_vulnerable", "Transitive", "high", "reached via a dependency"],
+  ["license_conflict", "License", "medium", "incompatible obligation"],
+  ["unmaintained", "Unmaintained", "medium", "stale &gt; 2 years"],
+  ["clean", "Clean", "low", "no finding"],
+];
+
+function renderTiles(run) {
+  const t = run.totals_per_risk_type ?? {};
+  const pct = run.findings ? Math.round((run.at_risk / run.findings) * 100) : 0;
+
+  $("#tiles").innerHTML = `
+    <div class="tile" style="--tone:var(--sev-critical)">
+      <div class="n">${run.at_risk}<span class="of"> / ${run.findings}</span></div>
+      <div class="l micro">At risk</div>
+      <div class="sub">${pct}% of dependency occurrences</div>
+    </div>
+    <div class="tile" style="--tone:var(--sev-none)">
+      <div class="n">${run.apps}</div>
+      <div class="l micro">Applications</div>
+      <div class="sub">all scored this run</div>
+    </div>
+    ${TILES.map(([k, l, tone, sub]) => `
+      <div class="tile" style="--tone:var(--sev-${tone})">
+        <div class="n">${t[k] ?? 0}</div>
+        <div class="l micro">${l}</div>
+        <div class="sub">${sub}</div>
+      </div>`).join("")}`;
+}
+
+/* One bar per risk type. One colour for the series, because these are categories
+   and the severity ramp means something else. Sorted long-to-short; every value
+   labelled, so the chart is readable with the colour removed entirely. */
+function renderMix(run) {
+  const t = run.totals_per_risk_type ?? {};
+  const rows = RISK_TYPES.map(([k, label]) => [label, t[k] ?? 0])
+    .sort((a, b) => b[1] - a[1]);
+
+  const total = rows.reduce((n, [, v]) => n + v, 0) || 1;
+  const max = Math.max(...rows.map(([, v]) => v)) || 1;
+
+  $("#mix").innerHTML = rows.map(([label, v]) => `
+    <div class="mixrow">
+      <span class="nm">${label}</span>
+      <span class="tr"><i style="width:${(v / max) * 100}%"></i></span>
+      <span class="ct">${v}</span>
+      <span class="pc">${Math.round((v / total) * 100)}%</span>
+    </div>`).join("");
+
+  /* The totals exceed the finding count on purpose: one dependency can be
+     vulnerable AND unmaintained at once. Say so, rather than let a reader find
+     the "error" themselves and lose faith in every other number on the page. */
+  $("#mixnote").innerHTML =
+    total > run.findings
+      ? `${total} labels across ${run.findings} dependency occurrences — the sum exceeds the total because a dependency can carry more than one risk type.`
+      : `${total} labels across ${run.findings} occurrences.`;
+}
+
+function renderBlast(rep) {
+  const note = rep.summary?.dedup_note;
+  $("#blast").innerHTML = !note ? "" : `
+    <div class="blast">
+      <span class="mark"></span>
+      <div>
+        <div class="t"><b>Blast radius.</b> ${esc(note)}</div>
+        <div class="sub">Shared libraries mean one upgrade can close many findings at once — fix these first.</div>
+      </div>
+    </div>`;
+}
+
+function renderWorst(rep) {
+  const apps = [...rep.apps].sort((a, b) => b.app_score - a.app_score).slice(0, 6);
+
+  $("#worst").innerHTML = apps.map((a, i) => {
+    const bySev = Object.fromEntries(SEVERITIES.map((s) => [s, 0]));
+    for (const f of a.findings) bySev[f.severity] = (bySev[f.severity] ?? 0) + 1;
+    const spine = SEVERITIES.filter((s) => bySev[s])
+      .map((s) => `<i style="background:var(--sev-${s});flex:${bySev[s]}"></i>`).join("");
+
+    return `
+      <a href="app.html?id=${encodeURIComponent(a.app_id)}">
+        <span class="pos">${String(i + 1).padStart(2, "0")}</span>
+        <span class="nm">${esc(a.name)}</span>
+        <span class="sp"><span class="spine">${spine}</span></span>
+        <span class="sc">${score(a.app_score)}</span>
+        ${sevBadge(a.severity)}
+      </a>`;
+  }).join("");
+}
+
+function renderTop(rep) {
+  /* top_riskiest is a compact ref (no CVEs, no risk types) — join it back to the
+     full finding on dependency_id, the same key the graph uses. */
+  const byId = new Map();
+  for (const a of rep.apps) for (const f of a.findings) byId.set(f.dependency_id, f);
+  const appName = new Map(rep.apps.map((a) => [a.app_id, a.name]));
+  const rows = (rep.summary?.top_riskiest ?? []).slice(0, 10);
+
+  $("#top tbody").innerHTML = !rows.length
+    ? `<tr><td colspan="6" class="empty"><span class="big">Nothing scored above zero.</span>
+         Either the estate is spotless or the analyzer hasn't run.</td></tr>`
+    : rows.map((r, i) => {
+        const f = byId.get(r.dependency_id);
+        const cves = f?.matched_cves?.filter((c) => !c.is_false_positive).length ?? 0;
+        return `
+          <tr class="click" onclick="location.href='app.html?id=${encodeURIComponent(r.app_id)}&amp;dep=${encodeURIComponent(r.dependency_id)}'">
+            <td class="rank">${String(i + 1).padStart(2, "0")}</td>
+            <td>
+              <span class="lib">${esc(r.library_name)}</span><span class="ver">${esc(r.version)}</span>
+              <div class="id">${esc(r.dependency_id)}${cves ? ` · ${plural(cves, "CVE")}` : ""}</div>
+            </td>
+            <td style="color:var(--ink-2)">${esc(appName.get(r.app_id) ?? r.app_id)}</td>
+            <td><div class="tags">${riskTags(f?.risk_types ?? [])}</div></td>
+            <td>${sevBadge(r.severity)}</td>
+            <td class="num">
+              <div class="score" style="--tone:var(--sev-${esc(r.severity)})">
+                <span class="v">${score(r.risk_score)}</span>
+                <span class="track"><i style="width:${score(r.risk_score)}%"></i></span>
+              </div>
+            </td>
+          </tr>`;
+      }).join("");
+}
+
+/* ---------------------------------------------------------------- export -- */
+dropdown($("#exportbtn"), $("#exportsheet"));
+
+$("#exportsheet").addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-x]");
+  if (!btn || !report) return;
+  $("#exportsheet").hidden = true;
+  const stamp = report.run_id;
+
+  if (btn.dataset.x === "findings") {
+    const at = report.apps.flatMap((a) => a.findings).filter((f) => !f.risk_types.includes("clean"));
+    at.sort((a, b) => b.risk_score - a.risk_score);
+    download(`sbom-findings-${stamp}.csv`, toCSV(at, FINDING_COLS));
+  } else if (btn.dataset.x === "apps") {
+    const apps = [...report.apps].sort((a, b) => b.app_score - a.app_score);
+    download(`sbom-applications-${stamp}.csv`, toCSV(apps, APP_COLS));
+  } else {
+    download(`${stamp}.json`, JSON.stringify(report, null, 2), "application/json");
+  }
+});
+
+/* ---------------------------------------------------------------- refresh -- */
+const panes = () => ["#tiles", "#blast", "#mix", "#mixnote", "#worst", "#top"].map($);
+
+async function refresh() {
+  panes().forEach((el) => el.classList.add("stale"));
+  try {
+    const run = await api("/runs/latest");
+    if (run.run_id !== cachedRunId) {
+      report = await api("/runs/latest/report");
+      cachedRunId = run.run_id;
+    }
+    $("#fault").innerHTML = "";
+    $("#provcard").innerHTML = provcard(run);
+    renderTiles(run);
+    renderMix(run);
+    renderBlast(report);
+    renderWorst(report);
+    renderTop(report);
+    lastAt = Date.now();
+  } catch (err) {
+    fault($("#fault"), err);
+  } finally {
+    panes().forEach((el) => el.classList.remove("stale"));
+  }
+}
+
+ticker($("#tick"), () => lastAt);
+$("#refresh").addEventListener("click", refresh);
+$("#railsearch").addEventListener("click", () => (location.href = "findings.html"));
+addEventListener("keydown", (e) => {
+  if (/input|select|textarea/i.test(e.target.tagName)) return;
+  if (e.key === "r") refresh();
+  if (e.key === "/") { e.preventDefault(); location.href = "findings.html"; }
+});
+
+poll(refresh, REFRESH_MS);
+</script>
+</body>
+</html>

@@ -4,7 +4,13 @@
       "Bash(LLM_PROVIDER=none python scripts/evaluate.py)",
       "Bash(python -m pytest -q)",
       "Bash(LLM_PROVIDER=none python scripts/run_analysis.py)",
-      "Bash(cp reports/analysis.json /tmp/a1.json)"
+      "Bash(cp reports/analysis.json /tmp/a1.json)",
+      "Bash(mkdir -p /c/SBOM-Analyser/src/sbom_analyzer/static/vendor)",
+      "Bash(curl -sL --max-time 60 -o /c/SBOM-Analyser/src/sbom_analyzer/static/vendor/cytoscape.min.js https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.30.2/cytoscape.min.js)",
+      "Bash(python -c ' *)",
+      "Bash(PYTHONIOENCODING=utf-8 python drive2.py)",
+      "Bash(taskkill //F //FI \"WINDOWTITLE eq *uvicorn*\")",
+      "Bash(PYTHONIOENCODING=utf-8 python g.py)"
     ]
   }
 }
