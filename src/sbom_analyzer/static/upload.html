@@ -9,11 +9,20 @@
 <style>
   .wrap2 { max-width: 780px; }
 
+  /* A <label> is INLINE by default. Left as one, the dashed border wraps around
+     inline content instead of forming a box — it renders as a broken outline with
+     the icon shoved to the left. It has to be a block-level flex container. */
   .drop {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+
     border: 1.5px dashed var(--line-strong);
     border-radius: 14px;
-    background: var(--panel);
-    padding: 40px 24px;
+    background: var(--panel-2);
+    padding: 44px 24px;
     text-align: center;
     cursor: pointer;
     transition: border-color .14s ease, background .14s ease;
@@ -22,9 +31,13 @@
     border-color: var(--accent);
     background: var(--accent-soft);
   }
-  .drop svg { width: 30px; height: 30px; stroke: var(--ink-3); stroke-width: 1.4; }
-  .drop .t { margin-top: 12px; font-size: 15px; font-weight: 600; }
-  .drop .s { margin-top: 5px; font-size: 12.5px; color: var(--ink-3); }
+  .drop:hover svg, .drop.over svg { stroke: var(--accent); }
+
+  .drop .ic { display: flex; margin-bottom: 8px; }
+  .drop svg { width: 32px; height: 32px; stroke: var(--ink-3); stroke-width: 1.4; }
+  .drop .t { font-size: 15px; font-weight: 600; }
+  .drop .t b { font-family: var(--mono); font-size: 14px; }
+  .drop .s { font-size: 12.5px; color: var(--ink-3); }
   .drop input { display: none; }
 
   .picked {
@@ -100,12 +113,12 @@
       <div class="wrap2">
         <section class="panel" style="margin-bottom:14px">
           <div class="head"><h2>Upload an SBOM</h2>
-            <span class="note">analysed in memory — your `data/` directory is never touched</span>
+            <span class="note">analysed in a temp directory — <code class="mono">data/</code> is never written to</span>
           </div>
           <div class="body">
             <label class="drop" id="drop">
               <input type="file" id="sbom" accept=".csv,text/csv">
-              <span id="dropicon"></span>
+              <span class="ic" id="dropicon"></span>
               <div class="t">Drop <b>sbom_dependencies.csv</b> here</div>
               <div class="s">or click to choose a file</div>
             </label>
