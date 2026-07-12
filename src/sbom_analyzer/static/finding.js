@@ -95,15 +95,19 @@ function pathCard(p, label) {
     </div>`;
 }
 
-/* The report records, per finding, whether a model actually wrote the prose or
-   a deterministic template did. Never let the UI imply the former when it was
-   the latter — that is the whole ethos of this project, in one line. */
-const proseSource = (f) => `
-  <div class="prose-src">
-    <i></i>${f.llm_enriched
-      ? "Written by the configured LLM."
-      : "Template-generated — no model wrote this."}
-  </div>`;
+/* Who wrote the prose — a model, or a deterministic template.
+   Shown ONLY when a model actually did. The template case is silent here: it was
+   repeating on every expanded row and saying nothing new.
+
+   That silence is not a cover-up. The run-level provenance card in the sidebar
+   states it once, permanently ("Prose: templated"), which is the honest place for
+   a fact that is true of the entire run. What must never happen is the reverse —
+   template prose *presented* as a model's reasoning — and that is still
+   impossible: this line only ever appears when `llm_enriched` is true. */
+const proseSource = (f) =>
+  f.llm_enriched
+    ? `<div class="prose-src"><i></i>Written by the configured LLM.</div>`
+    : "";
 
 /* --------------------------------------------------------------- the detail */
 export function findingDetail(f, { label }) {

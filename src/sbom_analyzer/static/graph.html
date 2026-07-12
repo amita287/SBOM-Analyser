@@ -1133,15 +1133,15 @@ function inspectDep(id) {
   );
 }
 
-/* The report tells us, per finding, whether a model actually wrote the prose or
-   a deterministic template did. Never let the UI imply the former when it was
-   the latter. */
-const proseSource = (f) => `
-  <div class="prose-src">
-    <i></i>${f.llm_enriched
-      ? "Written by the configured LLM."
-      : "Template-generated — no model wrote this."}
-  </div>`;
+/* Shown only when a model actually wrote the prose. The template case is silent —
+   the sidebar's run provenance card already states it once for the whole run, and
+   repeating it under every finding said nothing new. The reverse (template prose
+   passed off as a model's reasoning) remains impossible: this only renders when
+   `llm_enriched` is true. */
+const proseSource = (f) =>
+  f.llm_enriched
+    ? `<div class="prose-src"><i></i>Written by the configured LLM.</div>`
+    : "";
 
 function cveCard(c, version) {
   const tone = `var(--sev-${c.cvss_severity === "critical" ? "critical"
