@@ -1,3 +1,5 @@
+https://github.com/user-attachments/assets/d881fd8e-7e74-42a5-9b46-cb595ff32fa9
+
 # SBOM Analyzer — Software Supply Chain Risk Scorer
 
 GRC Hackathon, **Problem 10**. Ingests an SBOM, cross-references a CVE database,
