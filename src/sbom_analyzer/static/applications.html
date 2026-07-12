@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Applications — SBOM Analyzer</title>
+<link rel="stylesheet" href="console.css">
+<style>
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+    flex-wrap: wrap;
+  }
+  .bar .grow { flex: 1; }
+
+  td .appname { font-weight: 620; font-size: 13.5px; }
+  td .env {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11.5px;
+    color: var(--ink-2);
+  }
+  td .env .d { width: 5px; height: 5px; border-radius: 50%; background: var(--ink-3); }
+  td .env.production .d { background: var(--sev-high); }
+  td .env.staging .d { background: var(--sev-medium); }
+  td .env.internal .d { background: var(--sev-none); }
+
+  td .sp { width: 108px; }
+  .count { font-variant-numeric: tabular-nums; }
+  .count.zero { color: var(--ink-3); }
+  .flags { display: flex; gap: 4px; }
+  .flag {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--line-strong);
+    color: var(--ink-3);
+    white-space: nowrap;
+  }
+  .flag.on { color: var(--sev-high); border-color: rgba(224,123,57,.35); background: rgba(224,123,57,.09); }
+
+  .foot {
+    padding: 12px 16px;
+    border-top: 1px solid var(--line);
+    color: var(--ink-3);
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div id="rail"></div>
+
+  <div class="main">
+    <div class="topbar" id="topbar"></div>
+
+    <div class="content">
+      <div id="fault"></div>
+
+      <section class="panel">
+        <div class="bar">
+          <div class="search">
+            <span id="si"></span>
+            <input type="search" id="q" placeholder="Search app, owner, id…">
+          </div>
+
+          <div class="seg" id="tier">
+            <button data-t="" aria-pressed="true">All tiers</button>
+            <button data-t="critical" aria-pressed="false">Critical</button>
+            <button data-t="high" aria-pressed="false">High</button>
+            <button data-t="medium" aria-pressed="false">Medium</button>
+            <button data-t="low" aria-pressed="false">Low</button>
+          </div>
+
+          <span class="grow"></span>
+          <span class="micro" id="shown"></span>
+        </div>
+
+        <div style="padding: 0 16px">
+          <table id="tbl">
+            <thead>
+              <tr>
+                <th class="rank"></th>
+                <th class="sortable" data-k="name">Application <span class="caret">▼</span></th>
+                <th>Owner</th>
+                <th class="sortable" data-k="business_criticality">Tier <span class="caret">▼</span></th>
+                <th>Exposure</th>
+                <th class="sortable num" data-k="at_risk">At risk <span class="caret">▼</span></th>
+                <th class="sortable num" data-k="vulnerable">Vuln <span class="caret">▼</span></th>
+                <th class="sortable num" data-k="paths">Paths <span class="caret">▼</span></th>
+                <th>Composition</th>
+                <th>Severity</th>
+                <th class="sortable num" data-k="app_score" aria-sort="descending">Score <span class="caret">▼</span></th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div class="foot">
+          <span id="tally"></span>
+          <span class="grow" style="flex:1"></span>
+          <span>Click any row for its full report</span>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import {
+  api, esc, fault, shell, topbar, provcard, poll, ticker, score, sevBadge,
+  who, dropdown, download, toCSV, APP_COLS, FINDING_COLS, ICON, SEVERITIES,
+} from "./console.js";
+
+const $ = (s) => document.querySelector(s);
+$("#rail").outerHTML = shell("apps");
+$("#si").innerHTML = ICON.search;
+
+$("#topbar").innerHTML = topbar({
+  title: "Applications",
+  icon: "apps",
+  right: `
+    <span class="tick" id="tick"></span>
+    <button class="btn" id="refresh">${ICON.refresh}</button>
+    <div class="menu">
+      <button class="btn primary" id="exportbtn">${ICON.down}<span>Export</span></button>
+      <div class="sheet" id="exportsheet" hidden>
+        <div class="lbl">Download — current filter</div>
+        <button data-x="apps">${ICON.apps}<span>Applications<span class="d">CSV · one row per app</span></span></button>
+        <button data-x="findings">${ICON.list}<span>Their at-risk findings<span class="d">CSV · one row per dependency</span></span></button>
+        <button data-x="json">${ICON.code}<span>Full report<span class="d">JSON · unfiltered, canonical</span></span></button>
+      </div>
+    </div>`,
+});
+
+let report = null;
+let apps = [];            // AppRiskReport[] joined with the Application record
+let cachedRunId = null;
+let lastAt = 0;
+
+let sortKey = "app_score";
+let sortDir = -1;
+let query = "";
+let tier = "";
+
+/* Derived per app, once — the table sorts and re-renders on every keystroke and
+   recomputing four reductions over 500 findings each time would be silly. */
+function enrich(rep, records) {
+  const meta = new Map(records.map((r) => [r.app_id, r]));
+
+  return rep.apps.map((a) => {
+    const bySev = Object.fromEntries(SEVERITIES.map((s) => [s, 0]));
+    let atRisk = 0, vulnerable = 0, paths = 0;
+
+    for (const f of a.findings) {
+      bySev[f.severity] = (bySev[f.severity] ?? 0) + 1;
+      if (!f.risk_types.includes("clean")) atRisk++;
+      if (f.risk_types.includes("vulnerable")) vulnerable++;
+      paths += f.attack_paths?.length ?? 0;
+    }
+    const m = meta.get(a.app_id) ?? {};
+    return {
+      ...a,
+      owner: m.owner ?? "",
+      environment: m.environment ?? "",
+      internet_facing: !!m.internet_facing,
+      distributed: !!m.distributed,
+      bySev, at_risk: atRisk, vulnerable, paths,
+    };
+  });
+}
+
+const TIER_RANK = { critical: 4, high: 3, medium: 2, low: 1 };
+
+function visible() {
+  const q = query.trim().toLowerCase();
+  let rows = apps.filter(
+    (a) =>
+      (!tier || a.business_criticality === tier) &&
+      (!q ||
+        a.name.toLowerCase().includes(q) ||
+        a.app_id.toLowerCase().includes(q) ||
+        a.owner.toLowerCase().includes(q)),
+  );
+
+  rows.sort((x, y) => {
+    let a = x[sortKey], b = y[sortKey];
+    if (sortKey === "business_criticality") { a = TIER_RANK[a]; b = TIER_RANK[b]; }
+    if (typeof a === "string") return a.localeCompare(b) * sortDir;
+    return (a - b) * sortDir;
+  });
+  return rows;
+}
+
+function render() {
+  const rows = visible();
+
+  $("#tbl tbody").innerHTML = !rows.length
+    ? `<tr><td colspan="12" class="empty"><span class="big">No application matches.</span>
+         Try a different search or tier.</td></tr>`
+    : rows.map((a, i) => {
+        const spine = SEVERITIES.filter((s) => a.bySev[s])
+          .map((s) => `<i style="background:var(--sev-${s});flex:${a.bySev[s]}" title="${a.bySev[s]} ${s}"></i>`)
+          .join("");
+
+        const n = (v) => `<span class="count ${v ? "" : "zero"}">${v}</span>`;
+
+        return `
+          <tr class="click" data-id="${esc(a.app_id)}">
+            <td class="rank">${String(i + 1).padStart(2, "0")}</td>
+            <td>
+              <div class="appname">${esc(a.name)}</div>
+              <div class="id">${esc(a.app_id)} · ${a.findings.length} deps</div>
+            </td>
+            <td>${who(a.owner)}</td>
+            <td><span class="tag">${esc(a.business_criticality)}</span></td>
+            <td>
+              <div class="env ${esc(a.environment)}"><span class="d"></span>${esc(a.environment || "—")}</div>
+              <div class="flags" style="margin-top:5px">
+                <span class="flag ${a.internet_facing ? "on" : ""}">internet</span>
+                <span class="flag ${a.distributed ? "on" : ""}">distributed</span>
+              </div>
+            </td>
+            <td class="num">${n(a.at_risk)}</td>
+            <td class="num">${n(a.vulnerable)}</td>
+            <td class="num">${n(a.paths)}</td>
+            <td><span class="sp"><span class="spine">${spine}</span></span></td>
+            <td>${sevBadge(a.severity)}</td>
+            <td class="num">
+              <div class="score" style="--tone:var(--sev-${esc(a.severity)})">
+                <span class="v">${score(a.app_score)}</span>
+                <span class="track"><i style="width:${score(a.app_score)}%"></i></span>
+              </div>
+            </td>
+            <td class="num"><span class="goto">${ICON.arrow}</span></td>
+          </tr>`;
+      }).join("");
+
+  $("#tbl tbody").querySelectorAll("tr.click").forEach((tr) =>
+    tr.addEventListener("click", () => {
+      location.href = `app.html?id=${encodeURIComponent(tr.dataset.id)}`;
+    }),
+  );
+
+  $("#shown").textContent = `${rows.length} of ${apps.length}`;
+  $("#tally").innerHTML =
+    `${rows.reduce((n, a) => n + a.at_risk, 0)} at-risk dependencies · ` +
+    `${rows.reduce((n, a) => n + a.paths, 0)} attack paths in view`;
+
+  document.querySelectorAll("th.sortable").forEach((th) => {
+    if (th.dataset.k === sortKey) {
+      th.setAttribute("aria-sort", sortDir < 0 ? "descending" : "ascending");
+      th.querySelector(".caret").textContent = sortDir < 0 ? "▼" : "▲";
+    } else th.removeAttribute("aria-sort");
+  });
+}
+
+/* ------------------------------------------------------------------ wiring */
+document.querySelectorAll("th.sortable").forEach((th) =>
+  th.addEventListener("click", () => {
+    const k = th.dataset.k;
+    /* Same column toggles direction; a new column starts descending — worst
+       first is what you want from a risk table nine times out of ten. */
+    if (k === sortKey) sortDir = -sortDir;
+    else { sortKey = k; sortDir = -1; }
+    render();
+  }),
+);
+
+$("#q").addEventListener("input", (e) => { query = e.target.value; render(); });
+
+$("#tier").addEventListener("click", (e) => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  tier = b.dataset.t;
+  $("#tier").querySelectorAll("button").forEach((x) =>
+    x.setAttribute("aria-pressed", x === b));
+  render();
+});
+
+dropdown($("#exportbtn"), $("#exportsheet"));
+$("#exportsheet").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-x]");
+  if (!b || !report) return;
+  $("#exportsheet").hidden = true;
+
+  const rows = visible();
+  const stamp = report.run_id;
+
+  /* Export what is on screen. If a filter is applied, exporting the unfiltered
+     set would hand someone a file that doesn't match the table they were just
+     looking at — a quiet way to make a person distrust a tool. */
+  if (b.dataset.x === "apps") {
+    download(`sbom-applications-${stamp}.csv`, toCSV(rows, APP_COLS));
+  } else if (b.dataset.x === "findings") {
+    const ids = new Set(rows.map((a) => a.app_id));
+    const fs = report.apps
+      .filter((a) => ids.has(a.app_id))
+      .flatMap((a) => a.findings)
+      .filter((f) => !f.risk_types.includes("clean"))
+      .sort((a, b2) => b2.risk_score - a.risk_score);
+    download(`sbom-findings-${stamp}.csv`, toCSV(fs, FINDING_COLS));
+  } else {
+    download(`${stamp}.json`, JSON.stringify(report, null, 2), "application/json");
+  }
+});
+
+/* ----------------------------------------------------------------- refresh */
+async function refresh() {
+  $("#tbl").classList.add("stale");
+  try {
+    const run = await api("/runs/latest");
+    if (run.run_id !== cachedRunId) {
+      const [rep, records] = await Promise.all([
+        api("/runs/latest/report"),
+        api("/applications"),
+      ]);
+      report = rep;
+      apps = enrich(rep, records);
+      cachedRunId = run.run_id;
+    }
+    $("#fault").innerHTML = "";
+    $("#provcard").innerHTML = provcard(run);
+    render();
+    lastAt = Date.now();
+  } catch (err) {
+    fault($("#fault"), err);
+  } finally {
+    $("#tbl").classList.remove("stale");
+  }
+}
+
+ticker($("#tick"), () => lastAt);
+$("#refresh").addEventListener("click", refresh);
+$("#railsearch").addEventListener("click", () => $("#q").focus());
+addEventListener("keydown", (e) => {
+  if (e.key === "/" && !/input/i.test(e.target.tagName)) { e.preventDefault(); $("#q").focus(); }
+  if (e.key === "Escape" && document.activeElement === $("#q")) {
+    $("#q").value = ""; query = ""; $("#q").blur(); render();
+  }
+});
+
+poll(refresh, 30_000);
+</script>
+</body>
+</html>

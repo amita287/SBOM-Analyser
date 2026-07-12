@@ -1,0 +1,1243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Graph — SBOM Analyzer</title>
+<link rel="stylesheet" href="console.css">
+<style>
+  .stage {
+    display: grid;
+    grid-template-columns: 1fr 392px;
+    gap: 12px;
+    flex: 1;
+    min-height: 0;
+  }
+  @media (max-width: 1240px) {
+    .stage { grid-template-columns: 1fr; }
+    aside.inspector { display: none; }
+  }
+
+  .left { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+
+  /* One filter row, above everything it scopes. */
+  .controls {
+    flex: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+    align-items: center;
+    padding: 11px 13px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+  .controls .sep { width: 1px; height: 20px; background: var(--line); }
+  .controls .grow { flex: 1; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 11px;
+    border-radius: 999px;
+    border: 1px solid var(--line-strong);
+    background: var(--panel-2);
+    color: var(--ink-2);
+    font-size: 12.5px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .chip:hover { background: var(--panel-3); color: var(--ink); }
+  .chip[aria-pressed="true"] {
+    background: var(--accent-soft);
+    border-color: rgba(128,145,245,.45);
+    color: #c3ccff;
+  }
+  .chip .c { font-variant-numeric: tabular-nums; font-size: 11px; color: var(--ink-3); }
+
+  .canvas-wrap {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--panel);
+    overflow: hidden;
+  }
+  #cy { width: 100%; height: 100%; }
+
+  /* Legend, bottom-left, floating over the canvas. Severity is spelled out in
+     words — the colour is a shortcut, never the only channel. */
+  .key {
+    position: absolute;
+    left: 12px;
+    bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: rgba(10, 13, 19, .82);
+    border: 1px solid var(--line);
+    backdrop-filter: blur(8px);
+    font-size: 11.5px;
+    color: var(--ink-2);
+    pointer-events: none;
+  }
+  .key .r { display: flex; align-items: center; gap: 7px; }
+  .key .sw { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+  .key .sw.app { border-radius: 2px; background: transparent; border: 1.5px solid var(--accent); }
+  .key .sw.vuln { background: transparent; border: 2px solid var(--sev-critical); }
+  .key .hr { height: 1px; background: var(--line); margin: 2px 0; }
+
+  .stats {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    display: flex;
+    gap: 14px;
+    padding: 7px 12px;
+    border-radius: 8px;
+    background: rgba(10, 13, 19, .82);
+    border: 1px solid var(--line);
+    backdrop-filter: blur(8px);
+    font-size: 11.5px;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+    pointer-events: none;
+  }
+  .stats b { color: var(--ink-2); font-weight: 600; }
+
+  .hint-bar {
+    position: absolute;
+    left: 50%;
+    bottom: 14px;
+    transform: translateX(-50%);
+    font-size: 11.5px;
+    color: var(--ink-3);
+    background: rgba(10, 13, 19, .82);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 6px 14px;
+    backdrop-filter: blur(8px);
+    pointer-events: none;
+    transition: opacity .3s ease;
+  }
+
+  /* Busy veil — laying out 510 nodes takes a beat, and a silent frozen canvas
+     reads as a bug. */
+  .veil {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: rgba(17, 22, 33, .72);
+    backdrop-filter: blur(2px);
+    font-size: 13px;
+    color: var(--ink-2);
+    z-index: 5;
+    transition: opacity .2s ease;
+  }
+  .veil[hidden] { display: none; }
+
+  /* ---- inspector ------------------------------------------------------ */
+  aside.inspector {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  aside.inspector::-webkit-scrollbar { width: 10px; }
+  aside.inspector::-webkit-scrollbar-thumb {
+    background: #223046;
+    border-radius: 6px;
+    border: 3px solid var(--panel);
+  }
+
+  .ins-head {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    padding: 16px 17px 13px;
+    background: linear-gradient(180deg, var(--panel) 72%, rgba(17,22,33,0));
+    border-bottom: 1px solid var(--line);
+  }
+  .ins-head .t {
+    font-size: 17px;
+    font-weight: 640;
+    letter-spacing: -.015em;
+    word-break: break-word;
+  }
+  .ins-head .t .v { font-family: var(--mono); font-size: 13px; color: var(--ink-3); margin-left: 6px; }
+  .ins-head .meta { display: flex; align-items: center; gap: 8px; margin-top: 9px; flex-wrap: wrap; }
+
+  .blk { padding: 15px 17px; border-bottom: 1px solid var(--line); }
+  .blk:last-child { border-bottom: 0; }
+  .blk > h3 {
+    margin: 0 0 10px;
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: .09em;
+    font-weight: 600;
+    color: var(--ink-3);
+  }
+
+  /* Score readout: the number, then a proportional bar. */
+  .readout { display: flex; align-items: center; gap: 12px; }
+  .readout .big { font-size: 30px; font-weight: 640; letter-spacing: -.025em; line-height: 1; }
+  .readout .big .of { font-size: 13px; font-weight: 500; color: var(--ink-3); }
+  .readout .bar { flex: 1; height: 4px; border-radius: 2px; background: var(--panel-3); overflow: hidden; }
+  .readout .bar i { display: block; height: 100%; background: var(--tone); border-radius: 2px; }
+
+  dl.kv { margin: 0; display: grid; grid-template-columns: 92px 1fr; gap: 7px 12px; font-size: 13px; }
+  dl.kv dt { color: var(--ink-3); font-size: 12px; }
+  dl.kv dd { margin: 0; color: var(--ink); word-break: break-word; }
+  dl.kv dd.warnish { color: var(--sev-high); }
+  dl.kv dd.badish { color: var(--sev-critical); }
+  dl.kv dd.okish { color: var(--sev-low); }
+
+  /* ---- CVEs ---------------------------------------------------------- */
+  .cve {
+    padding: 11px 12px;
+    border-radius: 8px;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-left: 2px solid var(--tone);
+    margin-bottom: 8px;
+  }
+  .cve:last-child { margin-bottom: 0; }
+  .cve .top { display: flex; align-items: center; gap: 8px; justify-content: space-between; }
+  .cve .cid { font-family: var(--mono); font-size: 12.5px; font-weight: 600; color: var(--ink); }
+  .cve .cvss {
+    font-variant-numeric: tabular-nums;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--tone);
+  }
+  .cve .lines { margin-top: 8px; display: grid; gap: 4px; font-size: 12px; color: var(--ink-2); }
+  .cve .lines code {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--ink);
+    background: rgba(0,0,0,.28);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+  .cve .k { color: var(--ink-3); }
+
+  /* A false positive is a *finding about the finding*: the version matches the
+     advisory's range but is a backported-safe build. Strike it through and say
+     why — silently hiding it would be worse, and silently counting it worse still. */
+  .cve.fp { opacity: .62; border-left-color: var(--sev-none); }
+  .cve.fp .cid { text-decoration: line-through; text-decoration-thickness: 1px; }
+  .cve .fp-note {
+    margin-top: 7px;
+    font-size: 11.5px;
+    color: var(--ink-3);
+    display: flex;
+    gap: 6px;
+    align-items: baseline;
+  }
+  .cve .fp-note b { color: var(--ink-2); font-weight: 600; }
+
+  .exploit {
+    display: inline-block;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--line-strong);
+    color: var(--ink-3);
+  }
+  .exploit.calls { color: var(--sev-critical); border-color: rgba(229,72,77,.4); background: rgba(229,72,77,.1); }
+  .exploit.imports { color: var(--sev-high); border-color: rgba(224,123,57,.4); background: rgba(224,123,57,.1); }
+
+  /* ---- attack paths --------------------------------------------------- */
+  .path {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 10px 11px;
+    border-radius: 8px;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    margin-bottom: 8px;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+    transition: border-color .12s ease, background .12s ease;
+  }
+  .path:hover, .path[aria-pressed="true"] {
+    border-color: rgba(229,72,77,.55);
+    background: rgba(229,72,77,.08);
+  }
+  .path .hops { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+  .path .hop {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--panel-3);
+    color: var(--ink-2);
+  }
+  .path .hop.root { background: var(--accent-soft); color: #c3ccff; }
+  .path .hop.term { background: rgba(229,72,77,.16); color: #f3b6b8; }
+  .path .arr { color: var(--ink-3); font-size: 10px; }
+  .path .via { margin-top: 7px; font-size: 11.5px; color: var(--ink-3); }
+  .path .via b { color: var(--ink-2); font-weight: 600; font-family: var(--mono); }
+
+  .narrative {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--ink-2);
+    padding-left: 11px;
+    border-left: 2px solid var(--line-strong);
+  }
+
+  /* ---- remediation ---------------------------------------------------- */
+  .prio {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 7px;
+    border-radius: 5px;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    border: 1px solid var(--tone);
+    color: var(--tone);
+    background: color-mix(in srgb, var(--tone) 12%, transparent);
+  }
+  .prio-P1 { --tone: var(--sev-critical); }
+  .prio-P2 { --tone: var(--sev-high); }
+  .prio-P3 { --tone: var(--sev-none); }
+
+  ol.steps { margin: 0; padding: 0; list-style: none; counter-reset: s; }
+  ol.steps li {
+    counter-increment: s;
+    position: relative;
+    padding: 0 0 10px 26px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--ink-2);
+  }
+  ol.steps li:last-child { padding-bottom: 0; }
+  ol.steps li::before {
+    content: counter(s);
+    position: absolute;
+    left: 0;
+    top: 1px;
+    width: 17px;
+    height: 17px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ink-3);
+    border: 1px solid var(--line-strong);
+  }
+
+  .prose-src {
+    margin-top: 11px;
+    font-size: 11px;
+    color: var(--ink-3);
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .prose-src i {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--sev-none);
+    display: inline-block;
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div id="rail"></div>
+
+  <div class="main">
+    <div class="topbar" id="topbar"></div>
+
+    <div class="content flush">
+      <div class="stage">
+        <div class="left">
+
+    <!-- One filter row, scoping everything below it. -->
+    <div class="controls">
+      <label class="micro" for="app">App</label>
+      <select id="app"><option>loading…</option></select>
+
+      <span class="sep"></span>
+
+      <span class="micro">Risk</span>
+      <div class="chips" id="risk"></div>
+
+      <span class="sep"></span>
+
+      <button class="btn" id="paths" aria-pressed="false"
+              title="Highlight every path from an app to a vulnerable dependency">
+        Attack paths
+      </button>
+
+      <span class="grow"></span>
+
+      <input type="search" id="find" placeholder="Find a library…  /" size="16">
+      <select id="layout" title="Layout">
+        <option value="breadthfirst">Hierarchy</option>
+        <option value="concentric">Concentric</option>
+        <option value="cose">Cluster</option>
+      </select>
+      <button class="btn" id="fit" title="Fit to view (f)">Fit</button>
+    </div>
+
+    <div class="canvas-wrap">
+      <div id="cy"></div>
+
+      <div class="stats" id="stats"></div>
+
+      <div class="key">
+        <div class="r"><span class="sw" style="background:var(--sev-critical)"></span>critical</div>
+        <div class="r"><span class="sw" style="background:var(--sev-high)"></span>high</div>
+        <div class="r"><span class="sw" style="background:var(--sev-medium)"></span>medium</div>
+        <div class="r"><span class="sw" style="background:var(--sev-low)"></span>low</div>
+        <div class="r"><span class="sw" style="background:var(--sev-none)"></span>clean</div>
+        <div class="hr"></div>
+        <div class="r"><span class="sw app"></span>application</div>
+        <div class="r"><span class="sw vuln"></span>carries a CVE</div>
+        <div class="r" style="color:var(--ink-3)">size &prop; risk score</div>
+      </div>
+
+      <div class="hint-bar" id="hint">Click a node to inspect it &middot; drag to pan &middot; scroll to zoom</div>
+      <div class="veil" id="veil">laying out the graph…</div>
+    </div>
+        </div>
+
+        <aside class="inspector" id="inspector"></aside>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="vendor/cytoscape.min.js"></script>
+<script type="module">
+import {
+  api, esc, fault, shell, topbar, provcard, score, sevBadge, riskTags,
+  SEV_HEX, RISK_TYPES, plural, ICON,
+} from "./console.js";
+
+const $ = (s) => document.querySelector(s);
+$("#rail").outerHTML = shell("graph");
+
+$("#topbar").innerHTML = topbar({
+  title: "Dependency graph",
+  icon: "graph",
+  right: `
+    <span class="tick">structure parsed from the SBOM — never inferred</span>
+    <a class="btn" href="applications.html">${ICON.apps}<span>Applications</span></a>`,
+});
+
+const params = new URLSearchParams(location.search);
+let appId = params.get("app") || null;   // null == whole estate
+const focusNode = params.get("node");
+
+let cy = null;
+let report = null;                        // full findings, for the inspector
+let findings = new Map();                 // dependency_id -> DependencyFinding
+let appsById = new Map();
+let active = new Set(RISK_TYPES.map(([k]) => k));   // risk-type filter
+let pathsOn = false;
+let pinnedPath = null;                    // a single path, highlighted alone
+
+/* ========================================================================== */
+/* Cytoscape style                                                            */
+/*                                                                            */
+/* Severity is the fill. But fill alone would fail a colourblind reader, so   */
+/* two more channels carry the same signal: node SIZE scales with risk score, */
+/* and anything holding a real CVE gets a hard 2px ring. Three encodings, one */
+/* message.                                                                   */
+/* ========================================================================== */
+const STYLE = [
+  {
+    selector: "node",
+    style: {
+      "background-color": (n) => SEV_HEX[n.data("severity")] ?? SEV_HEX.none,
+      "width": (n) => 16 + (Number(n.data("risk_score")) || 0) * 0.30,
+      "height": (n) => 16 + (Number(n.data("risk_score")) || 0) * 0.30,
+      "label": "data(label)",
+      "font-size": 10,
+      "font-family": "system-ui, -apple-system, 'Segoe UI', sans-serif",
+      "color": "#9b9fa6",
+      "text-valign": "bottom",
+      "text-margin-y": 5,
+      "text-max-width": 74,
+      "text-wrap": "ellipsis",
+      "min-zoomed-font-size": 6,
+      "border-width": 0,
+      "transition-property": "opacity, border-width, background-color",
+      "transition-duration": "140ms",
+    },
+  },
+  {
+    /* Applications are a different kind of thing, so they are a different shape.
+       Never rely on the reader inferring it from size alone. */
+    selector: 'node[kind = "application"]',
+    style: {
+      shape: "round-rectangle",
+      // Sized to its own label — app names run from "admin-tools" to
+      // "internal-dashboard" and a fixed width truncates the long ones.
+      width: "label",
+      height: 22,
+      padding: "10px",
+      "background-color": "#1c2434",
+      "border-width": 1.5,
+      "border-color": "#8091f5",
+      label: "data(label)",
+      "font-size": 11,
+      "font-weight": 600,
+      color: "#c3ccff",
+      "text-valign": "center",
+      "text-margin-y": 0,
+      "text-max-width": 200,
+      "text-wrap": "none",
+    },
+  },
+  {
+    /* Secondary encoding: a ring means "a CVE actually matched this version". */
+    selector: 'node[?cve_count][kind = "dependency"]',
+    style: { "border-width": 2, "border-color": "#e5484d", "border-opacity": 0.85 },
+  },
+  {
+    selector: "edge",
+    style: {
+      width: 1,
+      "line-color": "#2b3a4f",
+      "curve-style": "bezier",
+      "target-arrow-shape": "triangle",
+      "target-arrow-color": "#2b3a4f",
+      "arrow-scale": 0.55,
+      opacity: 0.55,
+      "transition-property": "opacity, line-color, width",
+      "transition-duration": "140ms",
+    },
+  },
+
+  /* --- interaction states ------------------------------------------------ */
+  { selector: ".dim", style: { opacity: 0.07, "text-opacity": 0 } },
+  { selector: "node.lit", style: { "text-opacity": 1, "z-index": 10 } },
+  {
+    selector: "edge.lit",
+    style: { "line-color": "#8091f5", "target-arrow-color": "#8091f5", opacity: 0.9, width: 1.6, "z-index": 10 },
+  },
+
+  /* The attack path. Red, thicker, on top of everything. This is the one thing
+     on the canvas that should be impossible to miss. */
+  {
+    selector: "edge.attack",
+    style: {
+      "line-color": "#e5484d",
+      "target-arrow-color": "#e5484d",
+      opacity: 1,
+      width: 2.4,
+      "z-index": 20,
+    },
+  },
+  {
+    selector: "node.attack",
+    style: {
+      "border-width": 2.5,
+      "border-color": "#e5484d",
+      "border-opacity": 1,
+      "text-opacity": 1,
+      "z-index": 20,
+    },
+  },
+  {
+    selector: "node.pick",
+    style: {
+      "border-width": 3,
+      "border-color": "#ffffff",
+      "border-opacity": 0.95,
+      "text-opacity": 1,
+      "z-index": 30,
+    },
+  },
+  /* Label selectively. 50 names at once, at a zoom where they all fit, is an
+     unreadable thicket — and 40 of those names are clean dependencies nobody is
+     looking for. So the risky nodes carry their name at rest and the clean ones
+     are anonymous dots until you zoom past 1.1, where there is room for everyone. */
+  { selector: "node.quiet", style: { "text-opacity": 0 } },
+];
+
+/* ========================================================================== */
+/* Load                                                                       */
+/* ========================================================================== */
+async function boot() {
+  try {
+    const [run, rep] = await Promise.all([
+      api("/runs/latest"),
+      api("/runs/latest/report"),
+    ]);
+    report = rep;
+    $("#provcard").innerHTML = provcard(run);
+
+    findings = new Map();
+    for (const a of rep.apps) {
+      appsById.set(a.app_id, a);
+      for (const f of a.findings) findings.set(f.dependency_id, f);
+    }
+
+    const ranked = [...rep.apps].sort((a, b) => b.app_score - a.app_score);
+    /* Default to the worst app, not "everything". 510 nodes at once is a hairball
+       and a hairball answers no questions — you land on the thing you'd have
+       clicked anyway. */
+    if (!appId) appId = ranked[0]?.app_id ?? null;
+
+    $("#app").innerHTML = [
+      `<option value="">All applications (510 nodes — slow)</option>`,
+      ...ranked.map(
+        (a) =>
+          `<option value="${esc(a.app_id)}"${a.app_id === appId ? " selected" : ""}>` +
+          `${esc(a.name)} — ${score(a.app_score)}</option>`,
+      ),
+    ].join("");
+
+    renderChips();
+    await load();
+    inspectNothing();
+
+    if (focusNode) {
+      const n = cy.getElementById(focusNode);
+      if (n.nonempty()) { select(n); cy.animate({ center: { eles: n }, zoom: 1.5 }, { duration: 380 }); }
+    }
+  } catch (err) {
+    const stage = document.querySelector(".stage");
+    stage.style.display = "block";
+    stage.innerHTML = "";
+    fault(stage, err);
+  }
+}
+
+function renderChips() {
+  const counts = {};
+  for (const f of findings.values())
+    for (const rt of f.risk_types) counts[rt] = (counts[rt] ?? 0) + 1;
+
+  $("#risk").innerHTML = RISK_TYPES.map(
+    ([k, label]) => `
+      <button class="chip" data-rt="${k}" aria-pressed="${active.has(k)}">
+        ${esc(label)} <span class="c">${counts[k] ?? 0}</span>
+      </button>`,
+  ).join("");
+
+  $("#risk").querySelectorAll(".chip").forEach((c) =>
+    c.addEventListener("click", () => {
+      const rt = c.dataset.rt;
+      active.has(rt) ? active.delete(rt) : active.add(rt);
+      c.setAttribute("aria-pressed", active.has(rt));
+      applyFilter();
+    }),
+  );
+}
+
+async function load() {
+  const veil = $("#veil");
+  veil.hidden = false;
+  veil.textContent = "laying out the graph…";
+
+  try {
+    const q = appId ? `?app_id=${encodeURIComponent(appId)}` : "";
+    const g = await api(`/graph${q}`);
+
+    cy?.destroy();
+    cy = cytoscape({
+      container: $("#cy"),
+      elements: [...g.nodes, ...g.edges],
+      style: STYLE,
+      minZoom: 0.15,
+      maxZoom: 3.2,
+      wheelSensitivity: 0.22,
+      pixelRatio: 1,           // 500 nodes on a hidpi canvas is a lot of pixels
+    });
+
+    runLayout();
+
+    cy.on("tap", "node", (e) => select(e.target));
+    cy.on("tap", (e) => { if (e.target === cy) clear(); });
+
+    /* Clean dependencies are dots by default; everything with a finding keeps
+       its name. Zoom past 1.1 and every label comes back, because by then there
+       is room. Toggle once on the threshold crossing, not on every wheel tick —
+       reclassifying 500 nodes per scroll event would make the canvas crawl. */
+    const clean = cy.nodes('[kind = "dependency"]').filter((n) => {
+      const t = n.data("risk_types") ?? [];
+      return t.length === 0 || (t.length === 1 && t[0] === "clean");
+    });
+    clean.addClass("quiet");
+
+    let zoomedIn = null;
+    cy.on("zoom", () => {
+      const near = cy.zoom() >= 1.1;
+      if (near === zoomedIn) return;
+      zoomedIn = near;
+      cy.batch(() => clean.toggleClass("quiet", !near));
+    });
+
+    const pathCount = [...findings.values()]
+      .filter((f) => !appId || f.app_id === appId)
+      .reduce((n, f) => n + (f.attack_paths?.length ?? 0), 0);
+
+    $("#stats").innerHTML =
+      `<span><b>${g.nodes.length}</b> nodes</span>` +
+      `<span><b>${g.edges.length}</b> edges</span>` +
+      `<span><b>${pathCount}</b> attack ${pathCount === 1 ? "path" : "paths"}</span>`;
+
+    applyFilter();
+    if (pathsOn) paintAllPaths();
+  } finally {
+    veil.hidden = true;
+  }
+}
+
+/* The estate is ten disjoint trees, not one graph. Handing all ten to a single
+   breadthfirst run puts every app on row 0 and every direct dep on row 1 — the
+   result is a 500-node-wide, 5-row smear that fits to an unreadable band.
+
+   So lay each app's tree out on its own, inside its own cell, and pack the cells
+   into a grid. You get ten small trees you can actually compare — which is the
+   only reason to look at all ten at once. */
+function layoutEstate() {
+  const GAP_X = 90;
+  const GAP_Y = 120;
+
+  /* Worst app first, so reading order is risk order — the same order the
+     dashboard ranks them in. Top-left is where your eye lands; put the thing
+     that matters there. */
+  const apps = cy
+    .nodes('[kind = "application"]')
+    .sort((a, b) => b.data("risk_score") - a.data("risk_score"));
+
+  const trees = apps.map((app) => app.union(app.successors()));
+
+  /* Lay each tree out on its own, at whatever origin the layout likes.
+     Passing a per-cell `boundingBox` to breadthfirst does NOT work: it honours
+     the box's x1 but silently ignores y1, so every row lands on top of row 0
+     and the estate collapses into one flat band. Measured, not assumed — so we
+     place the cells ourselves below, where nothing can second-guess us. */
+  for (const tree of trees) {
+    tree
+      .layout({
+        name: "breadthfirst",
+        directed: true,
+        roots: tree.filter('[kind = "application"]'),
+        spacingFactor: 0.8,
+        avoidOverlap: true,
+        animate: false,
+        fit: false,
+      })
+      .run();
+  }
+
+  const boxes = trees.map((t) => t.boundingBox());
+  const cellW = Math.max(...boxes.map((b) => b.w)) + GAP_X;
+  const cellH = Math.max(...boxes.map((b) => b.h)) + GAP_Y;
+
+  /* A dependency tree is wide and short. Stack those in 4 columns and the grid
+     comes out far wider than the canvas, so `fit` shrinks it into a letterboxed
+     strip with dead space above and below. Choose the column count whose grid
+     aspect best matches the canvas, and the same ten trees fill the space. */
+  const canvas = cy.container().getBoundingClientRect();
+  const target = canvas.width / canvas.height;
+  const cols = [1, 2, 3, 4, 5].reduce((best, c) => {
+    const rows = Math.ceil(trees.length / c);
+    const err = Math.abs((c * cellW) / (rows * cellH) - target);
+    return err < best.err ? { c, err } : best;
+  }, { c: 3, err: Infinity }).c;
+
+  cy.batch(() => {
+    trees.forEach((tree, i) => {
+      const bb = boxes[i];
+      const dx = (i % cols) * cellW - bb.x1;
+      const dy = Math.floor(i / cols) * cellH - bb.y1;
+      tree.nodes().positions((n) => ({
+        x: n.position("x") + dx,
+        y: n.position("y") + dy,
+      }));
+    });
+  });
+
+  cy.fit(undefined, 40);
+}
+
+function runLayout() {
+  const kind = $("#layout").value;
+
+  if (kind === "breadthfirst" && !appId) return layoutEstate();
+
+  const opts =
+    kind === "breadthfirst"
+      ? {
+          name: "breadthfirst",
+          directed: true,
+          roots: cy.nodes('[kind = "application"]'),
+          /* Radial, and tight. Measured, not guessed:
+               rows           1931x524  aspect 3.7  ->  fits at 0.47 zoom
+               circle sf 0.9  1086x1086 aspect 1.0  ->  0.68
+               circle sf 0.55  680x680  aspect 1.0  ->  1.09, zero overlaps
+             A tree of 50 deps laid out in rows is a 3.7:1 letterbox; dropped into
+             a canvas that is 1.2:1 the width binds, it fits at half zoom, every
+             label falls under min-zoomed-font-size and the graph renders as
+             anonymous dots. Drawn as rings — app at the centre, one ring per hop
+             — it is square, so it fits at 1.09 and the names are legible. Depth
+             still reads as distance from the app, which is the entire point of
+             the hierarchy view.
+
+             `nodeDimensionsIncludeLabels` stays OFF for the same reason: it
+             reserves the label's full 74px around every node and re-inflates the
+             layout past the canvas. We buy that space back by labelling
+             selectively instead (see `quiet`). */
+          circle: true,
+          spacingFactor: 0.55,
+          avoidOverlap: true,
+          padding: 36,
+          animate: false,
+        }
+      : kind === "concentric"
+        ? {
+            name: "concentric",
+            /* Rings by risk, not by degree: the worst things sit in the middle,
+               which is where your eye already is. */
+            concentric: (n) => (n.data("kind") === "application" ? 1000 : n.data("risk_score")),
+            levelWidth: () => 18,
+            minNodeSpacing: 14,
+            padding: 40,
+            animate: false,
+          }
+        : {
+            name: "cose",
+            idealEdgeLength: 65,
+            nodeRepulsion: 9000,
+            gravity: 0.6,
+            numIter: appId ? 900 : 350,   // the full estate gets a coarser pass
+            animate: false,
+            randomize: true,
+          };
+
+  cy.layout(opts).run();
+  cy.fit(undefined, 46);
+}
+
+/* ========================================================================== */
+/* Filtering — dim, never delete.                                             */
+/*                                                                            */
+/* Removing filtered nodes would sever the edges that connect the survivors,  */
+/* and a dependency graph with holes in it is a lie. Non-matching nodes fade  */
+/* to 7% and stop being clickable; the topology stays intact.                 */
+/* ========================================================================== */
+function applyFilter() {
+  if (!cy) return;
+  const all = RISK_TYPES.every(([k]) => active.has(k));
+
+  cy.batch(() => {
+    cy.elements().removeClass("dim");
+    if (all) return;
+
+    const hide = cy.nodes('[kind = "dependency"]').filter((n) => {
+      const types = n.data("risk_types") ?? [];
+      return !types.some((t) => active.has(t));
+    });
+    hide.addClass("dim");
+    hide.connectedEdges().addClass("dim");
+  });
+}
+
+/* ========================================================================== */
+/* Attack paths                                                               */
+/* ========================================================================== */
+const edgeId = (a, b) => `${a}~${b}`;
+
+function pathsFor(depId) {
+  const f = findings.get(depId);
+  return f?.attack_paths ?? [];
+}
+
+/* Every path in scope, painted at once. This is the "how exposed am I, really"
+   view: each red line is an app that can reach a known-vulnerable library. */
+function allPaths() {
+  const out = [];
+  for (const f of findings.values()) {
+    if (appId && f.app_id !== appId) continue;
+    out.push(...(f.attack_paths ?? []));
+  }
+  return out;
+}
+
+function paint(paths) {
+  cy.batch(() => {
+    cy.elements().removeClass("attack");
+    for (const p of paths) {
+      for (let i = 0; i < p.path.length; i++) {
+        cy.getElementById(p.path[i]).addClass("attack");
+        if (i < p.path.length - 1)
+          cy.getElementById(edgeId(p.path[i], p.path[i + 1])).addClass("attack");
+      }
+    }
+  });
+}
+
+function paintAllPaths() { paint(allPaths()); }
+
+$("#paths").addEventListener("click", () => {
+  pathsOn = !pathsOn;
+  pinnedPath = null;
+  $("#paths").setAttribute("aria-pressed", pathsOn);
+  pathsOn ? paintAllPaths() : cy.elements().removeClass("attack");
+});
+
+/* ========================================================================== */
+/* Selection                                                                  */
+/* ========================================================================== */
+function select(node) {
+  const id = node.id();
+  cy.batch(() => {
+    cy.elements().removeClass("lit pick attack");
+    node.addClass("pick lit");
+
+    /* Where did this come from, and what does it drag in? Ancestors answer the
+       first question, descendants the second. */
+    const kin = node.predecessors().union(node.successors());
+    kin.addClass("lit");
+  });
+
+  const paths = pathsFor(id);
+  if (paths.length) paint(paths);
+  else if (pathsOn) paintAllPaths();
+
+  $("#hint").style.opacity = 0;
+
+  node.data("kind") === "application" ? inspectApp(id) : inspectDep(id);
+}
+
+function clear() {
+  cy.elements().removeClass("lit pick");
+  if (pathsOn) paintAllPaths(); else cy.elements().removeClass("attack");
+  pinnedPath = null;
+  inspectNothing();
+}
+
+/* ========================================================================== */
+/* Inspector                                                                  */
+/* ========================================================================== */
+function inspectNothing() {
+  $("#inspector").innerHTML = `
+    <div class="empty" style="padding-top:80px">
+      <span class="big">Nothing selected</span>
+      Click any node to see its CVEs, licence, score and remediation.
+      <div style="margin-top:20px;font-size:12px;line-height:1.9;color:var(--ink-3)">
+        <kbd>/</kbd> find a library<br>
+        <kbd>f</kbd> fit to view<br>
+        <kbd>esc</kbd> clear selection
+      </div>
+    </div>`;
+}
+
+function inspectApp(id) {
+  const a = appsById.get(id);
+  if (!a) return;
+
+  const atRisk = a.findings.filter((f) => !f.risk_types.includes("clean")).length;
+  const vuln = a.findings.filter((f) => f.risk_types.includes("vulnerable")).length;
+  const paths = a.findings.reduce((n, f) => n + (f.attack_paths?.length ?? 0), 0);
+  const node = cy.getElementById(id);
+
+  $("#inspector").innerHTML = `
+    <div class="ins-head">
+      <div class="t">${esc(a.name)}</div>
+      <div class="meta">
+        ${sevBadge(a.severity)}
+        <span class="tag">${esc(a.business_criticality)} tier</span>
+        <span class="id">${esc(a.app_id)}</span>
+      </div>
+    </div>
+
+    <div class="blk">
+      <h3>Application risk</h3>
+      <div class="readout" style="--tone:var(--sev-${esc(a.severity)})">
+        <div class="big">${score(a.app_score)}<span class="of"> / 100</span></div>
+        <div class="bar"><i style="width:${score(a.app_score)}%"></i></div>
+      </div>
+    </div>
+
+    <div class="blk">
+      <h3>Exposure</h3>
+      <dl class="kv">
+        <dt>Dependencies</dt><dd>${a.findings.length}</dd>
+        <dt>At risk</dt><dd class="${atRisk ? "warnish" : "okish"}">${atRisk}</dd>
+        <dt>Vulnerable</dt><dd class="${vuln ? "badish" : "okish"}">${vuln}</dd>
+        <dt>Attack paths</dt><dd class="${paths ? "badish" : "okish"}">${paths}</dd>
+        <dt>Internet</dt><dd>${node.data("internet_facing") ? "facing" : "internal"}</dd>
+        <dt>Distributed</dt><dd>${node.data("distributed") ? "yes — GPL obligations bite" : "no"}</dd>
+      </dl>
+    </div>
+
+    <div class="blk">
+      <h3>Worst dependencies</h3>
+      <ol class="steps">
+        ${a.findings.slice(0, 5).map((f) => `
+          <li>
+            <b style="color:var(--ink)">${esc(f.library_name)}</b>
+            <span class="mono" style="color:var(--ink-3);font-size:12px">${esc(f.version)}</span>
+            — ${score(f.risk_score)}
+          </li>`).join("")}
+      </ol>
+      <a class="btn" style="margin-top:14px;width:100%;justify-content:center"
+         href="app.html?id=${encodeURIComponent(a.app_id)}">
+        ${ICON.file}<span>Full report for ${esc(a.name)}</span>
+      </a>
+    </div>`;
+}
+
+function inspectDep(id) {
+  const f = findings.get(id);
+  const node = cy.getElementById(id);
+
+  if (!f) {
+    /* A node in the graph with no finding means the parse and the scorer
+       disagree. That is a bug worth shouting about, not swallowing. */
+    $("#inspector").innerHTML = `
+      <div class="ins-head"><div class="t">${esc(node.data("label"))}</div></div>
+      <div class="blk"><div class="fault">
+        <b>Unscored node.</b> <code>${esc(id)}</code> exists in the dependency
+        graph but has no finding in this run. Structure and scoring disagree.
+      </div></div>`;
+    return;
+  }
+
+  const tone = `var(--sev-${f.severity})`;
+  const real = f.matched_cves.filter((c) => !c.is_false_positive);
+  const fps = f.matched_cves.filter((c) => c.is_false_positive);
+  const paths = f.attack_paths ?? [];
+  const m = f.maintenance;
+
+  const licenceClass =
+    f.license_outcome === "conflict" ? "badish"
+    : f.license_outcome === "review" ? "warnish"
+    : "okish";
+
+  $("#inspector").innerHTML = `
+    <div class="ins-head">
+      <div class="t">${esc(f.library_name)}<span class="v">${esc(f.version)}</span></div>
+      <div class="meta">
+        ${sevBadge(f.severity)}
+        ${riskTags(f.risk_types)}
+      </div>
+      <div class="meta"><span class="id">${esc(f.dependency_id)} &middot; ${esc(f.ecosystem)} &middot; ${esc(node.data("dependency_type") ?? "")}</span></div>
+    </div>
+
+    <div class="blk">
+      <h3>Risk score</h3>
+      <div class="readout" style="--tone:${tone}">
+        <div class="big">${score(f.risk_score)}<span class="of"> / 100</span></div>
+        <div class="bar"><i style="width:${score(f.risk_score)}%"></i></div>
+      </div>
+    </div>
+
+    <div class="blk">
+      <h3>Licence &amp; maintenance</h3>
+      <dl class="kv">
+        <dt>Licence</dt><dd>${f.license ? esc(f.license) : "<i style='color:var(--ink-3)'>unknown</i>"}</dd>
+        <dt>Outcome</dt><dd class="${licenceClass}">${esc(f.license_outcome)}</dd>
+        ${m ? `
+          <dt>Last updated</dt><dd>${esc(m.last_updated)}</dd>
+          <dt>Age</dt>
+          <dd class="${m.is_stale ? "warnish" : "okish"}">
+            ${m.age_years.toFixed(1)} years${m.is_stale ? " — stale" : ""}
+          </dd>` : ""}
+      </dl>
+    </div>
+
+    ${real.length || fps.length ? `
+      <div class="blk">
+        <h3>${plural(real.length, "CVE")}${fps.length ? ` &middot; ${fps.length} dismissed` : ""}</h3>
+        ${[...real, ...fps].map(cveCard).join("")}
+      </div>` : ""}
+
+    ${paths.length ? `
+      <div class="blk">
+        <h3>${plural(paths.length, "attack path")}</h3>
+        <div id="paths-list">${paths.map(pathCard).join("")}</div>
+      </div>` : ""}
+
+    ${f.narrative ? `
+      <div class="blk">
+        <h3>Attack chain</h3>
+        <div class="narrative">${esc(f.narrative)}</div>
+        ${proseSource(f)}
+      </div>` : ""}
+
+    ${f.remediation ? `
+      <div class="blk">
+        <h3>
+          Remediation
+          <span class="prio prio-${esc(f.remediation.priority)}"
+                style="float:right">${esc(f.remediation.priority)}</span>
+        </h3>
+        <ol class="steps">
+          ${f.remediation.steps.map((s) => `<li>${esc(s)}</li>`).join("")}
+        </ol>
+        ${f.narrative ? "" : proseSource(f)}
+      </div>` : ""}
+  `;
+
+  /* Clicking a path isolates it — one red thread through the graph instead of
+     all of them at once. */
+  $("#inspector").querySelectorAll(".path").forEach((el, i) =>
+    el.addEventListener("click", () => {
+      const same = pinnedPath === i;
+      $("#inspector").querySelectorAll(".path")
+        .forEach((p) => p.setAttribute("aria-pressed", "false"));
+
+      if (same) {
+        pinnedPath = null;
+        paint(paths);
+      } else {
+        pinnedPath = i;
+        el.setAttribute("aria-pressed", "true");
+        paint([paths[i]]);
+        cy.animate(
+          { fit: { eles: cy.collection(paths[i].path.map((p) => cy.getElementById(p))), padding: 90 } },
+          { duration: 340 },
+        );
+      }
+    }),
+  );
+}
+
+/* The report tells us, per finding, whether a model actually wrote the prose or
+   a deterministic template did. Never let the UI imply the former when it was
+   the latter. */
+const proseSource = (f) => `
+  <div class="prose-src">
+    <i></i>${f.llm_enriched
+      ? "Written by the configured LLM."
+      : "Template-generated — no model wrote this."}
+  </div>`;
+
+function cveCard(c) {
+  const tone = `var(--sev-${c.cvss_severity === "critical" ? "critical"
+    : c.cvss_severity === "high" ? "high"
+    : c.cvss_severity === "medium" ? "medium" : "low"})`;
+
+  const exploitClass =
+    c.exploitability === "calls_vulnerable_function" ? "calls"
+    : c.exploitability === "imports_only" ? "imports" : "";
+
+  const exploitText = {
+    calls_vulnerable_function: "calls the vulnerable function",
+    imports_only: "imports only",
+    not_referenced: "not referenced",
+  }[c.exploitability] ?? c.exploitability ?? "";
+
+  return `
+    <div class="cve ${c.is_false_positive ? "fp" : ""}" style="--tone:${tone}">
+      <div class="top">
+        <span class="cid">${esc(c.cve_id)}</span>
+        <span class="cvss">${c.cvss_score.toFixed(1)} ${esc(c.cvss_severity)}</span>
+      </div>
+      <div class="lines">
+        <div><span class="k">Affects</span> <code>${esc(c.affected_versions)}</code></div>
+        ${c.vulnerable_function
+          ? `<div><span class="k">Function</span> <code>${esc(c.vulnerable_function)}</code></div>` : ""}
+        <div>
+          <span class="k">Fix</span>
+          ${c.patch_available && c.fixed_version
+            ? `upgrade to <code>${esc(c.fixed_version)}</code>`
+            : `<span style="color:var(--sev-high)">no patch available</span>`}
+        </div>
+        ${exploitText
+          ? `<div style="margin-top:3px"><span class="exploit ${exploitClass}">${esc(exploitText)}</span></div>` : ""}
+      </div>
+      ${c.is_false_positive ? `
+        <div class="fp-note">
+          <b>Dismissed.</b>
+          <span>The version falls in the advisory's range but is a backported-safe
+          build. Excluded from the score.</span>
+        </div>` : ""}
+    </div>`;
+}
+
+function pathCard(p) {
+  const label = (id) => {
+    if (appsById.has(id)) return appsById.get(id).name;
+    const f = findings.get(id);
+    return f ? f.library_name : id;
+  };
+
+  const hops = p.path.map((id, i) => {
+    const cls = i === 0 ? "root" : i === p.path.length - 1 ? "term" : "";
+    return `<span class="hop ${cls}" title="${esc(id)}">${esc(label(id))}</span>`;
+  }).join('<span class="arr">&#9654;</span>');
+
+  const n = p.path.length - 2;   // hops between the app and the vulnerable dep
+  return `
+    <button class="path" aria-pressed="false">
+      <div class="hops">${hops}</div>
+      <div class="via">
+        ${n <= 0 ? "direct dependency" : `${plural(n, "hop")} deep`}
+        ${p.cve_id ? ` &middot; <b>${esc(p.cve_id)}</b>` : ""}
+      </div>
+    </button>`;
+}
+
+/* ========================================================================== */
+/* Controls                                                                   */
+/* ========================================================================== */
+$("#app").addEventListener("change", async (e) => {
+  appId = e.target.value || null;
+  pinnedPath = null;
+  const url = new URL(location);
+  appId ? url.searchParams.set("app", appId) : url.searchParams.delete("app");
+  url.searchParams.delete("node");
+  history.replaceState({}, "", url);
+  await load();
+  inspectNothing();
+});
+
+$("#layout").addEventListener("change", () => { runLayout(); });
+$("#fit").addEventListener("click", () => cy.animate({ fit: { padding: 46 } }, { duration: 260 }));
+
+/* Search highlights in place rather than filtering — you keep the context you
+   were looking at, and the match tells you where it sits in the tree. */
+$("#find").addEventListener("input", (e) => {
+  const q = e.target.value.trim().toLowerCase();
+  cy.batch(() => {
+    cy.nodes().removeClass("lit");
+    if (!q) return;
+    const hits = cy.nodes().filter((n) =>
+      String(n.data("label")).toLowerCase().includes(q) ||
+      n.id().toLowerCase().includes(q),
+    );
+    hits.addClass("lit");
+    if (hits.nonempty()) cy.animate({ fit: { eles: hits, padding: 120 } }, { duration: 260 });
+  });
+});
+
+addEventListener("keydown", (e) => {
+  const typing = /input|select|textarea/i.test(e.target.tagName);
+  if (e.key === "/" && !typing) { e.preventDefault(); $("#find").focus(); }
+  if (e.key === "f" && !typing) $("#fit").click();
+  if (e.key === "Escape") {
+    if (document.activeElement === $("#find")) { $("#find").value = ""; $("#find").blur(); cy.nodes().removeClass("lit"); }
+    else clear();
+  }
+});
+
+boot();
+</script>
+</body>
+</html>
