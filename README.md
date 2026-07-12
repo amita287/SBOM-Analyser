@@ -15,7 +15,7 @@ good intentions.
 ## Run it
 
 ```bash
-git clone https://github.com/amita287/SBOM-Analyser.git
+git clone https://github.com/amita287/Atlas-SBOM-Analyser.git
 cd SBOM-Analyser
 
 python -m venv .venv
